@@ -183,11 +183,15 @@ export default function BidPanel({ lot, auctionStatus, auctionSlug }: BidPanelPr
               <div className="relative">
                 <input
                   id="bid-amount"
-                  type="number"
-                  min={nextMin}
-                  step={1000}
-                  value={bidAmount}
-                  onChange={(e) => setBidAmount(Number(e.target.value))}
+                  type="text"
+                  inputMode="numeric"
+                  value={bidAmount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')}
+                  onChange={(e) => {
+                    const raw = e.target.value.replace(/\s/g, '');
+                    const num = parseInt(raw, 10);
+                    if (!isNaN(num)) setBidAmount(num);
+                    else if (raw === '') setBidAmount(0);
+                  }}
                   className="w-full rounded-lg border border-beige px-4 py-3 pr-16 font-serif text-lg text-dark-brown focus:border-gold focus:ring-2 focus:ring-gold/30 focus:outline-none"
                 />
                 <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-taupe">
