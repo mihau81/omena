@@ -8,6 +8,7 @@ import { useCurrency } from '../lib/CurrencyContext';
 import { getNextMinBid, BUYERS_PREMIUM_RATE } from '../lib/bidding';
 import { endedAuctionResults } from '../lib/data';
 import { showBidToast } from './BidToast';
+import AllCurrencyPrices from './AllCurrencyPrices';
 import BidHistory from './BidHistory';
 import BidConfirmModal from './BidConfirmModal';
 import RegistrationModal from './RegistrationModal';
@@ -102,6 +103,9 @@ export default function BidPanel({ lot, auctionStatus, auctionSlug }: BidPanelPr
               <p className="mt-1 font-serif text-xl text-dark-brown">
                 {formatPrice(lot.estimateMin)} &ndash; {formatPrice(lot.estimateMax)}
               </p>
+              <div className="mt-2">
+                <AllCurrencyPrices amountPLN={lot.estimateMin} />
+              </div>
             </div>
 
             <button
@@ -134,6 +138,12 @@ export default function BidPanel({ lot, auctionStatus, auctionSlug }: BidPanelPr
               </div>
             )}
 
+            {endResult?.sold && endResult.hammerPrice && (
+              <div className="mt-3">
+                <AllCurrencyPrices amountPLN={endResult.hammerPrice} />
+              </div>
+            )}
+
             <BidHistory lotId={lot.id} />
           </>
         )}
@@ -151,6 +161,11 @@ export default function BidPanel({ lot, auctionStatus, auctionSlug }: BidPanelPr
                 <p className="mt-1 text-xs font-medium text-green-600">
                   {t.myBidsWinning}
                 </p>
+              )}
+              {highestBid && (
+                <div className="mt-2">
+                  <AllCurrencyPrices amountPLN={highestBid} />
+                </div>
               )}
             </div>
 

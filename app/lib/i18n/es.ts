@@ -166,6 +166,10 @@ export const es: Dictionary = {
   auctionsFilterUpcoming: 'Próximas',
   auctionsFilterEnded: 'Finalizadas',
 
+  // Media
+  priceInCurrencies: 'Precio en todas las divisas',
+  playVideo: 'Reproducir vídeo',
+
   // Language
   languageLabel: 'Idioma',
   currencyLabel: 'Moneda',

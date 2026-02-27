@@ -351,7 +351,10 @@ const lotsRzezba: Lot[] = [
     estimateMin: 450000,
     estimateMax: 650000,
     currentBid: 510000,
-    images: ['/omena/images/auctions/lot-13.jpg'],
+    images: [
+      '/omena/images/auctions/lot-13.jpg',
+      'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+    ],
     provenance: [
       'Atelier Brâncuși, Paryż',
       'Kolekcja prywatna, Bukareszt',
@@ -499,7 +502,10 @@ const lotsRzezba: Lot[] = [
     estimateMin: 300000,
     estimateMax: 450000,
     currentBid: 340000,
-    images: ['/omena/images/auctions/lot-20.jpg'],
+    images: [
+      '/omena/images/auctions/lot-20.jpg',
+      'https://www.youtube.com/watch?v=9bZkp7q19f0',
+    ],
     provenance: [
       'Atelier Brâncuși, Paryż',
       'Kolekcja prywatna, Paryż',

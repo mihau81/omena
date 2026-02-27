@@ -1,6 +1,26 @@
 import type { Auction } from './types';
 import { auctions, lots } from './data';
 
+// ---------------------------------------------------------------------------
+// YouTube helpers
+// ---------------------------------------------------------------------------
+
+const YT_REGEX =
+  /(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{11})/;
+
+export function isYouTubeUrl(url: string): boolean {
+  return YT_REGEX.test(url);
+}
+
+export function getYouTubeVideoId(url: string): string | null {
+  const match = url.match(YT_REGEX);
+  return match ? match[1] : null;
+}
+
+export function getYouTubeThumbnail(videoId: string): string {
+  return `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`;
+}
+
 export function formatPrice(n: number): string {
   return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' PLN';
 }

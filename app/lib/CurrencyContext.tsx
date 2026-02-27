@@ -93,6 +93,7 @@ interface CurrencyState {
   rates: Record<CurrencyCode, number>;
   convertFromPLN: (amountPLN: number) => number;
   formatPrice: (amountPLN: number) => string;
+  formatPriceForCurrency: (amountPLN: number, code: CurrencyCode) => string;
   getCurrencyInfo: () => CurrencyInfo;
   ratesSource: 'nbp' | 'fallback';
 }
@@ -186,6 +187,18 @@ export function CurrencyProvider({ children }: { children: React.ReactNode }) {
     [currency, convertFromPLN],
   );
 
+  const formatPriceForCurrency = useCallback(
+    (amountPLN: number, code: CurrencyCode): string => {
+      const rate = rates[code] || FALLBACK_RATES[code];
+      const converted = code === 'PLN' ? amountPLN : Math.round(amountPLN * rate);
+      const formatted = converted.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+      const info = CURRENCIES.find((c) => c.code === code);
+      if (code === 'PLN') return `${formatted} zł`;
+      return `${formatted} ${info?.symbol || code}`;
+    },
+    [rates],
+  );
+
   const getCurrencyInfo = useCallback((): CurrencyInfo => {
     return CURRENCIES.find((c) => c.code === currency) || CURRENCIES[0];
   }, [currency]);
@@ -196,6 +209,7 @@ export function CurrencyProvider({ children }: { children: React.ReactNode }) {
     rates,
     convertFromPLN,
     formatPrice,
+    formatPriceForCurrency,
     getCurrencyInfo,
     ratesSource,
   };

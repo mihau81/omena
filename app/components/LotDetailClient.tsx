@@ -1,7 +1,8 @@
 'use client';
 
 import type { Lot } from '../lib/types';
-import LotDetail from './LotDetail';
+import LotMediaGallery from './LotMediaGallery';
+import LotInfo from './LotInfo';
 import BidPanel from './BidPanel';
 import BidToast from './BidToast';
 
@@ -18,14 +19,15 @@ export default function LotDetailClient({
 }: LotDetailClientProps) {
   return (
     <>
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {/* Left column — lot details */}
-        <div className="lg:col-span-7">
-          <LotDetail lot={lot} />
-        </div>
+      {/* Full-width gallery at the top */}
+      <LotMediaGallery media={lot.images} title={lot.title} />
 
-        {/* Right column — bid panel (sticky) */}
-        <div className="lg:col-span-5">
+      {/* 2/3 info + 1/3 bid panel below */}
+      <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-12">
+        <div className="lg:col-span-8">
+          <LotInfo lot={lot} />
+        </div>
+        <div className="lg:col-span-4">
           <BidPanel
             lot={lot}
             auctionStatus={auctionStatus}

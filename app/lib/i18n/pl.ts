@@ -164,6 +164,10 @@ export const pl = {
   auctionsFilterUpcoming: 'Nadchodzące',
   auctionsFilterEnded: 'Zakończone',
 
+  // Media
+  priceInCurrencies: 'Cena we wszystkich walutach',
+  playVideo: 'Odtwórz wideo',
+
   // Language
   languageLabel: 'Język',
   currencyLabel: 'Waluta',
