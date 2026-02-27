@@ -1,27 +1,34 @@
-import type { Metadata } from "next";
-import Image from "next/image";
-import { pressItems } from "@/app/lib/data";
-import { formatDate } from "@/app/lib/utils";
-import Breadcrumbs from "@/app/components/Breadcrumbs";
-import FadeInOnScroll from "@/app/components/FadeInOnScroll";
+import Image from 'next/image';
+import { SUPPORTED_LOCALES, getTranslation } from '@/app/lib/i18n';
+import { pressItems } from '@/app/lib/data';
+import { formatDate } from '@/app/lib/utils';
+import Breadcrumbs from '@/app/components/Breadcrumbs';
+import FadeInOnScroll from '@/app/components/FadeInOnScroll';
 
-export const metadata: Metadata = {
-  title: "Prasa",
-};
+export function generateStaticParams() {
+  return SUPPORTED_LOCALES.map((locale) => ({ locale }));
+}
 
-export default function PressPage() {
+export default async function PressPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  const t = getTranslation(locale);
+
   return (
     <section className="py-10 md:py-16">
       <div className="mx-auto max-w-7xl px-5 md:px-8">
         <Breadcrumbs
           items={[
-            { label: "Strona główna", href: "/" },
-            { label: "Prasa" },
+            { label: t.navHome, href: `/${locale}` },
+            { label: t.pressTitle },
           ]}
         />
 
         <h1 className="mt-6 font-serif text-4xl font-bold text-dark-brown">
-          Prasa i media
+          {t.pressTitle}
         </h1>
 
         <FadeInOnScroll>
@@ -57,7 +64,7 @@ export default function PressPage() {
                     href={item.url}
                     className="mt-4 inline-block text-sm text-gold underline-offset-4 decoration-gold/0 hover:decoration-gold transition-all duration-200 hover:text-gold-dark"
                   >
-                    Czytaj więcej &rarr;
+                    {t.readMore} &rarr;
                   </a>
                 </div>
               </div>

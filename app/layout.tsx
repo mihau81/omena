@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { Playfair_Display, Lato } from "next/font/google";
 import "./globals.css";
-import Header from "./components/Header";
-import Footer from "./components/Footer";
+import { BiddingProvider } from "./lib/BiddingContext";
+import { CurrencyProvider } from "./lib/CurrencyContext";
 
 const playfair = Playfair_Display({
   variable: "--font-playfair",
@@ -45,15 +45,11 @@ export default function RootLayout({
       <body
         className={`${playfair.variable} ${lato.variable} font-sans antialiased`}
       >
-        <a
-          href="#main-content"
-          className="sr-only focus:not-sr-only focus:absolute focus:z-[60] focus:bg-gold focus:text-white focus:px-4 focus:py-2 focus:rounded-md focus:top-4 focus:left-4"
-        >
-          Przejdź do treści
-        </a>
-        <Header />
-        <main id="main-content" className="min-h-screen">{children}</main>
-        <Footer />
+        <BiddingProvider>
+          <CurrencyProvider>
+            {children}
+          </CurrencyProvider>
+        </BiddingProvider>
       </body>
     </html>
   );

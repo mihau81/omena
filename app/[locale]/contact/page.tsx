@@ -1,35 +1,40 @@
-import type { Metadata } from "next";
-import Breadcrumbs from "@/app/components/Breadcrumbs";
-import ContactForm from "./ContactForm";
+import { SUPPORTED_LOCALES, getTranslation } from '@/app/lib/i18n';
+import Breadcrumbs from '@/app/components/Breadcrumbs';
+import ContactForm from './ContactForm';
 
-export const metadata: Metadata = {
-  title: "Kontakt",
-};
+export function generateStaticParams() {
+  return SUPPORTED_LOCALES.map((locale) => ({ locale }));
+}
 
-export default function ContactPage() {
+export default async function ContactPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  const t = getTranslation(locale);
+
   return (
     <section className="py-10 md:py-16">
       <div className="mx-auto max-w-7xl px-5 md:px-8">
         <Breadcrumbs
           items={[
-            { label: "Strona główna", href: "/" },
-            { label: "Kontakt" },
+            { label: t.navHome, href: `/${locale}` },
+            { label: t.contactTitle },
           ]}
         />
 
         <h1 className="mt-6 font-serif text-4xl font-bold text-dark-brown">
-          Kontakt
+          {t.contactTitle}
         </h1>
 
         <div className="mt-10 grid gap-10 md:grid-cols-[1fr_360px] md:gap-12">
-          {/* Form */}
           <ContactForm />
 
-          {/* Sidebar */}
           <div className="space-y-8">
             <div>
               <h2 className="font-serif text-lg font-bold text-dark-brown">
-                Adres
+                {t.contactAddress}
               </h2>
               <address className="mt-3 text-sm leading-relaxed text-taupe not-italic">
                 <p>ul. Foksal 17</p>
@@ -39,7 +44,7 @@ export default function ContactPage() {
 
             <div>
               <h2 className="font-serif text-lg font-bold text-dark-brown">
-                Telefon
+                {t.contactPhone}
               </h2>
               <a
                 href="tel:+48221234567"
@@ -51,7 +56,7 @@ export default function ContactPage() {
 
             <div>
               <h2 className="font-serif text-lg font-bold text-dark-brown">
-                Email
+                {t.contactEmail}
               </h2>
               <a
                 href="mailto:kontakt@omena.art"
@@ -63,16 +68,22 @@ export default function ContactPage() {
 
             <div>
               <h2 className="font-serif text-lg font-bold text-dark-brown">
-                Godziny otwarcia
+                {t.contactHours}
               </h2>
               <div className="mt-3 space-y-1 text-sm text-taupe">
-                <p>Pon-Pt: 10:00-18:00</p>
-                <p>Sob: 10:00-14:00</p>
+                <p>{t.contactHoursWeekday}</p>
+                <p>{t.contactHoursWeekend}</p>
               </div>
             </div>
 
-            <div className="flex h-64 items-center justify-center rounded-xl bg-beige" role="img" aria-label="Mapa lokalizacji biura Omena">
-              <p className="text-taupe" aria-hidden="true">Mapa</p>
+            <div
+              className="flex h-64 items-center justify-center rounded-xl bg-beige"
+              role="img"
+              aria-label={t.contactMap}
+            >
+              <p className="text-taupe" aria-hidden="true">
+                {t.contactMap}
+              </p>
             </div>
           </div>
         </div>

@@ -77,3 +77,14 @@ export function getLotById(
 ): (typeof lots)[number] | undefined {
   return lots.find((l) => l.auctionSlug === auctionSlug && l.id === lotId);
 }
+
+export function formatPriceShort(n: number): string {
+  if (n >= 1000000) return (n / 1000000).toFixed(1).replace('.0', '') + ' mln PLN';
+  if (n >= 1000) return Math.round(n / 1000) + ' tys. PLN';
+  return n + ' PLN';
+}
+
+export function formatTimestamp(ts: number): string {
+  const d = new Date(ts);
+  return d.toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+}

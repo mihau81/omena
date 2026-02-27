@@ -49,3 +49,65 @@ html {
   outline: 2px solid var(--color-gold);
   outline-offset: 2px;
 }
+
+/* Pulse live indicator */
+@keyframes pulse-live {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.animate-pulse-live {
+  animation: pulse-live 2s ease-in-out infinite;
+}
+
+/* Toast slide in */
+@keyframes toast-slide-in {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.animate-toast-slide-in {
+  animation: toast-slide-in 0.3s ease-out;
+}
+
+/* Toast slide out */
+@keyframes toast-slide-out {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+.animate-toast-slide-out {
+  animation: toast-slide-out 0.3s ease-in forwards;
+}
+
+/* Bid success flash */
+@keyframes bid-flash {
+  0% { background-color: var(--color-gold); }
+  100% { background-color: transparent; }
+}
+
+.animate-bid-flash {
+  animation: bid-flash 0.5s ease-out;
+}
+
+/* Urgency pulse (for countdown timer < 5 min) */
+@keyframes urgency-pulse {
+  0%, 100% { color: #dc2626; }
+  50% { color: #ef4444; transform: scale(1.05); }
+}
+
+.animate-urgency {
+  animation: urgency-pulse 1s ease-in-out infinite;
+}

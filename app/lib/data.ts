@@ -1,4 +1,4 @@
-import type { Auction, Lot, TeamMember, Event, PressItem, Stats } from './types';
+import type { Auction, Lot, TeamMember, Event, PressItem, Stats, AuctionEndResult } from './types';
 
 // ---------------------------------------------------------------------------
 // Auctions
@@ -27,7 +27,7 @@ export const auctions: Auction[] = [
     description:
       'Przegląd najważniejszych tendencji w rzeźbie europejskiej — od klasycznej formy po eksperyment materiałowy. W kolekcji znajdą się prace artystów z Polski, Rumunii, Francji i Wielkiej Brytanii.',
     date: '2026-02-27',
-    endDate: '2026-02-28',
+    endDate: '2026-02-28T18:00:00',
     status: 'live',
     category: 'rzezba',
     coverImage: '/omena/images/auctions/lot-13.jpg',
@@ -1112,3 +1112,22 @@ export const stats: Stats = {
   totalArtists: 380,
   totalRaised: '12 500 000 PLN',
 };
+
+// ---------------------------------------------------------------------------
+// Ended Auction Results — Auction 1: Mistrzowie Polskiego Malarstwa
+// ---------------------------------------------------------------------------
+
+export const endedAuctionResults: AuctionEndResult[] = [
+  { lotId: 'lot-1', sold: true, hammerPrice: 480000, winningBidderId: 'bot-1' },
+  { lotId: 'lot-2', sold: true, hammerPrice: 245000, winningBidderId: 'bot-2' },
+  { lotId: 'lot-3', sold: true, hammerPrice: 290000, winningBidderId: 'bot-3' },
+  { lotId: 'lot-4', sold: true, hammerPrice: 130000, winningBidderId: 'bot-4' },
+  { lotId: 'lot-5', sold: true, hammerPrice: 165000, winningBidderId: 'bot-5' },
+  { lotId: 'lot-6', sold: true, hammerPrice: 550000, winningBidderId: 'bot-6' },
+  { lotId: 'lot-7', sold: true, hammerPrice: 205000, winningBidderId: 'bot-7' },
+  { lotId: 'lot-8', sold: false, hammerPrice: null, winningBidderId: null },
+  { lotId: 'lot-9', sold: false, hammerPrice: null, winningBidderId: null },
+  { lotId: 'lot-10', sold: true, hammerPrice: 155000, winningBidderId: 'bot-8' },
+  { lotId: 'lot-11', sold: true, hammerPrice: 360000, winningBidderId: 'bot-9' },
+  { lotId: 'lot-12', sold: true, hammerPrice: 48000, winningBidderId: 'bot-10' },
+];

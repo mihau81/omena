@@ -1,28 +1,30 @@
-"use client";
+'use client';
 
-import { useRef, useEffect, useState } from "react";
-import { stats } from "@/app/lib/data";
+import { useRef, useEffect, useState } from 'react';
+import { stats } from '@/app/lib/data';
+import { useLocale } from '../lib/LocaleContext';
 
 function parseNumber(value: string | number): number {
-  if (typeof value === "number") return value;
-  return parseInt(value.replace(/[^\d]/g, ""), 10) || 0;
+  if (typeof value === 'number') return value;
+  return parseInt(value.replace(/[^\d]/g, ''), 10) || 0;
 }
 
 function formatDisplay(current: number, original: string | number): string {
-  if (typeof original === "string" && original.includes("PLN")) {
-    return current.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ") + " PLN";
+  if (typeof original === 'string' && original.includes('PLN')) {
+    return current.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' PLN';
   }
   return current.toString();
 }
 
-const items: { key: string; label: string; value: string | number }[] = [
-  { key: "auctions", label: "Aukcji", value: stats.totalAuctions },
-  { key: "lots", label: "Obiektów", value: stats.totalLots },
-  { key: "artists", label: "Artystów", value: stats.totalArtists },
-  { key: "raised", label: "Zebrano", value: stats.totalRaised },
-];
-
 export default function StatsSection() {
+  const { t } = useLocale();
+  const items = [
+    { key: 'auctions', label: t.statsAuctions, value: stats.totalAuctions },
+    { key: 'lots', label: t.statsObjects, value: stats.totalLots },
+    { key: 'artists', label: t.statsArtists, value: stats.totalArtists },
+    { key: 'raised', label: t.statsRaised, value: stats.totalRaised },
+  ];
+
   const sectionRef = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
   const [counts, setCounts] = useState<number[]>(items.map(() => 0));

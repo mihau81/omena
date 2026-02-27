@@ -1,12 +1,18 @@
-import type { Lot } from "../lib/types";
-import { formatPrice } from "../lib/utils";
-import LotGallery from "./LotGallery";
+'use client';
+
+import type { Lot } from '../lib/types';
+import { useLocale } from '../lib/LocaleContext';
+import { useCurrency } from '../lib/CurrencyContext';
+import LotGallery from './LotGallery';
 
 interface LotDetailProps {
   lot: Lot;
 }
 
 export default function LotDetail({ lot }: LotDetailProps) {
+  const { t } = useLocale();
+  const { formatPrice } = useCurrency();
+
   return (
     <div className="grid grid-cols-1 gap-8 md:grid-cols-12 md:gap-10">
       {/* Gallery — left column */}
@@ -17,7 +23,7 @@ export default function LotDetail({ lot }: LotDetailProps) {
       {/* Info — right column */}
       <div className="md:col-span-5">
         <p className="text-xs uppercase tracking-wide text-taupe">
-          Lot {lot.lotNumber}
+          {t.lot} {lot.lotNumber}
         </p>
 
         <h1 className="mt-2 font-serif text-2xl font-bold text-dark-brown md:text-3xl">
@@ -34,9 +40,9 @@ export default function LotDetail({ lot }: LotDetailProps) {
 
         {/* Estimate */}
         <div>
-          <p className="text-xs uppercase text-taupe">Estymata</p>
+          <p className="text-xs uppercase text-taupe">{t.estimate}</p>
           <p className="mt-1 font-serif text-xl text-dark-brown">
-            {formatPrice(lot.estimateMin)} &ndash;{" "}
+            {formatPrice(lot.estimateMin)} &ndash;{' '}
             {formatPrice(lot.estimateMax)}
           </p>
         </div>
@@ -44,7 +50,7 @@ export default function LotDetail({ lot }: LotDetailProps) {
         {/* Current bid */}
         {lot.currentBid && (
           <div className="mt-4">
-            <p className="text-xs uppercase text-taupe">Aktualna oferta</p>
+            <p className="text-xs uppercase text-taupe">{t.currentBid}</p>
             <p className="mt-1 font-serif text-xl font-bold text-gold">
               {formatPrice(lot.currentBid)}
             </p>
@@ -62,7 +68,7 @@ export default function LotDetail({ lot }: LotDetailProps) {
         {lot.provenance.length > 0 && (
           <div>
             <h2 className="font-serif font-bold text-dark-brown">
-              Proweniencja
+              {t.provenance}
             </h2>
             <ul className="mt-2 space-y-1">
               {lot.provenance.map((item, i) => (
@@ -78,7 +84,7 @@ export default function LotDetail({ lot }: LotDetailProps) {
         {/* Exhibitions */}
         {lot.exhibited.length > 0 && (
           <div className="mt-6">
-            <h2 className="font-serif font-bold text-dark-brown">Wystawy</h2>
+            <h2 className="font-serif font-bold text-dark-brown">{t.exhibitions}</h2>
             <ul className="mt-2 space-y-1">
               {lot.exhibited.map((item, i) => (
                 <li key={i} className="flex items-start gap-2 text-sm text-taupe">
@@ -89,6 +95,9 @@ export default function LotDetail({ lot }: LotDetailProps) {
             </ul>
           </div>
         )}
+
+        {/* Currency disclaimer */}
+        <p className="mt-6 text-xs text-taupe">{t.currencyDisclaimer}</p>
       </div>
     </div>
   );

@@ -1,50 +1,43 @@
-import { Metadata } from "next";
-import Link from "next/link";
-import { auctions } from "../../lib/data";
+import Link from 'next/link';
+import { SUPPORTED_LOCALES, getTranslation } from '@/app/lib/i18n';
+import { auctions } from '@/app/lib/data';
 import {
   getAuctionBySlug,
   getLotsByAuction,
   formatDate,
-  getStatusLabel,
   getStatusColor,
-} from "../../lib/utils";
-import LotCard from "../../components/LotCard";
-import Breadcrumbs from "../../components/Breadcrumbs";
-import CountdownTimer from "../../components/CountdownTimer";
+} from '@/app/lib/utils';
+import LotCardEnhanced from '@/app/components/LotCardEnhanced';
+import Breadcrumbs from '@/app/components/Breadcrumbs';
+import CountdownTimer from '@/app/components/CountdownTimer';
 
 export function generateStaticParams() {
-  return auctions.map((a) => ({ slug: a.slug }));
-}
-
-export function generateMetadata({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}): Promise<Metadata> {
-  return params.then(({ slug }) => {
-    const auction = getAuctionBySlug(slug);
-    return {
-      title: auction?.title ?? "Aukcja",
-    };
-  });
+  const params: { locale: string; slug: string }[] = [];
+  for (const locale of SUPPORTED_LOCALES) {
+    for (const auction of auctions) {
+      params.push({ locale, slug: auction.slug });
+    }
+  }
+  return params;
 }
 
 export default async function AuctionDetailPage({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ locale: string; slug: string }>;
 }) {
-  const { slug } = await params;
+  const { locale, slug } = await params;
+  const t = getTranslation(locale);
   const auction = getAuctionBySlug(slug);
 
   if (!auction) {
     return (
       <section className="mx-auto max-w-7xl px-5 py-16 text-center md:px-8">
         <h1 className="font-serif text-3xl font-bold text-dark-brown">
-          Nie znaleziono aukcji
+          {t.auctionNotFound}
         </h1>
-        <Link href="/auctions" className="mt-4 inline-block text-gold">
-          Powr&oacute;t do listy aukcji
+        <Link href={`/${locale}/auctions`} className="mt-4 inline-block text-gold">
+          {t.backToAuctions}
         </Link>
       </section>
     );
@@ -52,12 +45,19 @@ export default async function AuctionDetailPage({
 
   const auctionLots = getLotsByAuction(slug);
 
+  const statusLabel =
+    auction.status === 'upcoming'
+      ? t.statusUpcoming
+      : auction.status === 'live'
+        ? t.statusLive
+        : t.statusEnded;
+
   return (
     <section className="mx-auto max-w-7xl px-5 py-8 md:px-8 md:py-12">
       <Breadcrumbs
         items={[
-          { label: "Strona g\u0142\u00f3wna", href: "/" },
-          { label: "Aukcje", href: "/auctions" },
+          { label: t.navHome, href: `/${locale}` },
+          { label: t.auctionsTitle, href: `/${locale}/auctions` },
           { label: auction.title },
         ]}
       />
@@ -67,14 +67,14 @@ export default async function AuctionDetailPage({
         <span
           className={`inline-block rounded-full px-3 py-1 text-xs font-medium ${getStatusColor(auction.status)}`}
         >
-          {getStatusLabel(auction.status)}
+          {statusLabel}
         </span>
 
         <h1 className="mt-4 font-serif text-3xl font-bold text-dark-brown md:text-4xl">
           {auction.title}
         </h1>
 
-        <p className="mt-2 text-taupe">Kurator: {auction.curator}</p>
+        <p className="mt-2 text-taupe">{t.curator}: {auction.curator}</p>
 
         <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-taupe">
           <span>{formatDate(auction.date)}</span>
@@ -82,11 +82,11 @@ export default async function AuctionDetailPage({
           <span>{auction.location}</span>
         </div>
 
-        {(auction.status === "upcoming" || auction.status === "live") && (
+        {(auction.status === 'upcoming' || auction.status === 'live') && (
           <div className="mt-6">
             <CountdownTimer
               targetDate={
-                auction.status === "live" ? auction.endDate : auction.date
+                auction.status === 'live' ? auction.endDate : auction.date
               }
             />
           </div>
@@ -101,12 +101,17 @@ export default async function AuctionDetailPage({
       {/* Lots */}
       <div className="mt-12">
         <h2 className="font-serif text-2xl font-bold text-dark-brown">
-          Obiekty ({auctionLots.length})
+          {t.objects} ({auctionLots.length})
         </h2>
 
         <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {auctionLots.map((lot) => (
-            <LotCard key={lot.id} lot={lot} auctionSlug={slug} />
+            <LotCardEnhanced
+              key={lot.id}
+              lot={lot}
+              auctionSlug={slug}
+              auctionStatus={auction.status}
+            />
           ))}
         </div>
       </div>

@@ -1,33 +1,40 @@
-import type { Metadata } from "next";
-import Image from "next/image";
-import { events } from "@/app/lib/data";
-import { formatDate } from "@/app/lib/utils";
-import Breadcrumbs from "@/app/components/Breadcrumbs";
-import FadeInOnScroll from "@/app/components/FadeInOnScroll";
+import Image from 'next/image';
+import { SUPPORTED_LOCALES, getTranslation } from '@/app/lib/i18n';
+import { events } from '@/app/lib/data';
+import { formatDate } from '@/app/lib/utils';
+import Breadcrumbs from '@/app/components/Breadcrumbs';
+import FadeInOnScroll from '@/app/components/FadeInOnScroll';
 
-export const metadata: Metadata = {
-  title: "Wydarzenia",
-};
+export function generateStaticParams() {
+  return SUPPORTED_LOCALES.map((locale) => ({ locale }));
+}
 
-const eventTypeLabels: Record<string, string> = {
-  auction: "Aukcja",
-  exhibition: "Wystawa",
-  gala: "Gala",
-};
+export default async function EventsPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  const t = getTranslation(locale);
 
-export default function EventsPage() {
+  const eventTypeLabels: Record<string, string> = {
+    auction: t.eventTypeAuction,
+    exhibition: t.eventTypeExhibition,
+    gala: t.eventTypeGala,
+  };
+
   return (
     <section className="py-10 md:py-16">
       <div className="mx-auto max-w-7xl px-5 md:px-8">
         <Breadcrumbs
           items={[
-            { label: "Strona główna", href: "/" },
-            { label: "Wydarzenia" },
+            { label: t.navHome, href: `/${locale}` },
+            { label: t.eventsTitle },
           ]}
         />
 
         <h1 className="mt-6 font-serif text-4xl font-bold text-dark-brown">
-          Wydarzenia
+          {t.eventsTitle}
         </h1>
 
         <FadeInOnScroll>

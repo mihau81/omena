@@ -1,20 +1,27 @@
-import type { Metadata } from "next";
-import Image from "next/image";
-import FadeInOnScroll from "@/app/components/FadeInOnScroll";
-import { teamMembers } from "@/app/lib/data";
+import Image from 'next/image';
+import FadeInOnScroll from '@/app/components/FadeInOnScroll';
+import { SUPPORTED_LOCALES, getTranslation } from '@/app/lib/i18n';
+import { teamMembers } from '@/app/lib/data';
 
-export const metadata: Metadata = {
-  title: "O nas",
-};
+export function generateStaticParams() {
+  return SUPPORTED_LOCALES.map((locale) => ({ locale }));
+}
 
-export default function AboutPage() {
+export default async function AboutPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  const t = getTranslation(locale);
+
   return (
     <>
       {/* Hero */}
       <section className="bg-beige py-16 md:py-24">
         <div className="mx-auto max-w-7xl px-5 text-center md:px-8">
           <h1 className="font-serif text-4xl font-bold text-dark-brown md:text-5xl">
-            O nas
+            {t.aboutTitle}
           </h1>
         </div>
       </section>
@@ -23,22 +30,8 @@ export default function AboutPage() {
       <FadeInOnScroll>
         <section className="py-16 md:py-24">
           <div className="mx-auto max-w-3xl px-5 md:px-8">
-            <h2 className="sr-only">Nasza misja</h2>
-            <p className="leading-relaxed text-taupe">
-              Omena to renomowany dom aukcyjny z siedzibą w Warszawie,
-              specjalizujący się w sztuce polskiej i europejskiej XX oraz XXI
-              wieku. Od momentu założenia naszą misją jest budowanie mostów
-              między artystami, kolekcjonerami i miłośnikami sztuki — tworząc
-              przestrzeń, w której wybitne dzieła znajdują swoich nowych
-              opiekunów.
-            </p>
-            <p className="mt-6 leading-relaxed text-taupe">
-              Wierzymy, że sztuka ma moc inspirowania, edukowania i jednoczenia
-              ludzi. Dlatego każda nasza aukcja to nie tylko wydarzenie handlowe,
-              ale również kulturalne — starannie kuratorowane, oparte na głębokiej
-              wiedzy eksperckiej i prowadzone z najwyższym szacunkiem dla
-              artystów i ich dzieł.
-            </p>
+            <p className="leading-relaxed text-taupe">{t.aboutMission1}</p>
+            <p className="mt-6 leading-relaxed text-taupe">{t.aboutMission2}</p>
           </div>
         </section>
       </FadeInOnScroll>
@@ -48,7 +41,7 @@ export default function AboutPage() {
         <section className="bg-beige/50 py-16 md:py-24">
           <div className="mx-auto max-w-7xl px-5 md:px-8">
             <h2 className="text-center font-serif text-3xl font-bold text-dark-brown md:text-4xl">
-              Nasz zespół
+              {t.aboutTeamTitle}
             </h2>
 
             <div className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3 md:gap-8">
@@ -60,7 +53,7 @@ export default function AboutPage() {
                   <div className="mb-4 h-48 overflow-hidden rounded-lg bg-beige">
                     <Image
                       src={member.image}
-                      alt={`Zdjęcie: ${member.name}`}
+                      alt={member.name}
                       width={600}
                       height={600}
                       className="h-full w-full object-cover object-top"
@@ -85,11 +78,11 @@ export default function AboutPage() {
         <section className="py-16 md:py-24">
           <div className="mx-auto max-w-7xl px-5 md:px-8">
             <h2 className="text-center font-serif text-3xl font-bold text-dark-brown md:text-4xl">
-              Nasze wartości
+              {t.aboutValuesTitle}
             </h2>
 
             <div className="mt-10 grid gap-6 md:grid-cols-3 md:gap-8">
-              {/* Autentyczność */}
+              {/* Authenticity */}
               <div className="rounded-xl bg-white p-6 shadow-sm transition-shadow duration-300 hover:shadow-md">
                 <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gold/10">
                   <svg
@@ -108,17 +101,14 @@ export default function AboutPage() {
                   </svg>
                 </div>
                 <h3 className="mt-4 font-serif text-lg font-bold text-dark-brown">
-                  Autentyczność
+                  {t.aboutValueAuthenticity}
                 </h3>
                 <p className="mt-2 text-sm leading-relaxed text-taupe">
-                  Każde dzieło przechodzi rygorystyczny proces weryfikacji
-                  proweniencji i autentyczności. Współpracujemy z najlepszymi
-                  ekspertami, aby zagwarantować pewność pochodzenia każdego
-                  obiektu.
+                  {t.aboutValueAuthenticityDesc}
                 </p>
               </div>
 
-              {/* Ekspertyza */}
+              {/* Expertise */}
               <div className="rounded-xl bg-white p-6 shadow-sm transition-shadow duration-300 hover:shadow-md">
                 <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gold/10">
                   <svg
@@ -138,16 +128,14 @@ export default function AboutPage() {
                   </svg>
                 </div>
                 <h3 className="mt-4 font-serif text-lg font-bold text-dark-brown">
-                  Ekspertyza
+                  {t.aboutValueExpertise}
                 </h3>
                 <p className="mt-2 text-sm leading-relaxed text-taupe">
-                  Nasz zespół łączy dekady doświadczenia w historii sztuki,
-                  kuratorstwiei rynku aukcyjnym. Dzielimy się wiedzą, pomagając
-                  kolekcjonerom podejmować świadome decyzje.
+                  {t.aboutValueExpertiseDesc}
                 </p>
               </div>
 
-              {/* Dyskrecja */}
+              {/* Discretion */}
               <div className="rounded-xl bg-white p-6 shadow-sm transition-shadow duration-300 hover:shadow-md">
                 <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gold/10">
                   <svg
@@ -167,12 +155,10 @@ export default function AboutPage() {
                   </svg>
                 </div>
                 <h3 className="mt-4 font-serif text-lg font-bold text-dark-brown">
-                  Dyskrecja
+                  {t.aboutValueDiscretion}
                 </h3>
                 <p className="mt-2 text-sm leading-relaxed text-taupe">
-                  Rozumiemy, że rynek sztuki wymaga najwyższej poufności.
-                  Gwarantujemy pełną dyskrecję w każdym aspekcie współpracy — od
-                  wyceny po finalizację transakcji.
+                  {t.aboutValueDiscretionDesc}
                 </p>
               </div>
             </div>
