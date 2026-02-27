@@ -20,7 +20,7 @@ export default function LotGallery({ images, title }: LotGalleryProps) {
   return (
     <div>
       {/* Main image */}
-      <div className="relative aspect-[4/3] overflow-hidden rounded-xl bg-beige">
+      <div className="relative aspect-[4/3] overflow-hidden rounded-xl bg-beige" role="img" aria-label={title}>
         <div
           className={`flex h-full w-full items-center justify-center ${placeholderColors[activeIndex % placeholderColors.length]}`}
         >

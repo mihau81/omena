@@ -11,12 +11,12 @@ export default function LotCard({ lot, auctionSlug }: LotCardProps) {
   return (
     <Link
       href={`/auctions/${auctionSlug}/${lot.id}`}
-      className="group block overflow-hidden rounded-xl shadow-sm transition-shadow hover:shadow-md"
+      className="group block overflow-hidden rounded-xl shadow-sm transition-shadow duration-300 hover:shadow-md"
     >
       {/* Image area */}
-      <div className="relative aspect-square overflow-hidden rounded-t-xl bg-beige">
+      <div className="relative aspect-square overflow-hidden rounded-t-xl bg-beige" role="img" aria-label={`${lot.title} — ${lot.artist}`}>
         <div className="flex h-full w-full items-center justify-center">
-          <span className="font-serif text-3xl text-taupe/40">
+          <span className="font-serif text-3xl text-taupe/40" aria-hidden="true">
             {lot.lotNumber}
           </span>
         </div>

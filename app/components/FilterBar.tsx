@@ -18,7 +18,7 @@ export default function FilterBar({
   activeStatus,
 }: FilterBarProps) {
   return (
-    <div className="space-y-4">
+    <div className="space-y-4" role="search" aria-label="Filtry aukcji">
       <div>
         <p className="mb-2 text-xs text-taupe">Kategoria:</p>
         <div className="-mx-5 flex gap-2 overflow-x-auto px-5">

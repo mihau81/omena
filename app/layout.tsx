@@ -23,8 +23,16 @@ export const metadata: Metadata = {
     template: "%s | Omena",
   },
   description:
-    "Omena — profesjonalny serwis aukcyjny dzieł sztuki. Odkryj wyjątkowe obrazy, rzeźby i obiekty kolekcjonerskie od najwybitniejszych artystów.",
+    "Omena — profesjonalny dom aukcyjny dzieł sztuki. Odkryj wyjątkowe obrazy, rzeźby i obiekty kolekcjonerskie od najwybitniejszych artystów.",
   keywords: ["aukcje", "sztuka", "dzieła sztuki", "galeria", "kolekcje", "omena"],
+  openGraph: {
+    title: "Omena — Aukcje Dzieł Sztuki",
+    description:
+      "Odkryj wyjątkowe dzieła sztuki na aukcjach domu aukcyjnego Omena. Obrazy, rzeźby i obiekty kolekcjonerskie od najwybitniejszych artystów.",
+    siteName: "Omena",
+    locale: "pl_PL",
+    type: "website",
+  },
 };
 
 export default function RootLayout({
@@ -37,8 +45,14 @@ export default function RootLayout({
       <body
         className={`${playfair.variable} ${lato.variable} font-sans antialiased`}
       >
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:absolute focus:z-[60] focus:bg-gold focus:text-white focus:px-4 focus:py-2 focus:rounded-md focus:top-4 focus:left-4"
+        >
+          Przejdź do treści
+        </a>
         <Header />
-        <main className="min-h-screen">{children}</main>
+        <main id="main-content" className="min-h-screen">{children}</main>
         <Footer />
       </body>
     </html>

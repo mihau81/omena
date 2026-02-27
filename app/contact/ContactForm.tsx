@@ -6,6 +6,7 @@ export default function ContactForm() {
       onSubmit={(e) => {
         e.preventDefault();
       }}
+      aria-label="Formularz kontaktowy"
     >
       <div className="space-y-6">
         <div>
@@ -18,6 +19,7 @@ export default function ContactForm() {
           <input
             id="name"
             type="text"
+            aria-label="Imię i nazwisko"
             className="w-full rounded-lg border border-beige-dark bg-white px-4 py-3 text-sm text-dark-brown focus:border-gold focus:ring-1 focus:ring-gold focus:outline-none"
           />
         </div>
@@ -32,6 +34,7 @@ export default function ContactForm() {
           <input
             id="email"
             type="email"
+            aria-label="Adres email"
             className="w-full rounded-lg border border-beige-dark bg-white px-4 py-3 text-sm text-dark-brown focus:border-gold focus:ring-1 focus:ring-gold focus:outline-none"
           />
         </div>
@@ -45,6 +48,7 @@ export default function ContactForm() {
           </label>
           <select
             id="subject"
+            aria-label="Temat wiadomości"
             className="w-full rounded-lg border border-beige-dark bg-white px-4 py-3 text-sm text-dark-brown focus:border-gold focus:ring-1 focus:ring-gold focus:outline-none"
           >
             <option>Zapytanie og&oacute;lne</option>
@@ -64,13 +68,14 @@ export default function ContactForm() {
           <textarea
             id="message"
             rows={6}
+            aria-label="Treść wiadomości"
             className="w-full rounded-lg border border-beige-dark bg-white px-4 py-3 text-sm text-dark-brown focus:border-gold focus:ring-1 focus:ring-gold focus:outline-none"
           />
         </div>
 
         <button
           type="submit"
-          className="rounded-full bg-gold px-8 py-3 text-sm font-medium text-white transition-colors duration-200 hover:bg-gold-dark"
+          className="rounded-full bg-gold px-8 py-3 text-sm font-medium text-white transition-all duration-200 hover:bg-gold-dark hover:scale-[1.02]"
         >
           Wy&#347;lij wiadomo&#347;&#263;
         </button>

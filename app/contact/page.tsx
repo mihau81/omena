@@ -71,8 +71,8 @@ export default function ContactPage() {
               </div>
             </div>
 
-            <div className="flex h-64 items-center justify-center rounded-xl bg-beige">
-              <p className="text-taupe">Mapa</p>
+            <div className="flex h-64 items-center justify-center rounded-xl bg-beige" role="img" aria-label="Mapa lokalizacji biura Omena">
+              <p className="text-taupe" aria-hidden="true">Mapa</p>
             </div>
           </div>
         </div>

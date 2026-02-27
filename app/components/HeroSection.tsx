@@ -21,7 +21,7 @@ export default function HeroSection() {
 
         <Link
           href="/auctions"
-          className="mt-8 inline-block rounded-full bg-gold px-8 py-3 text-sm font-medium text-white transition-colors duration-200 hover:bg-gold-dark"
+          className="mt-8 inline-block rounded-full bg-gold px-8 py-3 text-sm font-medium text-white transition-all duration-200 hover:bg-gold-dark hover:scale-[1.02]"
         >
           Przeglądaj aukcje
         </Link>

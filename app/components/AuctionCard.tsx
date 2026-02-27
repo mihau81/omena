@@ -18,10 +18,10 @@ export default function AuctionCard({ auction }: AuctionCardProps) {
       className="group block overflow-hidden rounded-xl shadow-sm transition-shadow duration-300 hover:shadow-md"
     >
       {/* Image area */}
-      <div className="relative aspect-[4/3] overflow-hidden rounded-t-xl bg-beige">
+      <div className="relative aspect-[4/3] overflow-hidden rounded-t-xl bg-beige" role="img" aria-label={auction.title}>
         <div className="flex h-full w-full items-center justify-center transition-transform duration-500 group-hover:scale-105">
           <div className="absolute inset-0 bg-gold/10" />
-          <span className="relative font-serif text-lg text-taupe">
+          <span className="relative font-serif text-lg text-taupe" aria-hidden="true">
             {auction.title}
           </span>
         </div>
