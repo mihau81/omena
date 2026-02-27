@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { events } from "@/app/lib/data";
 import { formatDate } from "@/app/lib/utils";
 import Breadcrumbs from "@/app/components/Breadcrumbs";
@@ -36,7 +37,14 @@ export default function EventsPage() {
                 key={event.id}
                 className="overflow-hidden rounded-xl bg-white shadow-sm transition-shadow duration-300 hover:shadow-md"
               >
-                <div className="relative h-48 bg-beige" role="img" aria-label={event.title}>
+                <div className="relative h-48 overflow-hidden bg-beige">
+                  <Image
+                    src={event.image}
+                    alt={event.title}
+                    width={800}
+                    height={500}
+                    className="h-full w-full object-cover"
+                  />
                   <span className="absolute left-4 top-4 rounded-full bg-gold px-3 py-1 text-xs font-medium text-white">
                     {formatDate(event.date)}
                   </span>

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import FadeInOnScroll from "@/app/components/FadeInOnScroll";
 import { teamMembers } from "@/app/lib/data";
 
@@ -56,7 +57,15 @@ export default function AboutPage() {
                   key={member.name}
                   className="rounded-xl bg-white p-6 shadow-sm transition-shadow duration-300 hover:shadow-md"
                 >
-                  <div className="mb-4 h-48 rounded-lg bg-beige" role="img" aria-label={`Zdjęcie: ${member.name}`} />
+                  <div className="mb-4 h-48 overflow-hidden rounded-lg bg-beige">
+                    <Image
+                      src={member.image}
+                      alt={`Zdjęcie: ${member.name}`}
+                      width={600}
+                      height={600}
+                      className="h-full w-full object-cover object-top"
+                    />
+                  </div>
                   <h3 className="font-serif text-lg font-bold text-dark-brown">
                     {member.name}
                   </h3>

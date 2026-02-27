@@ -1,7 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600"><defs>
-      <linearGradient id="bg-e-3" x1="0" y1="0" x2="1" y2="0.5">
-        <stop offset="0%" stop-color="#e7ded3"/>
-        <stop offset="100%" stop-color="#faf8f4"/>
-      </linearGradient>
-    </defs>
-    <rect width="800" height="600" fill="url(#bg-e-3)"/><line x1="0" y1="430" x2="800" y2="430" stroke="#e0d5c7" stroke-width="1" opacity="0.4"/><rect x="129" y="196" width="170" height="169" fill="none" stroke="#aa8545" stroke-width="3" opacity="0.2" rx="1"/><rect x="139" y="206" width="150" height="149" fill="#aa8545" opacity="0.06"/><rect x="366" y="190" width="151" height="141" fill="none" stroke="#70503d" stroke-width="3" opacity="0.2" rx="1"/><rect x="376" y="200" width="131" height="121" fill="#70503d" opacity="0.06"/><rect x="613" y="182" width="177" height="154" fill="none" stroke="#3d1f10" stroke-width="3" opacity="0.2" rx="1"/><rect x="623" y="192" width="157" height="134" fill="#3d1f10" opacity="0.06"/><path d="M212,0 L172,191 L252,171 Z" fill="#c9a96e" opacity="0.06"/><path d="M447,0 L407,170 L487,171 Z" fill="#c9a96e" opacity="0.06"/><path d="M659,0 L619,144 L699,142 Z" fill="#c9a96e" opacity="0.06"/></svg>

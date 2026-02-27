@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { pressItems } from "@/app/lib/data";
 import { formatDate } from "@/app/lib/utils";
 import Breadcrumbs from "@/app/components/Breadcrumbs";
@@ -30,7 +31,15 @@ export default function PressPage() {
                 key={item.id}
                 className="overflow-hidden rounded-xl bg-white shadow-sm transition-shadow duration-300 hover:shadow-md"
               >
-                <div className="h-40 bg-beige" role="img" aria-label={item.title} />
+                <div className="h-40 overflow-hidden bg-beige">
+                  <Image
+                    src={item.image}
+                    alt={item.title}
+                    width={800}
+                    height={500}
+                    className="h-full w-full object-cover"
+                  />
+                </div>
                 <div className="p-6">
                   <p className="text-xs font-medium uppercase tracking-wide text-gold">
                     {item.source}

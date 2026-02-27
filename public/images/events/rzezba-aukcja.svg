@@ -1,7 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600"><defs>
-      <linearGradient id="bg-e-0" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="#faf8f4"/>
-        <stop offset="100%" stop-color="#e7ded3"/>
-      </linearGradient>
-    </defs>
-    <rect width="800" height="600" fill="url(#bg-e-0)"/><rect x="350" y="180" width="100" height="30" rx="4" fill="#aa8545" opacity="0.25" transform="rotate(-30 400 195)"/><rect x="385" y="200" width="14" height="120" rx="4" fill="#70503d" opacity="0.2"/><ellipse cx="400" cy="350" rx="80" ry="16" fill="#70503d" opacity="0.15"/><rect x="340" y="340" width="120" height="30" rx="6" fill="#3d1f10" opacity="0.12"/><path d="M70,452.2317674404306 Q100,362.9161005401202 130,452.2317674404306" fill="none" stroke="#aa8545" stroke-width="1.5" opacity="0.15"/><path d="M230,478.4136771302798 Q260,389.74205784475623 290,478.4136771302798" fill="none" stroke="#aa8545" stroke-width="1.5" opacity="0.15"/><path d="M390,453.90542043736707 Q420,355.50384711986766 450,453.90542043736707" fill="none" stroke="#aa8545" stroke-width="1.5" opacity="0.15"/><path d="M550,465.24275971133517 Q580,380.1800975484588 610,465.24275971133517" fill="none" stroke="#aa8545" stroke-width="1.5" opacity="0.15"/><path d="M710,478.16308836281587 Q740,401.1368818871089 770,478.16308836281587" fill="none" stroke="#aa8545" stroke-width="1.5" opacity="0.15"/></svg>
