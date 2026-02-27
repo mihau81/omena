@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600"><defs>
+      <linearGradient id="bg-e-1" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#faf8f4"/>
+        <stop offset="100%" stop-color="#e7ded3"/>
+      </linearGradient>
+    </defs>
+    <rect width="800" height="600" fill="url(#bg-e-1)"/><rect x="350" y="180" width="100" height="30" rx="4" fill="#aa8545" opacity="0.25" transform="rotate(-30 400 195)"/><rect x="385" y="200" width="14" height="120" rx="4" fill="#70503d" opacity="0.2"/><ellipse cx="400" cy="350" rx="80" ry="16" fill="#70503d" opacity="0.15"/><rect x="340" y="340" width="120" height="30" rx="6" fill="#3d1f10" opacity="0.12"/><path d="M70,454.4635348994877 Q100,375.83220109886696 130,454.4635348994877" fill="none" stroke="#aa8545" stroke-width="1.5" opacity="0.15"/><path d="M230,466.8273542605595 Q260,389.4841156895124 290,466.8273542605595" fill="none" stroke="#aa8545" stroke-width="1.5" opacity="0.15"/><path d="M390,457.81084089336065 Q420,361.00769425836177 450,457.81084089336065" fill="none" stroke="#aa8545" stroke-width="1.5" opacity="0.15"/><path d="M550,480.48551944129684 Q580,410.3601951155441 610,480.48551944129684" fill="none" stroke="#aa8545" stroke-width="1.5" opacity="0.15"/><path d="M710,466.32617672563174 Q740,372.27376375559135 770,466.32617672563174" fill="none" stroke="#aa8545" stroke-width="1.5" opacity="0.15"/></svg>

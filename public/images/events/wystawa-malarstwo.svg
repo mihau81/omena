@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600"><defs>
+      <linearGradient id="bg-e-2" x1="0" y1="0" x2="1" y2="0.5">
+        <stop offset="0%" stop-color="#e7ded3"/>
+        <stop offset="100%" stop-color="#faf8f4"/>
+      </linearGradient>
+    </defs>
+    <rect width="800" height="600" fill="url(#bg-e-2)"/><line x1="0" y1="430" x2="800" y2="430" stroke="#e0d5c7" stroke-width="1" opacity="0.4"/><rect x="127" y="152" width="128" height="112" fill="none" stroke="#aa8545" stroke-width="3" opacity="0.2" rx="1"/><rect x="137" y="162" width="108" height="92" fill="#aa8545" opacity="0.06"/><rect x="362" y="193" width="129" height="170" fill="none" stroke="#70503d" stroke-width="3" opacity="0.2" rx="1"/><rect x="372" y="203" width="109" height="150" fill="#70503d" opacity="0.06"/><rect x="584" y="157" width="178" height="161" fill="none" stroke="#3d1f10" stroke-width="3" opacity="0.2" rx="1"/><rect x="594" y="167" width="158" height="141" fill="#3d1f10" opacity="0.06"/><path d="M214,0 L174,164 L254,163 Z" fill="#c9a96e" opacity="0.06"/><path d="M438,0 L398,192 L478,178 Z" fill="#c9a96e" opacity="0.06"/><path d="M644,0 L604,173 L684,186 Z" fill="#c9a96e" opacity="0.06"/></svg>

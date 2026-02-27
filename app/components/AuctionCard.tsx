@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import type { Auction } from "../lib/types";
 import {
@@ -19,12 +20,13 @@ export default function AuctionCard({ auction }: AuctionCardProps) {
     >
       {/* Image area */}
       <div className="relative aspect-[4/3] overflow-hidden rounded-t-xl bg-beige" role="img" aria-label={auction.title}>
-        <div className="flex h-full w-full items-center justify-center transition-transform duration-500 group-hover:scale-105">
-          <div className="absolute inset-0 bg-gold/10" />
-          <span className="relative font-serif text-lg text-taupe" aria-hidden="true">
-            {auction.title}
-          </span>
-        </div>
+        <Image
+          src={auction.coverImage}
+          alt={auction.title}
+          width={800}
+          height={600}
+          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+        />
 
         {/* Status badge */}
         <span

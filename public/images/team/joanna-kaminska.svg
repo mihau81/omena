@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="800" height="800"><defs>
+    <linearGradient id="bg-t-4" x1="0" y1="0" x2="0.4" y2="1">
+      <stop offset="0%" stop-color="#e7ded3"/>
+      <stop offset="100%" stop-color="#faf8f4"/>
+    </linearGradient>
+    <radialGradient id="glow-4" cx="50%" cy="35%" r="40%">
+      <stop offset="0%" stop-color="#c9a96e" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="#c9a96e" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="800" height="800" fill="url(#bg-t-4)"/>
+  <rect width="800" height="800" fill="url(#glow-4)"/><ellipse cx="400" cy="283.9541727574115" rx="108" ry="138" fill="#70503d" opacity="0.15"/><rect x="370" y="380" width="60" height="101" fill="#70503d" opacity="0.12" rx="20"/><ellipse cx="400" cy="522" rx="158" ry="120" fill="#70503d" opacity="0.1"/><path d="M548,248 A152,152 0 0,1 282,189" fill="none" stroke="#aa8545" stroke-width="0.8" opacity="0.2"/><path d="M590,212 A203,203 0 0,1 232,169" fill="none" stroke="#aa8545" stroke-width="0.8" opacity="0.2"/><path d="M650,156 A281,281 0 0,1 201,86" fill="none" stroke="#aa8545" stroke-width="0.8" opacity="0.2"/><text x="400" y="760" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="28" fill="#70503d" opacity="0.3" letter-spacing="4">JK</text></svg>

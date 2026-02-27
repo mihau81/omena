@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="800" height="800"><defs>
+    <linearGradient id="bg-m-5" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#faf8f4"/>
+      <stop offset="100%" stop-color="#e7ded3"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="800" fill="url(#bg-m-5)"/><path d="M395,169 C42,264 177,61 439,594"
+      stroke="#aa8545" stroke-width="18.227760391521976" fill="none" opacity="0.30" stroke-linecap="round"/><path d="M370,107 C239,3 92,313 37,507"
+      stroke="#8f7060" stroke-width="5.51164258971032" fill="none" opacity="0.46" stroke-linecap="round"/><path d="M765,367 C247,774 501,415 628,359"
+      stroke="#e0d5c7" stroke-width="13.965252894875828" fill="none" opacity="0.25" stroke-linecap="round"/><path d="M231,364 C240,566 197,151 483,68"
+      stroke="#e0d5c7" stroke-width="7.675137342582584" fill="none" opacity="0.49" stroke-linecap="round"/><path d="M14,509 C321,724 382,214 53,328"
+      stroke="#c9a96e" stroke-width="17.727733244865885" fill="none" opacity="0.41" stroke-linecap="round"/><circle cx="81" cy="295" r="246" fill="#aa8545" opacity="0.24"/><circle cx="485" cy="588" r="162" fill="#3d1f10" opacity="0.21"/><circle cx="187" cy="141" r="190" fill="#3d1f10" opacity="0.08"/><line x1="182" y1="792" x2="233" y2="696" stroke="#e0d5c7" stroke-width="5.6" opacity="0.16" stroke-linecap="round"/><line x1="649" y1="578" x2="654" y2="767" stroke="#aa8545" stroke-width="4.6" opacity="0.07" stroke-linecap="round"/><line x1="186" y1="398" x2="529" y2="303" stroke="#e0d5c7" stroke-width="9.3" opacity="0.07" stroke-linecap="round"/><line x1="609" y1="430" x2="188" y2="475" stroke="#e0d5c7" stroke-width="6.0" opacity="0.15" stroke-linecap="round"/><line x1="309" y1="730" x2="702" y2="22" stroke="#aa8545" stroke-width="6.9" opacity="0.07" stroke-linecap="round"/><line x1="410" y1="66" x2="771" y2="638" stroke="#e0d5c7" stroke-width="4.7" opacity="0.13" stroke-linecap="round"/><line x1="314" y1="464" x2="94" y2="28" stroke="#aa8545" stroke-width="8.7" opacity="0.09" stroke-linecap="round"/><line x1="725" y1="216" x2="497" y2="42" stroke="#c9a96e" stroke-width="3.2" opacity="0.14" stroke-linecap="round"/><text x="400" y="420" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="64" fill="#1f0a02" opacity="0.12">5</text></svg>
