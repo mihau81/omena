@@ -2,13 +2,13 @@ import Image from 'next/image';
 import Link from 'next/link';
 import FadeInOnScroll from '@/app/components/FadeInOnScroll';
 import StatsSection from '@/app/components/StatsSection';
-import { SUPPORTED_LOCALES, getTranslation } from '@/app/lib/i18n';
-import { auctions, events } from '@/app/lib/data';
+import { getTranslation } from '@/app/lib/i18n';
+import { events } from '@/app/lib/data';
 import { getStatusColor, formatDate } from '@/app/lib/utils';
+import { getAuctions } from '@/db/queries';
+import { mapDBAuctionToFrontend } from '@/lib/mappers';
 
-export function generateStaticParams() {
-  return SUPPORTED_LOCALES.map((locale) => ({ locale }));
-}
+export const dynamic = 'force-dynamic';
 
 export default async function HomePage({
   params,
@@ -18,7 +18,15 @@ export default async function HomePage({
   const { locale } = await params;
   const t = getTranslation(locale);
 
-  const featuredAuctions = auctions.slice(0, 3);
+  const dbAuctions = await getAuctions(0);
+  const allAuctions = dbAuctions.map((row) =>
+    mapDBAuctionToFrontend(row, {
+      lotCount: row.lotCount,
+      coverImageUrl: row.coverImageUrl ?? undefined,
+    }),
+  );
+
+  const featuredAuctions = allAuctions.slice(0, 3);
   const upcomingEvents = events.slice(0, 3);
 
   return (

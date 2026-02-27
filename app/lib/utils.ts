@@ -1,5 +1,4 @@
 import type { Auction } from './types';
-import { auctions, lots } from './data';
 
 // ---------------------------------------------------------------------------
 // YouTube helpers
@@ -81,21 +80,6 @@ export function getCategoryLabel(c: Auction['category']): string {
     case 'mixed':
       return 'Kolekcja mieszana';
   }
-}
-
-export function getAuctionBySlug(slug: string): Auction | undefined {
-  return auctions.find((a) => a.slug === slug);
-}
-
-export function getLotsByAuction(slug: string): typeof lots {
-  return lots.filter((l) => l.auctionSlug === slug);
-}
-
-export function getLotById(
-  auctionSlug: string,
-  lotId: string,
-): (typeof lots)[number] | undefined {
-  return lots.find((l) => l.auctionSlug === auctionSlug && l.id === lotId);
 }
 
 export function formatPriceShort(n: number): string {

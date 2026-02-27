@@ -12,14 +12,17 @@ import AllCurrencyPrices from './AllCurrencyPrices';
 import BidHistory from './BidHistory';
 import BidConfirmModal from './BidConfirmModal';
 import RegistrationModal from './RegistrationModal';
+import MaxBidPanel from './MaxBidPanel';
 
 interface BidPanelProps {
   lot: Lot;
   auctionStatus: 'upcoming' | 'live' | 'ended';
   auctionSlug: string;
+  /** Display string for buyer's premium, e.g. "25% / 20% / 12%" or "20%" */
+  premiumLabel?: string;
 }
 
-export default function BidPanel({ lot, auctionStatus, auctionSlug }: BidPanelProps) {
+export default function BidPanel({ lot, auctionStatus, auctionSlug, premiumLabel }: BidPanelProps) {
   const {
     getHighestBid,
     isUserWinning,
@@ -223,9 +226,15 @@ export default function BidPanel({ lot, auctionStatus, auctionSlug }: BidPanelPr
               {watched ? t.unwatchLot : t.watchLot}
             </button>
 
+            {/* Set Maximum Bid (absentee/proxy) */}
+            <MaxBidPanel lotId={lot.id} nextMin={nextMin} />
+
             {/* Premium info */}
             <p className="mt-3 text-center text-xs text-taupe">
               {t.buyersPremium}
+              {premiumLabel && (
+                <span className="ml-1 font-medium text-dark-brown">{premiumLabel}</span>
+              )}
             </p>
 
             <BidHistory lotId={lot.id} />

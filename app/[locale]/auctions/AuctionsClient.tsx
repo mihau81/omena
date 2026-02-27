@@ -1,13 +1,16 @@
 'use client';
 
 import { useState } from 'react';
-import { auctions } from '@/app/lib/data';
 import type { Auction } from '@/app/lib/types';
 import { useLocale } from '@/app/lib/LocaleContext';
 import AuctionCard from '@/app/components/AuctionCard';
 import Breadcrumbs from '@/app/components/Breadcrumbs';
 
-export default function AuctionsClient() {
+interface AuctionsClientProps {
+  auctions: Auction[];
+}
+
+export default function AuctionsClient({ auctions }: AuctionsClientProps) {
   const { locale, t } = useLocale();
   const [activeStatus, setActiveStatus] = useState<string>('all');
 

@@ -1,19 +1,13 @@
 import Link from 'next/link';
-import { SUPPORTED_LOCALES, getTranslation } from '@/app/lib/i18n';
-import { lots } from '@/app/lib/data';
-import { getLotById, getAuctionBySlug } from '@/app/lib/utils';
+import { getTranslation } from '@/app/lib/i18n';
+import { getAuctionBySlug, getLotById } from '@/db/queries';
+import { getTiersForAuction } from '@/db/queries/premium';
+import { mapDBAuctionToFrontend, mapDBLotToFrontend } from '@/lib/mappers';
+import { formatRate } from '@/lib/premium';
 import LotDetailClient from '@/app/components/LotDetailClient';
 import Breadcrumbs from '@/app/components/Breadcrumbs';
 
-export function generateStaticParams() {
-  const params: { locale: string; slug: string; lotId: string }[] = [];
-  for (const locale of SUPPORTED_LOCALES) {
-    for (const lot of lots) {
-      params.push({ locale, slug: lot.auctionSlug, lotId: lot.id });
-    }
-  }
-  return params;
-}
+export const dynamic = 'force-dynamic';
 
 export default async function LotDetailPage({
   params,
@@ -22,10 +16,11 @@ export default async function LotDetailPage({
 }) {
   const { locale, slug, lotId } = await params;
   const t = getTranslation(locale);
-  const auction = getAuctionBySlug(slug);
-  const lot = getLotById(slug, lotId);
 
-  if (!lot || !auction) {
+  const auctionRow = await getAuctionBySlug(slug, 0);
+  const lotRow = await getLotById(lotId, 0, locale);
+
+  if (!lotRow || !auctionRow) {
     return (
       <section className="mx-auto max-w-7xl px-5 py-16 text-center md:px-8">
         <h1 className="font-serif text-3xl font-bold text-dark-brown">
@@ -36,6 +31,38 @@ export default async function LotDetailPage({
         </Link>
       </section>
     );
+  }
+
+  const auction = mapDBAuctionToFrontend(auctionRow, {
+    lotCount: auctionRow.lotCount,
+    coverImageUrl: auctionRow.coverImageUrl ?? undefined,
+  });
+
+  // Build images array from the lot's media
+  const mediaItems = lotRow.media ?? [];
+  const images = mediaItems.length > 0
+    ? mediaItems.map((m) => m.url)
+    : ['/omena/images/auctions/lot-1.jpg'];
+
+  const lot = mapDBLotToFrontend(lotRow, {
+    auctionSlug: slug,
+    images,
+    currentBid: lotRow.highestBid ?? null,
+  });
+
+  // Build premium label — show tiered rates if configured, otherwise flat rate
+  const tiers = await getTiersForAuction(auctionRow.id);
+  let premiumLabel: string;
+  if (tiers.length > 0) {
+    // e.g. "25% / 20% / 12%"
+    premiumLabel = tiers
+      .map((tier) => formatRate(parseFloat(String(tier.rate))))
+      .join(' / ');
+  } else {
+    const flatRate = auctionRow.buyersPremiumRate
+      ? parseFloat(String(auctionRow.buyersPremiumRate))
+      : 0.20;
+    premiumLabel = formatRate(flatRate);
   }
 
   return (
@@ -54,6 +81,7 @@ export default async function LotDetailPage({
           lot={lot}
           auctionStatus={auction.status}
           auctionSlug={slug}
+          premiumLabel={premiumLabel}
         />
       </div>
 

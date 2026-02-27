@@ -1,25 +1,13 @@
 import Link from 'next/link';
-import { SUPPORTED_LOCALES, getTranslation } from '@/app/lib/i18n';
-import { auctions } from '@/app/lib/data';
-import {
-  getAuctionBySlug,
-  getLotsByAuction,
-  formatDate,
-  getStatusColor,
-} from '@/app/lib/utils';
+import { getTranslation } from '@/app/lib/i18n';
+import { formatDate, getStatusColor } from '@/app/lib/utils';
+import { getAuctionWithLots } from '@/db/queries';
+import { mapDBAuctionToFrontend, mapDBLotToFrontend } from '@/lib/mappers';
 import LotCardEnhanced from '@/app/components/LotCardEnhanced';
 import Breadcrumbs from '@/app/components/Breadcrumbs';
 import CountdownTimer from '@/app/components/CountdownTimer';
 
-export function generateStaticParams() {
-  const params: { locale: string; slug: string }[] = [];
-  for (const locale of SUPPORTED_LOCALES) {
-    for (const auction of auctions) {
-      params.push({ locale, slug: auction.slug });
-    }
-  }
-  return params;
-}
+export const dynamic = 'force-dynamic';
 
 export default async function AuctionDetailPage({
   params,
@@ -28,9 +16,9 @@ export default async function AuctionDetailPage({
 }) {
   const { locale, slug } = await params;
   const t = getTranslation(locale);
-  const auction = getAuctionBySlug(slug);
+  const result = await getAuctionWithLots(slug, 0);
 
-  if (!auction) {
+  if (!result) {
     return (
       <section className="mx-auto max-w-7xl px-5 py-16 text-center md:px-8">
         <h1 className="font-serif text-3xl font-bold text-dark-brown">
@@ -43,7 +31,18 @@ export default async function AuctionDetailPage({
     );
   }
 
-  const auctionLots = getLotsByAuction(slug);
+  const auction = mapDBAuctionToFrontend(result, {
+    lotCount: result.lotCount,
+    coverImageUrl: result.coverImageUrl ?? undefined,
+  });
+
+  const auctionLots = result.lots.map((lotRow) =>
+    mapDBLotToFrontend(lotRow, {
+      auctionSlug: slug,
+      images: [lotRow.primaryImageUrl ?? lotRow.primaryThumbnailUrl ?? '/omena/images/auctions/lot-1.jpg'].filter(Boolean) as string[],
+      currentBid: null,
+    }),
+  );
 
   const statusLabel =
     auction.status === 'upcoming'

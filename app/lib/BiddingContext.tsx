@@ -2,7 +2,6 @@
 
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import type { BidRecord, BidderRegistration, WatchedLot } from './types';
-import { lots, auctions } from './data';
 import {
   generateBidderId,
   generatePaddleNumber,
@@ -23,7 +22,6 @@ const KEY_REGISTRATION = STORAGE_PREFIX + 'registration';
 const KEY_BIDS = STORAGE_PREFIX + 'bids';
 const KEY_WATCHED = STORAGE_PREFIX + 'watched';
 const KEY_END_TIMES = STORAGE_PREFIX + 'end_times';
-const KEY_SEEDED = STORAGE_PREFIX + 'seeded';
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -72,7 +70,13 @@ const BiddingContext = createContext<BiddingState | null>(null);
 // Provider
 // ---------------------------------------------------------------------------
 
-export function BiddingProvider({ children }: { children: React.ReactNode }) {
+interface BiddingProviderProps {
+  children: React.ReactNode;
+  /** Optional auction end times keyed by slug, provided by the server */
+  initialAuctionEndTimes?: Record<string, number>;
+}
+
+export function BiddingProvider({ children, initialAuctionEndTimes }: BiddingProviderProps) {
   const [registration, setRegistration] = useState<BidderRegistration | null>(null);
   const [bids, setBids] = useState<BidRecord[]>([]);
   const [watchedLots, setWatchedLots] = useState<WatchedLot[]>([]);
@@ -84,37 +88,9 @@ export function BiddingProvider({ children }: { children: React.ReactNode }) {
   // ---- hydrate from localStorage on mount ----
   useEffect(() => {
     setRegistration(loadJSON<BidderRegistration | null>(KEY_REGISTRATION, null));
+    setBids(loadJSON<BidRecord[]>(KEY_BIDS, []));
     setWatchedLots(loadJSON<WatchedLot[]>(KEY_WATCHED, []));
     setAuctionEndTimes(loadJSON<Record<string, number>>(KEY_END_TIMES, {}));
-
-    // Seed initial bids from data.ts currentBid values (only once)
-    const alreadySeeded = loadJSON<boolean>(KEY_SEEDED, false);
-    const existingBids = loadJSON<BidRecord[]>(KEY_BIDS, []);
-
-    if (!alreadySeeded) {
-      const seededBids: BidRecord[] = [];
-      for (const lot of lots) {
-        if (lot.currentBid !== null) {
-          seededBids.push({
-            id: 'seed-' + lot.id,
-            lotId: lot.id,
-            auctionSlug: lot.auctionSlug,
-            amount: lot.currentBid,
-            bidderId: 'bot-seed-' + lot.id,
-            bidderLabel: generateBotBidderLabel(),
-            timestamp: Date.now() - 3600000 + Math.random() * 1800000,
-            isUser: false,
-          });
-        }
-      }
-      const merged = [...seededBids, ...existingBids];
-      setBids(merged);
-      saveJSON(KEY_BIDS, merged);
-      saveJSON(KEY_SEEDED, true);
-    } else {
-      setBids(existingBids);
-    }
-
     setHydrated(true);
   }, []);
 
@@ -309,19 +285,16 @@ export function BiddingProvider({ children }: { children: React.ReactNode }) {
     [watchedLots],
   );
 
-  // ---- Initialize auction end times from data on hydration ----
+  // ---- Initialize auction end times from server-provided data on hydration ----
   useEffect(() => {
-    if (!hydrated) return;
+    if (!hydrated || !initialAuctionEndTimes) return;
     setAuctionEndTimes((prev) => {
       const updated = { ...prev };
       let changed = false;
-      for (const auction of auctions) {
-        if (auction.status === 'live' && !updated[auction.slug]) {
-          const endTime = new Date(auction.endDate).getTime();
-          if (!isNaN(endTime)) {
-            updated[auction.slug] = endTime;
-            changed = true;
-          }
+      for (const [slug, endTime] of Object.entries(initialAuctionEndTimes)) {
+        if (!updated[slug]) {
+          updated[slug] = endTime;
+          changed = true;
         }
       }
       if (changed) {
@@ -329,7 +302,7 @@ export function BiddingProvider({ children }: { children: React.ReactNode }) {
       }
       return changed ? updated : prev;
     });
-  }, [hydrated]);
+  }, [hydrated, initialAuctionEndTimes]);
 
   const value: BiddingState = {
     registration,

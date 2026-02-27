@@ -1,10 +1,17 @@
-import { SUPPORTED_LOCALES } from '@/app/lib/i18n';
+import { getAuctions } from '@/db/queries';
+import { mapDBAuctionToFrontend } from '@/lib/mappers';
 import AuctionsClient from './AuctionsClient';
 
-export function generateStaticParams() {
-  return SUPPORTED_LOCALES.map((locale) => ({ locale }));
-}
+export const dynamic = 'force-dynamic';
 
 export default async function AuctionsPage() {
-  return <AuctionsClient />;
+  const dbAuctions = await getAuctions(0);
+  const auctions = dbAuctions.map((row) =>
+    mapDBAuctionToFrontend(row, {
+      lotCount: row.lotCount,
+      coverImageUrl: row.coverImageUrl ?? undefined,
+    }),
+  );
+
+  return <AuctionsClient auctions={auctions} />;
 }

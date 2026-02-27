@@ -10,12 +10,14 @@ interface LotDetailClientProps {
   lot: Lot;
   auctionStatus: 'upcoming' | 'live' | 'ended';
   auctionSlug: string;
+  premiumLabel?: string;
 }
 
 export default function LotDetailClient({
   lot,
   auctionStatus,
   auctionSlug,
+  premiumLabel,
 }: LotDetailClientProps) {
   return (
     <>
@@ -32,6 +34,7 @@ export default function LotDetailClient({
             lot={lot}
             auctionStatus={auctionStatus}
             auctionSlug={auctionSlug}
+            premiumLabel={premiumLabel}
           />
         </div>
       </div>

@@ -1,10 +1,13 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  output: "export",
+  output: "standalone",
   basePath: "/omena",
   images: {
-    unoptimized: true,
+    remotePatterns: [
+      { protocol: 'http', hostname: 'localhost', port: '9000' },  // MinIO dev
+      { protocol: 'http', hostname: 'minio', port: '9000' },     // MinIO Docker
+    ],
   },
 };
 

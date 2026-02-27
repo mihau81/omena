@@ -5,7 +5,15 @@ import Image from 'next/image';
 import { useLocale } from '@/app/lib/LocaleContext';
 import { useBidding } from '@/app/lib/BiddingContext';
 import { useCurrency } from '@/app/lib/CurrencyContext';
-import { getLotById, getAuctionBySlug } from '@/app/lib/utils';
+import { auctions, lots } from '@/app/lib/data';
+
+function getAuctionBySlug(slug: string) {
+  return auctions.find((a) => a.slug === slug);
+}
+
+function getLotById(auctionSlug: string, lotId: string) {
+  return lots.find((l) => l.auctionSlug === auctionSlug && l.id === lotId);
+}
 import Breadcrumbs from '@/app/components/Breadcrumbs';
 
 export default function MyBidsPage() {

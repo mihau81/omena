@@ -12,6 +12,15 @@ services:
     environment:
       - WATCHPACK_POLLING=true
       - CHOKIDAR_USEPOLLING=true
+      - DATABASE_URL=postgresql://omena:omena_dev@db:5432/omena
+      - MINIO_ENDPOINT=http://minio:9000
+      - MINIO_ACCESS_KEY=omena
+      - MINIO_SECRET_KEY=omena_dev
+      - NEXTAUTH_SECRET=dev-secret-change-in-production
+      - NEXTAUTH_URL=http://localhost:3002/omena
+    depends_on:
+      - db
+      - minio
     privileged: true
 
   prod:
@@ -19,4 +28,41 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "3080:80"
+      - "3080:3000"
+    environment:
+      - DATABASE_URL=postgresql://omena:omena_dev@db:5432/omena
+      - MINIO_ENDPOINT=http://minio:9000
+      - MINIO_ACCESS_KEY=omena
+      - MINIO_SECRET_KEY=omena_dev
+      - NEXTAUTH_SECRET=dev-secret-change-in-production
+      - NEXTAUTH_URL=http://localhost:3080/omena
+    depends_on:
+      - db
+      - minio
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: omena
+      POSTGRES_USER: omena
+      POSTGRES_PASSWORD: omena_dev
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  minio:
+    image: minio/minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: omena
+      MINIO_ROOT_PASSWORD: omena_dev
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+
+volumes:
+  pgdata:
+  minio_data:
