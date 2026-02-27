@@ -1,0 +1,51 @@
+@import "tailwindcss";
+
+:root {
+  --color-cream: #faf8f4;
+  --color-dark-brown: #1f0a02;
+  --color-gold: #aa8545;
+  --color-gold-light: #c4a76c;
+  --color-gold-dark: #8a6a35;
+  --color-taupe: #70503d;
+  --color-beige: #e7ded3;
+  --color-beige-dark: #e0d5c7;
+  --color-white: #ffffff;
+}
+
+@theme inline {
+  --color-cream: var(--color-cream);
+  --color-dark-brown: var(--color-dark-brown);
+  --color-gold: var(--color-gold);
+  --color-gold-light: var(--color-gold-light);
+  --color-gold-dark: var(--color-gold-dark);
+  --color-taupe: var(--color-taupe);
+  --color-beige: var(--color-beige);
+  --color-beige-dark: var(--color-beige-dark);
+  --font-sans: var(--font-lato), system-ui, sans-serif;
+  --font-serif: var(--font-playfair), Georgia, serif;
+}
+
+body {
+  background-color: var(--color-cream);
+  color: var(--color-dark-brown);
+  font-family: var(--font-sans), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Smooth scroll */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Selection color */
+::selection {
+  background-color: var(--color-gold);
+  color: var(--color-white);
+}
+
+/* Focus ring */
+:focus-visible {
+  outline: 2px solid var(--color-gold);
+  outline-offset: 2px;
+}

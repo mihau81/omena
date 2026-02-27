@@ -1,0 +1,20 @@
+services:
+  dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - "3002:3002"
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/.next
+    environment:
+      - WATCHPACK_POLLING=true
+
+  prod:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3080:80"
