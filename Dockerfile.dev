@@ -4,4 +4,5 @@ COPY package.json package-lock.json ./
 RUN npm ci
 COPY . .
 EXPOSE 3002
+ENV WATCHPACK_POLLING=true
 CMD ["npm", "run", "dev"]

@@ -11,6 +11,8 @@ services:
       - /app/.next
     environment:
       - WATCHPACK_POLLING=true
+      - CHOKIDAR_USEPOLLING=true
+    privileged: true
 
   prod:
     build:
