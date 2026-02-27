@@ -85,7 +85,12 @@ const lotsMistrzowie: Lot[] = [
     estimateMin: 350000,
     estimateMax: 500000,
     currentBid: null,
-    images: ['/omena/images/auctions/lot-1.jpg'],
+    images: [
+      '/omena/images/auctions/lot-1.jpg',
+      '/omena/images/auctions/lot-2.jpg',
+      '/omena/images/auctions/lot-3.jpg',
+      'https://www.youtube.com/watch?v=rKhbUjVyKIc',
+    ],
     provenance: [
       'Kolekcja prywatna, Warszawa',
       'Galeria Sztuki Współczesnej BWA, Sanok, 1980',
@@ -128,7 +133,11 @@ const lotsMistrzowie: Lot[] = [
     estimateMin: 200000,
     estimateMax: 320000,
     currentBid: null,
-    images: ['/omena/images/auctions/lot-3.jpg'],
+    images: [
+      '/omena/images/auctions/lot-3.jpg',
+      '/omena/images/auctions/lot-4.jpg',
+      'https://www.youtube.com/watch?v=0pXYp72dwl0',
+    ],
     provenance: [
       'Galeria Foksal, Warszawa, 1962',
       'Kolekcja prywatna, Nowy Jork',
@@ -171,7 +180,12 @@ const lotsMistrzowie: Lot[] = [
     estimateMin: 120000,
     estimateMax: 180000,
     currentBid: null,
-    images: ['/omena/images/auctions/lot-5.jpg'],
+    images: [
+      '/omena/images/auctions/lot-5.jpg',
+      '/omena/images/auctions/lot-6.jpg',
+      '/omena/images/auctions/lot-7.jpg',
+      '/omena/images/auctions/lot-8.jpg',
+    ],
     provenance: [
       'Galeria Foksal, Warszawa',
       'Kolekcja prywatna, Warszawa',
@@ -260,7 +274,11 @@ const lotsMistrzowie: Lot[] = [
     estimateMin: 60000,
     estimateMax: 95000,
     currentBid: null,
-    images: ['/omena/images/auctions/lot-9.jpg'],
+    images: [
+      '/omena/images/auctions/lot-9.jpg',
+      'https://www.youtube.com/watch?v=FpGOAJuoSGA',
+      '/omena/images/auctions/lot-10.jpg',
+    ],
     provenance: [
       'Kolekcja rodziny artysty',
       'Kolekcja prywatna, Gdańsk',
@@ -376,7 +394,12 @@ const lotsRzezba: Lot[] = [
     estimateMin: 380000,
     estimateMax: 520000,
     currentBid: 395000,
-    images: ['/omena/images/auctions/lot-14.jpg'],
+    images: [
+      '/omena/images/auctions/lot-14.jpg',
+      '/omena/images/auctions/lot-15.jpg',
+      '/omena/images/auctions/lot-16.jpg',
+      'https://www.youtube.com/watch?v=wk7FUBhV3hU',
+    ],
     provenance: [
       'Henry Moore Foundation, Perry Green',
       'Kolekcja prywatna, Londyn',
@@ -460,7 +483,12 @@ const lotsRzezba: Lot[] = [
     estimateMin: 160000,
     estimateMax: 240000,
     currentBid: 175000,
-    images: ['/omena/images/auctions/lot-18.jpg'],
+    images: [
+      '/omena/images/auctions/lot-18.jpg',
+      '/omena/images/auctions/lot-19.jpg',
+      'https://www.youtube.com/watch?v=v2Docl1LP_I',
+      '/omena/images/auctions/lot-17.jpg',
+    ],
     provenance: [
       'Atelier Mitoraj, Pietrasanta',
       'Galeria Dolce Vita, Warszawa',
@@ -533,7 +561,11 @@ const lotsFotografia: Lot[] = [
     estimateMin: 15000,
     estimateMax: 25000,
     currentBid: null,
-    images: ['/omena/images/auctions/lot-21.jpg'],
+    images: [
+      '/omena/images/auctions/lot-21.jpg',
+      '/omena/images/auctions/lot-22.jpg',
+      '/omena/images/auctions/lot-23.jpg',
+    ],
     provenance: [
       'Archiwum artysty, Warszawa',
       'Kolekcja prywatna, Warszawa',
@@ -617,7 +649,12 @@ const lotsFotografia: Lot[] = [
     estimateMin: 8000,
     estimateMax: 14000,
     currentBid: null,
-    images: ['/omena/images/auctions/lot-25.jpg'],
+    images: [
+      '/omena/images/auctions/lot-25.jpg',
+      'https://www.youtube.com/watch?v=MgsarJGx0GI',
+      '/omena/images/auctions/lot-26.jpg',
+      '/omena/images/auctions/lot-24.jpg',
+    ],
     provenance: [
       'Kolekcja artysty, Gliwice',
       'Kolekcja prywatna, Katowice',
@@ -748,7 +785,13 @@ const lotsPrzelom: Lot[] = [
     estimateMin: 120000,
     estimateMax: 180000,
     currentBid: null,
-    images: ['/omena/images/auctions/lot-31.jpg'],
+    images: [
+      '/omena/images/auctions/lot-31.jpg',
+      '/omena/images/auctions/lot-32.jpg',
+      'https://www.youtube.com/watch?v=36HTpVDMpPw',
+      '/omena/images/auctions/lot-33.jpg',
+      '/omena/images/auctions/lot-34.jpg',
+    ],
     provenance: [
       'Galeria Foksal, Warszawa',
       'Kolekcja prywatna, Warszawa',
@@ -854,7 +897,12 @@ const lotsPrzelom: Lot[] = [
     estimateMin: 65000,
     estimateMax: 100000,
     currentBid: null,
-    images: ['/omena/images/auctions/lot-36.jpg'],
+    images: [
+      '/omena/images/auctions/lot-36.jpg',
+      '/omena/images/auctions/lot-37.jpg',
+      '/omena/images/auctions/lot-38.jpg',
+      'https://www.youtube.com/watch?v=JdLFsKfnIRk',
+    ],
     provenance: [
       'Galeria Żak | Branicka, Berlin',
       'Kolekcja prywatna, Warszawa',
