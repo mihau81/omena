@@ -33,7 +33,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const passwordHash = password ? await bcrypt.hash(password, 12) : null;
+    const passwordHash = await bcrypt.hash(password, 12);
 
     const [newUser] = await db
       .insert(users)

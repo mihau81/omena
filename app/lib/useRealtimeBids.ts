@@ -1,5 +1,7 @@
 'use client';
 
+import { apiUrl } from '@/app/lib/utils';
+
 import { useEffect, useRef } from 'react';
 import type { BidEvent } from '@/lib/bid-events';
 
@@ -56,7 +58,7 @@ export function useRealtimeBids({
     function connectSSE() {
       if (destroyed) return;
 
-      es = new EventSource(`/api/sse/auction/${auctionId}`);
+      es = new EventSource(apiUrl(`/api/sse/auction/${auctionId}`));
 
       es.addEventListener('connected', () => {
         retryCount = 0;
@@ -91,7 +93,7 @@ export function useRealtimeBids({
       pollTimer = setInterval(async () => {
         if (destroyed) return;
         try {
-          const res = await fetch(`/api/lots/${currentLotId}/bids`);
+          const res = await fetch(apiUrl(`/api/lots/${currentLotId}/bids`));
           if (!res.ok) return;
           const data = (await res.json()) as {
             currentHighestBid: number | null;

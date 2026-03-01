@@ -19,45 +19,41 @@ export default function AdminLoginPage() {
     setLoading(true);
 
     try {
-      if (requiresTOTP) {
-        // Second step: verify TOTP
-        if (!totpCode || totpCode.length !== 6) {
-          setError('Please enter a valid 6-digit code');
-          setLoading(false);
-          return;
-        }
-
-        const res = await fetch('/api/admin/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, password, totpCode }),
-        });
-
-        if (!res.ok) {
-          const data = await res.json();
-          setError(data.error || 'TOTP verification failed');
-        } else {
-          router.push('/admin');
-        }
-      } else {
-        // First step: verify password
-        const res = await fetch('/api/admin/login', {
+      // If TOTP is required but not yet provided, check with pre-auth endpoint
+      if (!requiresTOTP) {
+        const preAuth = await fetch('/omena/api/admin/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, password }),
         });
+        const preData = await preAuth.json();
 
-        if (!res.ok) {
-          const data = await res.json();
-          setError(data.error || 'Invalid email or password');
-        } else {
-          const data = await res.json();
-          if (data.requiresTOTP) {
-            setRequiresTOTP(true);
-          } else {
-            router.push('/admin');
-          }
+        if (!preAuth.ok) {
+          setError(preData.error || 'Invalid email or password');
+          setLoading(false);
+          return;
         }
+
+        if (preData.requiresTOTP) {
+          setRequiresTOTP(true);
+          setLoading(false);
+          return;
+        }
+      }
+
+      // Sign in with NextAuth (TOTP verified in authorize callback)
+      const result = await signIn('admin-credentials', {
+        email,
+        password,
+        totpCode: totpCode || undefined,
+        redirect: false,
+      });
+
+      if (result?.error) {
+        setError(requiresTOTP ? 'Invalid TOTP code' : 'Invalid email or password');
+      } else {
+        router.push('/admin');
+        router.refresh();
       }
     } catch {
       setError('An unexpected error occurred');
@@ -82,57 +78,55 @@ export default function AdminLoginPage() {
           <h2 className="text-lg font-semibold text-dark-brown mb-6">Sign In</h2>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            {!requiresTOTP && (
-              <>
-                <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-dark-brown mb-1.5">
-                    Email
-                  </label>
-                  <input
-                    id="email"
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                    autoComplete="email"
-                    className="w-full px-3 py-2.5 rounded-lg border border-beige bg-cream/30 text-dark-brown placeholder-taupe/50 focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold transition-colors"
-                    placeholder="admin@omena.art"
-                  />
-                </div>
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium text-dark-brown mb-1.5">
+                Email
+              </label>
+              <input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                autoComplete="email"
+                className="w-full px-3 py-2.5 rounded-lg border border-beige bg-cream/30 text-dark-brown placeholder-taupe/50 focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold transition-colors"
+                placeholder="admin@omena.art"
+              />
+            </div>
 
-                <div>
-                  <label htmlFor="password" className="block text-sm font-medium text-dark-brown mb-1.5">
-                    Password
-                  </label>
-                  <input
-                    id="password"
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    autoComplete="current-password"
-                    className="w-full px-3 py-2.5 rounded-lg border border-beige bg-cream/30 text-dark-brown placeholder-taupe/50 focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold transition-colors"
-                    placeholder="Enter your password"
-                  />
-                </div>
-              </>
-            )}
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium text-dark-brown mb-1.5">
+                Password
+              </label>
+              <input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                autoComplete="current-password"
+                className="w-full px-3 py-2.5 rounded-lg border border-beige bg-cream/30 text-dark-brown placeholder-taupe/50 focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold transition-colors"
+                placeholder="Enter your password"
+              />
+            </div>
 
             {requiresTOTP && (
               <div>
-                <label htmlFor="totp" className="block text-sm font-medium text-dark-brown mb-1.5">
-                  Authenticator Code
+                <label htmlFor="totpCode" className="block text-sm font-medium text-dark-brown mb-1.5">
+                  TOTP Code
                 </label>
                 <input
-                  id="totp"
+                  id="totpCode"
                   type="text"
+                  inputMode="numeric"
                   value={totpCode}
                   onChange={(e) => setTotpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
                   required
-                  autoComplete="off"
+                  autoComplete="one-time-code"
                   maxLength={6}
-                  className="w-full px-3 py-2.5 rounded-lg border border-beige bg-cream/30 text-dark-brown placeholder-taupe/50 focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold transition-colors text-center text-2xl tracking-widest font-mono"
+                  className="w-full px-3 py-2.5 rounded-lg border border-beige bg-cream/30 text-dark-brown placeholder-taupe/50 focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold transition-colors text-center text-2xl tracking-widest"
                   placeholder="000000"
+                  autoFocus
                 />
               </div>
             )}
@@ -146,39 +140,23 @@ export default function AdminLoginPage() {
               </div>
             )}
 
-            <div className="flex gap-3">
-              {requiresTOTP && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setRequiresTOTP(false);
-                    setTotpCode('');
-                    setError('');
-                  }}
-                  disabled={loading}
-                  className="flex-1 py-2.5 px-4 bg-beige text-dark-brown font-medium rounded-lg hover:bg-beige/80 focus:outline-none focus:ring-2 focus:ring-gold/50 disabled:opacity-60 transition-colors"
-                >
-                  Back
-                </button>
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full py-2.5 px-4 bg-dark-brown text-white font-medium rounded-lg hover:bg-dark-brown/90 focus:outline-none focus:ring-2 focus:ring-gold/50 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+            >
+              {loading ? (
+                <span className="flex items-center justify-center gap-2">
+                  <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                  </svg>
+                  Signing in...
+                </span>
+              ) : (
+                'Sign In'
               )}
-              <button
-                type="submit"
-                disabled={loading || (requiresTOTP && totpCode.length !== 6)}
-                className={`${requiresTOTP ? 'flex-1' : 'w-full'} py-2.5 px-4 bg-dark-brown text-white font-medium rounded-lg hover:bg-dark-brown/90 focus:outline-none focus:ring-2 focus:ring-gold/50 disabled:opacity-60 disabled:cursor-not-allowed transition-colors`}
-              >
-                {loading ? (
-                  <span className="flex items-center justify-center gap-2">
-                    <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                    </svg>
-                    {requiresTOTP ? 'Verifying...' : 'Signing in...'}
-                  </span>
-                ) : (
-                  requiresTOTP ? 'Verify' : 'Sign In'
-                )}
-              </button>
-            </div>
+            </button>
           </form>
         </div>
 

@@ -62,7 +62,11 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: error.message }, { status: error.statusCode });
     }
     if (error instanceof Error) {
-      return NextResponse.json({ error: error.message }, { status: 400 });
+      // Sanitize error — don't leak Stripe internal details to client
+      const safeMessage = error.message.includes('Stripe')
+        ? 'Payment processing error. Please try again.'
+        : error.message;
+      return NextResponse.json({ error: safeMessage }, { status: 400 });
     }
     console.error('[payments/create-intent] POST error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

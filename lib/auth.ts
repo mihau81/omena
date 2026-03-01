@@ -5,6 +5,7 @@ import bcrypt from 'bcryptjs';
 import { db } from '@/db/connection';
 import { users, admins } from '@/db/schema';
 import type { AdminRole } from '@/lib/permissions';
+import { verifyTOTP, decryptSecret } from '@/lib/totp';
 
 declare module 'next-auth' {
   interface User {
@@ -26,13 +27,15 @@ declare module 'next-auth' {
 
 declare module 'next-auth/jwt' {
   interface JWT {
-    userType: 'user' | 'admin';
+    userType: 'user' | 'admin' | 'revoked';
     visibilityLevel: number;
     role: AdminRole | null;
   }
 }
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
+  basePath: '/api/auth',
+  trustHost: true,
   session: { strategy: 'jwt' },
   pages: {
     signIn: '/login',
@@ -45,10 +48,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       credentials: {
         email: { label: 'Email', type: 'email' },
         password: { label: 'Password', type: 'password' },
+        totpCode: { label: 'TOTP Code', type: 'text' },
       },
       async authorize(credentials) {
         const email = credentials?.email as string | undefined;
         const password = credentials?.password as string | undefined;
+        const totpCode = credentials?.totpCode as string | undefined;
         if (!email || !password) return null;
 
         const [admin] = await db
@@ -61,6 +66,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
         const valid = await bcrypt.compare(password, admin.passwordHash);
         if (!valid) return null;
+
+        // Enforce TOTP if enabled — reject login without valid code
+        if (admin.totpEnabled && admin.totpSecret) {
+          if (!totpCode || !/^\d{6}$/.test(totpCode)) return null;
+          const decryptedSecret = decryptSecret(admin.totpSecret);
+          const totpValid = verifyTOTP(decryptedSecret, totpCode);
+          if (!totpValid) return null;
+        }
 
         // Update last login
         await db
@@ -134,11 +147,30 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         token.visibilityLevel = user.visibilityLevel;
         token.role = user.role;
       }
+
+      // Re-validate admin sessions against DB on each token refresh
+      // This ensures deactivated/role-changed admins are rejected promptly
+      if (token.userType === 'admin' && token.sub) {
+        const [admin] = await db
+          .select({ isActive: admins.isActive, role: admins.role, deletedAt: admins.deletedAt })
+          .from(admins)
+          .where(eq(admins.id, token.sub))
+          .limit(1);
+
+        if (!admin || !admin.isActive || admin.deletedAt) {
+          // Invalidate the token — returning empty token forces sign-out
+          return { ...token, userType: 'revoked' as const };
+        }
+
+        // Update role if changed
+        token.role = admin.role as AdminRole;
+      }
+
       return token;
     },
     async session({ session, token }) {
       session.user.id = token.sub!;
-      session.user.userType = token.userType;
+      session.user.userType = token.userType === 'revoked' ? 'admin' : token.userType;
       session.user.visibilityLevel = token.visibilityLevel;
       session.user.role = token.role;
       return session;

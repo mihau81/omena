@@ -52,6 +52,24 @@ export async function POST(request: Request) {
     }
 
     const buffer = Buffer.from(await file.arrayBuffer());
+
+    // Validate file magic bytes (don't trust client Content-Type)
+    const MAGIC_BYTES: Record<string, number[]> = {
+      'image/jpeg': [0xFF, 0xD8, 0xFF],
+      'image/png': [0x89, 0x50, 0x4E, 0x47],
+      'image/webp': [0x52, 0x49, 0x46, 0x46], // RIFF header
+    };
+    const header = [...buffer.subarray(0, 4)];
+    const isValidMagic = Object.values(MAGIC_BYTES).some(
+      (magic) => magic.every((byte, i) => header[i] === byte),
+    );
+    if (!isValidMagic) {
+      return NextResponse.json(
+        { error: 'Invalid file content. File does not appear to be a valid image.' },
+        { status: 400 },
+      );
+    }
+
     const processed = await processAndUploadImage(buffer, file.name);
 
     // Determine sort order

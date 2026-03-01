@@ -18,7 +18,10 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url);
     const type = searchParams.get('type') ?? 'overview';
-    const auctionId = searchParams.get('auctionId') ?? undefined;
+    const rawAuctionId = searchParams.get('auctionId') ?? undefined;
+    const auctionId = rawAuctionId && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(rawAuctionId)
+      ? rawAuctionId
+      : undefined;
 
     switch (type) {
       case 'overview': {

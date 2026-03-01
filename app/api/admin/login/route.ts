@@ -1,21 +1,40 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { signIn } from '@/lib/auth';
+import { z } from 'zod';
 import { db } from '@/db/connection';
 import { admins } from '@/db/schema';
 import { eq, and, isNull } from 'drizzle-orm';
 import bcrypt from 'bcryptjs';
 import { verifyTOTP, decryptSecret } from '@/lib/totp';
+import { authLimiter } from '@/lib/rate-limiters';
+
+const adminLoginSchema = z.object({
+  email: z.string().email().max(320),
+  password: z.string().min(1).max(200),
+  totpCode: z.string().regex(/^\d{6}$/).optional(),
+});
 
 export async function POST(req: NextRequest) {
   try {
-    const { email, password, totpCode } = await req.json();
-
-    if (!email || !password) {
+    // Rate limit by IP
+    const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+    const rl = authLimiter.check(ip);
+    if (!rl.success) {
       return NextResponse.json(
-        { error: 'Email and password required' },
-        { status: 400 }
+        { error: 'Too many login attempts. Please try again later.' },
+        { status: 429 },
       );
     }
+
+    const body = await req.json();
+    const parsed = adminLoginSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: 'Invalid input', details: parsed.error.flatten() },
+        { status: 400 },
+      );
+    }
+
+    const { email, password, totpCode } = parsed.data;
 
     // Find admin
     const [admin] = await db
@@ -71,19 +90,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Password and TOTP (if required) are valid
-    // Use NextAuth's signIn to create the session
-    const result = await signIn('admin-credentials', {
-      email,
-      password,
-      redirect: false,
-    });
-
-    if (!result || !result.ok) {
-      return NextResponse.json(
-        { error: 'Sign-in failed' },
-        { status: 401 }
-      );
-    }
+    // Session creation happens via the Auth.js callback endpoint (called by the client-side signIn)
 
     // Update last login
     await db

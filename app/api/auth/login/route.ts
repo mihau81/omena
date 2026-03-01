@@ -1,10 +1,21 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { signIn } from '@/lib/auth';
 import { loginSchema } from '@/lib/validation/user';
 import { AuthError } from 'next-auth';
+import { authLimiter } from '@/lib/rate-limiters';
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
+    // Rate limit by IP
+    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+    const rl = authLimiter.check(ip);
+    if (!rl.success) {
+      return NextResponse.json(
+        { error: 'Too many login attempts. Please try again later.' },
+        { status: 429 },
+      );
+    }
+
     const body = await request.json();
     const parsed = loginSchema.safeParse(body);
 

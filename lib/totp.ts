@@ -2,7 +2,13 @@ import * as OTPAuth from 'otpauth';
 import QRCode from 'qrcode';
 import crypto from 'crypto';
 
-const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY || 'dev-key-32-characters-minimum-!!';
+function getEncryptionKey(): string {
+  const key = process.env.ENCRYPTION_KEY;
+  if (!key) {
+    throw new Error('ENCRYPTION_KEY environment variable is required. Set a 32-character secret.');
+  }
+  return key;
+}
 
 // Generate TOTP secret and otpauth:// URI
 export function generateTOTPSecret(email: string): {
@@ -67,7 +73,7 @@ export function encryptSecret(secret: string): string {
   const iv = crypto.randomBytes(16);
   const cipher = crypto.createCipheriv(
     'aes-256-cbc',
-    Buffer.from(ENCRYPTION_KEY.padEnd(32, '0').slice(0, 32)),
+    Buffer.from(getEncryptionKey().padEnd(32, '0').slice(0, 32)),
     iv
   );
   let encrypted = cipher.update(secret, 'utf8', 'hex');
@@ -81,7 +87,7 @@ export function decryptSecret(encrypted: string): string {
   const iv = Buffer.from(ivHex, 'hex');
   const decipher = crypto.createDecipheriv(
     'aes-256-cbc',
-    Buffer.from(ENCRYPTION_KEY.padEnd(32, '0').slice(0, 32)),
+    Buffer.from(getEncryptionKey().padEnd(32, '0').slice(0, 32)),
     iv
   );
   let decrypted = decipher.update(encryptedData, 'hex', 'utf8');

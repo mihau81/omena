@@ -1,5 +1,6 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
+import { getToken } from 'next-auth/jwt';
 import { searchLots } from '@/db/queries';
 
 const searchParamsSchema = z.object({
@@ -9,7 +10,7 @@ const searchParamsSchema = z.object({
   limit: z.coerce.number().int().min(1).max(100).default(20),
 });
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
 
@@ -29,8 +30,9 @@ export async function GET(request: Request) {
 
     const { q, auction, page, limit } = parsed.data;
 
-    // For now, treat all API users as public visibility level (0)
-    const userVisibility = 0;
+    // Read user visibility from session (if authenticated)
+    const token = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET });
+    const userVisibility = token?.visibilityLevel ?? 0;
 
     const result = await searchLots({
       query: q,
