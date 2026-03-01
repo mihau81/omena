@@ -7,7 +7,7 @@ on:
     branches: [main]
 
 jobs:
-  build:
+  lint:
     runs-on: docker
     steps:
       - uses: actions/checkout@v4
@@ -22,18 +22,128 @@ jobs:
       - name: Lint
         run: npm run lint
 
-      - name: Build (static export)
+  unit-tests:
+    runs-on: docker
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run unit tests
+        run: npm run test:unit
+
+  integration-tests:
+    runs-on: docker
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: omena_test
+          POSTGRES_USER: omena
+          POSTGRES_PASSWORD: omena_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL: postgresql://omena:omena_test@postgres:5432/omena_test
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run integration tests
+        run: npm run test:integration
+
+  build:
+    runs-on: docker
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build (standalone)
         run: npm run build
+        env:
+          NEXTAUTH_SECRET: ci-build-secret
+          ENCRYPTION_KEY: ci-build-encryption-key-32chars
 
       - name: Verify output
         run: |
-          test -d out || (echo "ERROR: out/ directory not found" && exit 1)
-          test -f out/index.html || (echo "ERROR: out/index.html not found" && exit 1)
+          test -d .next/standalone || (echo "ERROR: .next/standalone/ not found" && exit 1)
+          test -f .next/standalone/server.js || (echo "ERROR: server.js not found" && exit 1)
           echo "Build output OK"
-          ls -la out/
+          ls -la .next/standalone/
+
+  e2e-tests:
+    needs: build
+    runs-on: docker
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: omena_test
+          POSTGRES_USER: omena
+          POSTGRES_PASSWORD: omena_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL: postgresql://omena:omena_test@postgres:5432/omena_test
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Start dev server
+        run: npm run dev &
+        env:
+          PORT: 3002
+
+      - name: Wait for dev server
+        run: |
+          for i in {1..30}; do
+            if curl -s http://localhost:3002 > /dev/null; then
+              echo "Dev server is ready"
+              exit 0
+            fi
+            echo "Waiting for dev server... ($i/30)"
+            sleep 1
+          done
+          echo "Dev server did not start in time"
+          exit 1
+
+      - name: Run e2e tests
+        run: npm run test:e2e
 
   ci-gate:
-    needs: build
+    needs: [lint, unit-tests, integration-tests, build, e2e-tests]
     runs-on: docker
     steps:
       - run: echo "CI gate passed"

@@ -1,0 +1,87 @@
+name: Deploy to Hetzner
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    if: >
+      github.server_url == 'https://github.com' &&
+      (github.event_name == 'workflow_dispatch' || github.event_name == 'push')
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create deployment archive
+        run: |
+          tar czf /tmp/omena.tar.gz \
+            --exclude='node_modules' \
+            --exclude='.git' \
+            --exclude='.next' \
+            --exclude='.env*' \
+            --exclude='*.tar.gz' \
+            .
+          test -s /tmp/omena.tar.gz || exit 1
+          echo "Archive size: $(du -h /tmp/omena.tar.gz | cut -f1)"
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SERVER_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts 2>/dev/null
+
+      - name: Upload archive
+        run: |
+          scp -i ~/.ssh/deploy_key \
+            /tmp/omena.tar.gz \
+            ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/tmp/omena.tar.gz
+
+      - name: Deploy and verify
+        env:
+          SSH_KEY: ~/.ssh/deploy_key
+          SSH_HOST: ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}
+        run: |
+          ssh -o ConnectTimeout=15 -o ServerAliveInterval=60 -i $SSH_KEY $SSH_HOST << 'DEPLOY'
+          set -e
+
+          APP_DIR=/root/omena
+          mkdir -p $APP_DIR
+          cd $APP_DIR
+
+          # Preserve .env
+          cp .env /tmp/.env.omena.backup 2>/dev/null || true
+
+          # Extract new code
+          tar xzf /tmp/omena.tar.gz -C $APP_DIR
+          rm /tmp/omena.tar.gz
+
+          # Restore .env
+          mv /tmp/.env.omena.backup .env 2>/dev/null || true
+
+          # Build and deploy
+          docker compose -f docker-compose.prod.yml build --no-cache
+          docker compose -f docker-compose.prod.yml up -d
+
+          # Cleanup old images
+          docker image prune -f
+
+          # Health check
+          echo "Waiting for app to start..."
+          for i in $(seq 1 15); do
+            STATUS=$(curl -s -o /dev/null -w '%{http_code}' http://localhost:3080/omena/ 2>/dev/null || echo 000)
+            if [ "$STATUS" = "200" ] || [ "$STATUS" = "302" ]; then
+              echo "Health check passed (HTTP $STATUS)"
+              exit 0
+            fi
+            echo "Waiting... ($i/15, HTTP $STATUS)"
+            sleep 5
+          done
+          echo "WARNING: Health check timed out but deploy completed"
+          DEPLOY
+
+      - name: Cleanup SSH key
+        if: always()
+        run: rm -f ~/.ssh/deploy_key
