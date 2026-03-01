@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAdmin, AuthError } from '@/lib/auth-utils';
-import { verifyTOTP, encryptSecret } from '@/lib/totp';
+import { verifyTOTP, encryptSecret, generateRecoveryCodes } from '@/lib/totp';
 import { db } from '@/db/connection';
 import { admins } from '@/db/schema';
 import { eq } from 'drizzle-orm';
@@ -44,7 +44,9 @@ export async function POST(req: NextRequest) {
       })
       .where(eq(admins.id, adminId));
 
-    return NextResponse.json({ message: '2FA enabled successfully.' }, { status: 200 });
+    const recoveryCodes = generateRecoveryCodes();
+
+    return NextResponse.json({ message: '2FA enabled successfully.', recoveryCodes }, { status: 200 });
   } catch (error) {
     if (error instanceof AuthError) {
       return NextResponse.json({ error: error.message }, { status: error.statusCode });

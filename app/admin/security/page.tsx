@@ -3,17 +3,9 @@
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { redirect } from 'next/navigation';
+import { apiUrl } from '@/app/lib/utils';
 
 type SetupPhase = 'inactive' | 'generating' | 'verifying' | 'recovery' | 'active';
-
-function generateRecoveryCodes(): string[] {
-  const codes: string[] = [];
-  for (let i = 0; i < 10; i++) {
-    const code = Math.random().toString(16).slice(2, 10).toUpperCase();
-    codes.push(code);
-  }
-  return codes;
-}
 
 export default function SecurityPage() {
   const { data: session, status } = useSession();
@@ -28,14 +20,14 @@ export default function SecurityPage() {
 
   if (status === 'loading') return <div className="p-8">Loading...</div>;
   if (!session?.user || session.user.userType !== 'admin') {
-    redirect('/login');
+    redirect('/admin/login');
   }
 
   const handleSetupClick = async () => {
     setLoading(true);
     setError('');
     try {
-      const res = await fetch('/api/admin/2fa/setup', { method: 'POST' });
+      const res = await fetch(apiUrl('/api/admin/2fa/setup'), { method: 'POST' });
       if (!res.ok) {
         const data = await res.json();
         throw new Error(data.error || 'Setup failed');
@@ -61,21 +53,22 @@ export default function SecurityPage() {
     setLoading(true);
     setError('');
     try {
-      const res = await fetch('/api/admin/2fa/enable', {
+      const res = await fetch(apiUrl('/api/admin/2fa/enable'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ secret, token: totpCode }),
       });
 
       if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || 'Verification failed');
+        const errData = await res.json();
+        throw new Error(errData.error || 'Verification failed');
       }
 
+      const data = await res.json();
       setPhase('recovery');
       setTotpEnabled(true);
       setTotpCode('');
-      setRecoveryCodes(generateRecoveryCodes());
+      setRecoveryCodes(data.recoveryCodes ?? []);
     } catch (err) {
       setError((err as Error).message);
     } finally {
@@ -92,7 +85,7 @@ export default function SecurityPage() {
     setLoading(true);
     setError('');
     try {
-      const res = await fetch('/api/admin/2fa/disable', {
+      const res = await fetch(apiUrl('/api/admin/2fa/disable'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token: code }),

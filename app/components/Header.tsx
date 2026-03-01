@@ -7,6 +7,7 @@ import { useLocale } from '../lib/LocaleContext';
 import { useCurrency, CURRENCIES, type CurrencyCode } from '../lib/CurrencyContext';
 import { useBidding } from '../lib/BiddingContext';
 import { SUPPORTED_LOCALES, LOCALE_LABELS, LOCALE_FLAGS, type Locale } from '../lib/i18n';
+import { apiUrl } from '../lib/utils';
 
 export default function Header() {
   const { locale, t } = useLocale();
@@ -58,7 +59,7 @@ export default function Header() {
   // Switch locale: navigate to same page with different locale prefix
   function switchLocale(newLocale: string) {
     const currentPath = pathname.replace(/^\/[a-z]{2}(\/|$)/, '/');
-    window.location.href = `/omena/${newLocale}${currentPath === '/' ? '' : currentPath}`;
+    window.location.href = apiUrl(`/${newLocale}${currentPath === '/' ? '' : currentPath}`);
   }
 
   // Check if link is active
@@ -83,7 +84,7 @@ export default function Header() {
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className={`relative py-1 text-sm tracking-wide transition-colors duration-200 hover:text-gold ${
+                    className={`relative py-1 text-base tracking-wide transition-colors duration-200 hover:text-gold ${
                       isActive(link.href)
                         ? 'text-dark-brown after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-full after:bg-gold'
                         : 'text-taupe'
@@ -171,7 +172,7 @@ export default function Header() {
       </header>
 
       {/* Mobile menu overlay */}
-      <div className={`fixed inset-0 z-40 transition-all duration-300 lg:hidden ${menuOpen ? 'visible opacity-100' : 'invisible opacity-0'}`}>
+      <div className={`fixed inset-0 z-[60] transition-all duration-300 lg:hidden ${menuOpen ? 'visible opacity-100' : 'invisible opacity-0'}`}>
         <div className="absolute inset-0 bg-dark-brown/40 backdrop-blur-sm" onClick={() => setMenuOpen(false)} />
         <div className={`absolute inset-y-0 right-0 w-full max-w-sm bg-cream transition-transform duration-300 ease-out ${menuOpen ? 'translate-x-0' : 'translate-x-full'}`}>
           <div className="flex justify-end px-5 py-4">

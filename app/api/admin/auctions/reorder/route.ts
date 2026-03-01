@@ -21,13 +21,14 @@ export async function POST(request: Request) {
     }
 
     const { items } = parsed.data;
+    const now = new Date();
 
     // Update all sort orders in sequence (pg doesn't have bulk update with different values easily)
     await db.transaction(async (tx) => {
       for (const item of items) {
         await tx
           .update(auctions)
-          .set({ sortOrder: item.sortOrder })
+          .set({ sortOrder: item.sortOrder, updatedAt: now })
           .where(eq(auctions.id, item.id));
       }
     });
