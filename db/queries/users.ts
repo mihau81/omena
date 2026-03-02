@@ -99,7 +99,14 @@ export async function listUsers(filters: ListUsersFilters = {}) {
       })
       .from(users)
       .where(whereClause)
-      .orderBy(desc(users.createdAt))
+      .orderBy(
+        sql`CASE
+          WHEN ${users.accountStatus} = 'pending_approval' THEN 0
+          WHEN ${users.accountStatus} = 'pending_verification' THEN 1
+          ELSE 2
+        END`,
+        desc(users.createdAt),
+      )
       .limit(limit)
       .offset(offset),
     db

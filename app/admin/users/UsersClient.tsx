@@ -14,6 +14,8 @@ interface UserRow {
   referrerId: string | null;
   isActive: boolean;
   emailVerified: boolean;
+  accountStatus: string;
+  registrationSource: string;
   createdAt: string;
 }
 
@@ -30,6 +32,7 @@ interface UsersClientProps {
   initialSearch: string;
   initialVisibility: string;
   initialIsActive: string;
+  initialAccountStatus: string;
 }
 
 export default function UsersClient({
@@ -37,17 +40,20 @@ export default function UsersClient({
   initialSearch,
   initialVisibility,
   initialIsActive,
+  initialAccountStatus,
 }: UsersClientProps) {
   const router = useRouter();
   const [search, setSearch] = useState(initialSearch);
   const [visibility, setVisibility] = useState(initialVisibility);
   const [isActive, setIsActive] = useState(initialIsActive);
+  const [accountStatus, setAccountStatus] = useState(initialAccountStatus);
 
   const applyFilters = (overrides?: { page?: number }) => {
     const params = new URLSearchParams();
     if (search) params.set('search', search);
     if (visibility) params.set('visibilityLevel', visibility);
     if (isActive) params.set('isActive', isActive);
+    if (accountStatus) params.set('accountStatus', accountStatus);
     if (overrides?.page && overrides.page > 1) params.set('page', String(overrides.page));
     const qs = params.toString();
     router.push(`/admin/users${qs ? `?${qs}` : ''}`);
@@ -131,11 +137,21 @@ export default function UsersClient({
             <option value="2">VIP</option>
           </select>
           <select
+            value={accountStatus}
+            onChange={(e) => { setAccountStatus(e.target.value); }}
+            className="px-3 py-2 text-sm border border-beige rounded-lg bg-white focus:ring-2 focus:ring-gold/30 focus:border-gold outline-none"
+          >
+            <option value="">All Statuses</option>
+            <option value="pending_approval">Pending Approval</option>
+            <option value="pending_verification">Pending Verification</option>
+            <option value="approved">Approved</option>
+          </select>
+          <select
             value={isActive}
             onChange={(e) => { setIsActive(e.target.value); }}
             className="px-3 py-2 text-sm border border-beige rounded-lg bg-white focus:ring-2 focus:ring-gold/30 focus:border-gold outline-none"
           >
-            <option value="">All Status</option>
+            <option value="">Active/Inactive</option>
             <option value="true">Active</option>
             <option value="false">Inactive</option>
           </select>
@@ -177,13 +193,21 @@ export default function UsersClient({
                     <VisibilityBadge level={user.visibilityLevel} />
                   </td>
                   <td className="px-4 py-3">
-                    {user.isActive ? (
+                    {user.accountStatus === 'approved' ? (
                       <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-700">
-                        Active
+                        Approved
+                      </span>
+                    ) : user.accountStatus === 'pending_approval' ? (
+                      <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-amber-100 text-amber-700">
+                        Pending Approval
+                      </span>
+                    ) : user.accountStatus === 'pending_verification' ? (
+                      <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-700">
+                        Pending Verification
                       </span>
                     ) : (
-                      <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-700">
-                        Inactive
+                      <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-700">
+                        {user.accountStatus}
                       </span>
                     )}
                   </td>

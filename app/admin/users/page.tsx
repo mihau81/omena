@@ -21,11 +21,13 @@ export default async function AdminUsersPage({ searchParams }: PageProps) {
   const visibilityLevel = params.visibilityLevel as '0' | '1' | '2' | undefined;
   const isActiveParam = params.isActive;
   const isActive = isActiveParam === 'true' ? true : isActiveParam === 'false' ? false : undefined;
+  const accountStatus = String(params.accountStatus ?? '');
 
   const result = await listUsers({
     search: search || undefined,
     visibilityLevel: visibilityLevel || undefined,
     isActive,
+    accountStatus: accountStatus || undefined,
     page,
     limit: 20,
   });
@@ -45,6 +47,7 @@ export default async function AdminUsersPage({ searchParams }: PageProps) {
       initialSearch={search}
       initialVisibility={visibilityLevel ?? ''}
       initialIsActive={isActiveParam as string ?? ''}
+      initialAccountStatus={accountStatus}
     />
   );
 }
