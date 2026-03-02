@@ -2,6 +2,9 @@
 
 import { useEffect, useState } from 'react';
 import { apiUrl } from '@/app/lib/utils';
+import { useLocale } from '@/app/lib/LocaleContext';
+import ReferralSection from '@/app/components/ReferralSection';
+import { CurrencySelector } from '@/app/components/CurrencyDisplay';
 
 interface Profile {
   id: string;
@@ -17,6 +20,7 @@ interface Profile {
 }
 
 export default function AccountProfilePage() {
+  const { locale } = useLocale();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -331,6 +335,19 @@ export default function AccountProfilePage() {
           </form>
         )}
       </div>
+
+      {/* Currency Preference */}
+      <div className="mt-12 border-t border-beige pt-8">
+        <h2 className="font-serif text-xl font-bold text-dark-brown">Currency Preference</h2>
+        <p className="mt-1 text-sm text-taupe">
+          Choose the currency displayed alongside PLN prices.
+        </p>
+        <div className="mt-4">
+          <CurrencySelector className="px-3 py-2.5 rounded-lg border border-beige bg-cream/30 text-dark-brown focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold transition-colors text-sm" />
+        </div>
+      </div>
+
+      <ReferralSection locale={locale} />
     </div>
   );
 }

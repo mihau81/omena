@@ -6,6 +6,7 @@ import type { Lot } from '../lib/types';
 import { useBidding } from '../lib/BiddingContext';
 import { useLocale } from '../lib/LocaleContext';
 import { useCurrency } from '../lib/CurrencyContext';
+import CurrencyDisplay from './CurrencyDisplay';
 
 interface LotCardEnhancedProps {
   lot: Lot;
@@ -67,13 +68,13 @@ export default function LotCardEnhanced({
         <p className="mt-1 text-sm text-gold">{lot.artist}</p>
         <p className="mt-0.5 text-xs text-taupe">{lot.year}</p>
         <p className="mt-2 text-sm text-taupe">
-          {t.estimate}: {formatPrice(lot.estimateMin)} &ndash;{' '}
-          {formatPrice(lot.estimateMax)}
+          {t.estimate}: <CurrencyDisplay amountPLN={lot.estimateMin} /> &ndash;{' '}
+          <CurrencyDisplay amountPLN={lot.estimateMax} />
         </p>
 
         {auctionStatus === 'ended' && lot.status === 'sold' && lot.currentBid && (
           <p className="mt-1 text-sm font-medium text-green-700">
-            {t.hammerPrice}: {formatPrice(lot.currentBid)}
+            {t.hammerPrice}: <CurrencyDisplay amountPLN={lot.currentBid} />
           </p>
         )}
 
@@ -85,16 +86,16 @@ export default function LotCardEnhanced({
             </span>
             {t.currentBid}:{' '}
             {liveBid
-              ? formatPrice(liveBid)
+              ? <CurrencyDisplay amountPLN={liveBid} />
               : lot.currentBid
-                ? formatPrice(lot.currentBid)
+                ? <CurrencyDisplay amountPLN={lot.currentBid} />
                 : '—'}
           </p>
         )}
 
         {auctionStatus === 'upcoming' && lot.currentBid && (
           <p className="mt-1 text-sm font-medium text-gold">
-            {t.currentBid}: {formatPrice(lot.currentBid)}
+            {t.currentBid}: <CurrencyDisplay amountPLN={lot.currentBid} />
           </p>
         )}
       </div>

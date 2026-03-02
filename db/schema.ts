@@ -2,8 +2,13 @@ import {
   pgTable, pgEnum,
   uuid, text, varchar, integer, boolean, timestamp, numeric,
   jsonb, serial, index, uniqueIndex,
-  primaryKey,
+  primaryKey, customType,
 } from 'drizzle-orm/pg-core';
+
+// tsvector is not a built-in Drizzle type — declare it as a custom type
+const tsvector = customType<{ data: string }>({
+  dataType() { return 'tsvector'; },
+});
 
 // ─── Enums ───────────────────────────────────────────────────────────────────
 
@@ -57,9 +62,30 @@ export const adminRoleEnum = pgEnum('admin_role', [
   'viewer',       // Read-only admin access (auditors, interns)
 ]);
 
+export const lotCategoryEnum = pgEnum('lot_category', [
+  'malarstwo',
+  'rzezba',
+  'grafika',
+  'fotografia',
+  'rzemiosto',
+  'design',
+  'bizuteria',
+  'inne',
+]);
+
 export const mediaTypeEnum = pgEnum('media_type', [
   'image',
   'youtube',
+  'condition', // condition report photo
+]);
+
+export const conditionGradeEnum = pgEnum('condition_grade', [
+  'mint',           // Perfect, no flaws
+  'excellent',      // Near perfect, minor age-related
+  'very_good',      // Light wear, small imperfections
+  'good',           // Visible wear, minor damage
+  'fair',           // Significant wear or damage
+  'poor',           // Heavy damage, restoration needed
 ]);
 
 export const bidTypeEnum = pgEnum('bid_type', [
@@ -89,6 +115,8 @@ export const auctions = pgTable('auctions', {
   buyersPremiumRate: numeric('buyers_premium_rate', { precision: 5, scale: 4 })
                       .notNull().default('0.2000'),  // 20% default
   notes:            text('notes').default(''),  // Internal admin notes
+  livestreamUrl:    text('livestream_url'),  // YouTube or Vimeo URL for live stream embed
+  catalogPdfUrl:    text('catalog_pdf_url'),  // S3 URL of generated PDF catalog
   // Soft delete & audit
   createdAt:        timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt:        timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
@@ -127,6 +155,26 @@ export const consignors = pgTable('consignors', {
   index('consignors_email_idx').on(table.email),
 ]);
 
+// ─── Artists ─────────────────────────────────────────────────────────────────
+
+export const artists = pgTable('artists', {
+  id:          uuid('id').defaultRandom().primaryKey(),
+  slug:        varchar('slug', { length: 255 }).notNull().unique(),
+  name:        varchar('name', { length: 255 }).notNull(),
+  nationality: varchar('nationality', { length: 100 }),
+  birthYear:   integer('birth_year'),
+  deathYear:   integer('death_year'),
+  bio:         text('bio'),
+  imageUrl:    text('image_url'),
+  createdAt:   timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  updatedAt:   timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  deletedAt:   timestamp('deleted_at', { withTimezone: true }),
+}, (table) => [
+  index('artists_slug_idx').on(table.slug),
+  index('artists_name_idx').on(table.name),
+  index('artists_deleted_at_idx').on(table.deletedAt),
+]);
+
 // ─── Lots ────────────────────────────────────────────────────────────────────
 
 export const lots = pgTable('lots', {
@@ -135,7 +183,9 @@ export const lots = pgTable('lots', {
   lotNumber:        integer('lot_number').notNull(),
   title:            text('title').notNull(),
   artist:           text('artist').notNull().default(''),
+  artistId:         uuid('artist_id').references(() => artists.id),
   description:      text('description').notNull().default(''),
+  category:         lotCategoryEnum('category'),
   medium:           text('medium').notNull().default(''),
   dimensions:       text('dimensions').notNull().default(''),
   year:             integer('year'),
@@ -152,8 +202,14 @@ export const lots = pgTable('lots', {
   exhibitions:      jsonb('exhibitions').notNull().default('[]'),    // string[]
   literature:       jsonb('literature').notNull().default('[]'),     // string[] (bibliography)
   conditionNotes:   text('condition_notes').default(''),
+  conditionGrade:   conditionGradeEnum('condition_grade'),  // Overall condition grade
   notes:            text('notes').default(''),  // Internal admin notes
   consignorId:      uuid('consignor_id').references(() => consignors.id),
+  // Timer fields for live auction countdown
+  closingAt:        timestamp('closing_at', { withTimezone: true }),  // When bidding window closes
+  timerDuration:    integer('timer_duration').default(120),  // Initial timer duration in seconds
+  // Full-text search vector (maintained by trigger lots_search_vector_trigger)
+  searchVector:     tsvector('search_vector'),
   // Soft delete & audit
   createdAt:        timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt:        timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
@@ -165,6 +221,7 @@ export const lots = pgTable('lots', {
   index('lots_status_idx').on(table.status),
   index('lots_sort_order_idx').on(table.sortOrder),
   index('lots_artist_idx').on(table.artist),
+  index('lots_category_idx').on(table.category),
   uniqueIndex('lots_auction_lot_number_idx').on(table.auctionId, table.lotNumber),
   index('lots_deleted_at_idx').on(table.deletedAt),
 ]);
@@ -226,6 +283,7 @@ export const users = pgTable('users', {
   approvedAt:       timestamp('approved_at', { withTimezone: true }),
   rejectedReason:   text('rejected_reason'),
   lastLoginAt:      timestamp('last_login_at', { withTimezone: true }),
+  preferredCurrency: varchar('preferred_currency', { length: 3 }).default('PLN'),
   // Soft delete & audit
   createdAt:        timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt:        timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
@@ -439,6 +497,21 @@ export const qrRegistrations = pgTable('qr_registrations', {
   index('qr_registrations_active_idx').on(table.isActive),
 ]);
 
+// ─── Push Subscriptions (Web Push API) ──────────────────────────────────────
+
+export const pushSubscriptions = pgTable('push_subscriptions', {
+  id:         uuid('id').defaultRandom().primaryKey(),
+  userId:     uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  endpoint:   text('endpoint').notNull().unique(),
+  p256dh:     text('p256dh').notNull(),   // client public key
+  auth:       text('auth').notNull(),      // client auth secret
+  userAgent:  text('user_agent'),
+  createdAt:  timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+}, (table) => [
+  index('push_subs_user_idx').on(table.userId),
+  index('push_subs_endpoint_idx').on(table.endpoint),
+]);
+
 // ─── Notifications ───────────────────────────────────────────────────────────
 
 export const notifications = pgTable('notifications', {
@@ -529,6 +602,62 @@ export const invoices = pgTable('invoices', {
   createdAt:        timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt:        timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 });
+
+// ─── Settlements (consignor payouts) ─────────────────────────────────────────
+
+export const settlementStatusEnum = pgEnum('settlement_status', [
+  'pending',
+  'approved',
+  'paid',
+]);
+
+export const settlements = pgTable('settlements', {
+  id:               uuid('id').defaultRandom().primaryKey(),
+  consignorId:      uuid('consignor_id').notNull().references(() => consignors.id),
+  auctionId:        uuid('auction_id').notNull().references(() => auctions.id),
+  totalHammer:      integer('total_hammer').notNull().default(0),
+  commissionAmount: integer('commission_amount').notNull().default(0),
+  netPayout:        integer('net_payout').notNull().default(0),
+  status:           settlementStatusEnum('status').notNull().default('pending'),
+  paidAt:           timestamp('paid_at', { withTimezone: true }),
+  bankReference:    text('bank_reference'),
+  notes:            text('notes').default(''),
+  createdAt:        timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  updatedAt:        timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  createdBy:        uuid('created_by').references(() => admins.id),
+}, (table) => [
+  index('settlements_consignor_idx').on(table.consignorId),
+  index('settlements_auction_idx').on(table.auctionId),
+  index('settlements_status_idx').on(table.status),
+]);
+
+export const settlementItems = pgTable('settlement_items', {
+  id:               uuid('id').defaultRandom().primaryKey(),
+  settlementId:     uuid('settlement_id').notNull().references(() => settlements.id),
+  lotId:            uuid('lot_id').notNull().references(() => lots.id),
+  hammerPrice:      integer('hammer_price').notNull(),
+  commissionRate:   numeric('commission_rate', { precision: 5, scale: 4 }).notNull(),
+  commissionAmount: integer('commission_amount').notNull(),
+}, (table) => [
+  index('settlement_items_settlement_idx').on(table.settlementId),
+  index('settlement_items_lot_idx').on(table.lotId),
+]);
+
+// ─── Settings (key-value config store) ──────────────────────────────────────
+
+export const settings = pgTable('settings', {
+  id:          uuid('id').defaultRandom().primaryKey(),
+  key:         varchar('key', { length: 100 }).notNull().unique(),
+  value:       text('value').notNull().default(''),
+  category:    varchar('category', { length: 50 }).notNull(),
+  label:       varchar('label', { length: 200 }).notNull(),
+  description: text('description').default(''),
+  updatedAt:   timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  updatedBy:   uuid('updated_by').references(() => admins.id),
+}, (table) => [
+  index('settings_category_idx').on(table.category),
+  index('settings_key_idx').on(table.key),
+]);
 
 // ─── Payments ────────────────────────────────────────────────────────────────
 

@@ -54,6 +54,7 @@ export default function LotTranslations({ lotId }: LotTranslationsProps) {
   const [deleting, setDeleting] = useState<Record<string, boolean>>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [successes, setSuccesses] = useState<Record<string, string>>({});
+  const [aiTranslating, setAiTranslating] = useState<Record<string, boolean>>({});
 
   const fetchTranslations = useCallback(async () => {
     setLoading(true);
@@ -193,6 +194,46 @@ export default function LotTranslations({ lotId }: LotTranslationsProps) {
       setErrors((prev) => ({ ...prev, [locale]: 'An unexpected error occurred' }));
     } finally {
       setDeleting((prev) => ({ ...prev, [locale]: false }));
+    }
+  };
+
+  const handleAiTranslate = async (locale: string) => {
+    setAiTranslating((prev) => ({ ...prev, [locale]: true }));
+    setErrors((prev) => {
+      const next = { ...prev };
+      delete next[locale];
+      return next;
+    });
+
+    try {
+      const res = await fetch(apiUrl(`/api/admin/lots/${lotId}/ai/translate`), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ locale }),
+      });
+
+      const json = await res.json();
+
+      if (!res.ok) {
+        setErrors((prev) => ({ ...prev, [locale]: json.error || 'Translation failed' }));
+        return;
+      }
+
+      // Fill the description field with the translated text
+      setForms((prev) => ({
+        ...prev,
+        [locale]: { ...prev[locale], description: json.description },
+      }));
+      setSuccesses((prev) => ({ ...prev, [locale]: 'Description auto-translated. Review and save.' }));
+      setTimeout(() => setSuccesses((prev) => {
+        const next = { ...prev };
+        delete next[locale];
+        return next;
+      }), 5000);
+    } catch {
+      setErrors((prev) => ({ ...prev, [locale]: 'Failed to connect to AI service' }));
+    } finally {
+      setAiTranslating((prev) => ({ ...prev, [locale]: false }));
     }
   };
 
@@ -337,7 +378,7 @@ export default function LotTranslations({ lotId }: LotTranslationsProps) {
 
         {/* Actions */}
         <div className="flex items-center justify-between pt-4 border-t border-beige">
-          <div>
+          <div className="flex items-center gap-2">
             {hasTranslation(activeLocale) && (
               <button
                 type="button"
@@ -348,6 +389,27 @@ export default function LotTranslations({ lotId }: LotTranslationsProps) {
                 {deleting[activeLocale] ? 'Deleting...' : 'Delete translation'}
               </button>
             )}
+            <button
+              type="button"
+              disabled={aiTranslating[activeLocale]}
+              onClick={() => handleAiTranslate(activeLocale)}
+              title="Auto-translate Polish description to this language"
+              className="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-violet-700 bg-violet-50 hover:bg-violet-100 rounded-lg transition-colors disabled:opacity-50"
+            >
+              {aiTranslating[activeLocale] ? (
+                <>
+                  <span className="h-3 w-3 animate-spin rounded-full border-2 border-violet-600 border-t-transparent" />
+                  Translating...
+                </>
+              ) : (
+                <>
+                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="m10.5 21 5.25-11.25L21 21m-9-3h7.5M3 5.621a48.474 48.474 0 0 1 6-.371m0 0c1.12 0 2.233.038 3.334.114M9 5.25V3m3.334 2.364C11.176 10.658 7.69 15.08 3 17.502m9.334-12.138c.896.061 1.785.147 2.666.257m-4.589 8.495a18.023 18.023 0 0 1-3.827-5.802" />
+                  </svg>
+                  Auto-translate (AI)
+                </>
+              )}
+            </button>
           </div>
           <button
             type="button"

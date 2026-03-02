@@ -13,6 +13,9 @@ import ConfirmDialog from '../../../../components/ConfirmDialog';
 import MediaGrid from '../../../../components/MediaGrid';
 import MediaUpload from '../../../../components/MediaUpload';
 import LotTranslations from '../../../../components/LotTranslations';
+import ConditionReportTab from '../../../../components/ConditionReportTab';
+
+type Tab = 'details' | 'condition' | 'media' | 'translations';
 
 interface LotDetail {
   id: string;
@@ -21,6 +24,7 @@ interface LotDetail {
   title: string;
   artist: string;
   description: string;
+  category: string | null;
   medium: string;
   dimensions: string;
   year: number | null;
@@ -34,6 +38,7 @@ interface LotDetail {
   exhibitions: string[];
   literature: string[];
   conditionNotes: string;
+  conditionGrade: 'mint' | 'excellent' | 'very_good' | 'good' | 'fair' | 'poor' | null;
   notes: string;
   consignorId: string | null;
   createdAt: string;
@@ -49,6 +54,13 @@ interface MediaItem {
   isPrimary: boolean;
   sortOrder: number;
 }
+
+const TABS: { id: Tab; label: string }[] = [
+  { id: 'details', label: 'Details' },
+  { id: 'condition', label: 'Condition Report' },
+  { id: 'media', label: 'Media' },
+  { id: 'translations', label: 'Translations' },
+];
 
 export default function EditLotPage({
   params,
@@ -68,6 +80,10 @@ export default function EditLotPage({
   const [youtubeOpen, setYoutubeOpen] = useState(false);
   const [youtubeUrl, setYoutubeUrl] = useState('');
   const [youtubeError, setYoutubeError] = useState<string | null>(null);
+  const [aiGenerating, setAiGenerating] = useState(false);
+  const [aiDescription, setAiDescription] = useState<string | null>(null);
+  const [aiError, setAiError] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<Tab>('details');
 
   const fetchLot = useCallback(async () => {
     try {
@@ -75,7 +91,9 @@ export default function EditLotPage({
       if (res.ok) {
         const data = await res.json();
         setLot(data.lot);
-        setMediaItems(data.media);
+        setMediaItems(
+          (data.media as MediaItem[]).filter((m) => m.mediaType !== 'condition'),
+        );
       } else if (res.status === 404) {
         router.push(`/admin/auctions/${auctionId}/lots`);
       }
@@ -217,7 +235,6 @@ export default function EditLotPage({
         body: JSON.stringify({ items }),
       });
       if (res.ok) {
-        // Re-sort local state
         setMediaItems((prev) => {
           const map = new Map(items.map((i) => [i.id, i.sortOrder]));
           return [...prev].sort(
@@ -254,6 +271,25 @@ export default function EditLotPage({
     }
   };
 
+  const handleAiDescribe = async () => {
+    setAiGenerating(true);
+    setAiError(null);
+    setAiDescription(null);
+    try {
+      const res = await fetch(apiUrl(`/api/admin/lots/${lotId}/ai/describe`), { method: 'POST' });
+      const json = await res.json();
+      if (!res.ok) {
+        setAiError(json.error || 'AI generation failed');
+      } else {
+        setAiDescription(json.description);
+      }
+    } catch {
+      setAiError('Failed to connect to AI service');
+    } finally {
+      setAiGenerating(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="space-y-6">
@@ -278,6 +314,7 @@ export default function EditLotPage({
     title: lot.title,
     artist: lot.artist,
     description: lot.description,
+    category: lot.category ?? '',
     medium: lot.medium,
     dimensions: lot.dimensions,
     year: lot.year?.toString() ?? '',
@@ -325,17 +362,6 @@ export default function EditLotPage({
             onStatusChange={handleStatusChange}
             loading={statusLoading}
           />
-          <a
-            href={apiUrl(`/api/admin/lots/${lotId}/condition-report`)}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-amber-700 bg-amber-50 hover:bg-amber-100 rounded-lg transition-colors"
-          >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25ZM6.75 12h.008v.008H6.75V12Zm0 3h.008v.008H6.75V15Zm0 3h.008v.008H6.75V18Z" />
-            </svg>
-            Condition Report
-          </a>
           <button
             onClick={() => setDeleteOpen(true)}
             className="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors"
@@ -360,87 +386,197 @@ export default function EditLotPage({
         </div>
       )}
 
-      {/* Media Section */}
-      <div className="bg-white rounded-xl border border-beige p-6">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-serif font-semibold text-dark-brown">Media</h2>
-          <button
-            onClick={() => setYoutubeOpen(true)}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors"
-          >
-            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
-            </svg>
-            Add YouTube
-          </button>
-        </div>
-
-        <MediaUpload lotId={lotId} onUploaded={fetchLot} />
-
-        <div className="mt-4">
-          <MediaGrid
-            items={mediaItems}
-            onDelete={handleMediaDelete}
-            onSetPrimary={handleSetPrimary}
-            onReorder={handleReorder}
-          />
-        </div>
+      {/* Tab Navigation */}
+      <div className="border-b border-beige">
+        <nav className="flex gap-1">
+          {TABS.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`px-4 py-2.5 text-sm font-medium rounded-t-lg border-b-2 transition-colors ${
+                activeTab === tab.id
+                  ? 'text-dark-brown border-gold bg-white'
+                  : 'text-taupe border-transparent hover:text-dark-brown hover:border-beige'
+              }`}
+            >
+              {tab.label}
+              {tab.id === 'condition' && lot.conditionGrade && (
+                <span className="ml-1.5 inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-amber-100 text-amber-700 capitalize">
+                  {lot.conditionGrade.replace('_', ' ')}
+                </span>
+              )}
+            </button>
+          ))}
+        </nav>
       </div>
 
-      {/* YouTube dialog */}
-      {youtubeOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="fixed inset-0 bg-black/50" onClick={() => setYoutubeOpen(false)} />
-          <div className="relative bg-white rounded-xl shadow-lg max-w-md w-full mx-4 p-6">
-            <h3 className="text-lg font-semibold text-dark-brown">Add YouTube Video</h3>
-            <div className="mt-4">
-              <input
-                type="url"
-                value={youtubeUrl}
-                onChange={(e) => setYoutubeUrl(e.target.value)}
-                placeholder="https://www.youtube.com/watch?v=..."
-                className="w-full px-3 py-2 text-sm border border-beige rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold"
-              />
-              {youtubeError && (
-                <p className="mt-1 text-xs text-red-600">{youtubeError}</p>
-              )}
-            </div>
-            <div className="mt-6 flex justify-end gap-3">
+      {/* Tab Content */}
+
+      {activeTab === 'details' && (
+        <div className="space-y-4">
+          {/* AI Tools */}
+          <div className="bg-violet-50 border border-violet-200 rounded-xl p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-sm font-semibold text-violet-900">AI Tools</h3>
+                <p className="text-xs text-violet-600 mt-0.5">Generate description from lot images using Claude AI</p>
+              </div>
               <button
-                onClick={() => {
-                  setYoutubeOpen(false);
-                  setYoutubeUrl('');
-                  setYoutubeError(null);
-                }}
-                className="px-4 py-2 text-sm font-medium text-taupe bg-beige/50 hover:bg-beige rounded-lg transition-colors"
+                type="button"
+                onClick={handleAiDescribe}
+                disabled={aiGenerating}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-violet-600 hover:bg-violet-700 rounded-lg transition-colors disabled:opacity-50"
               >
-                Cancel
-              </button>
-              <button
-                onClick={handleAddYoutube}
-                disabled={!youtubeUrl}
-                className="px-4 py-2 text-sm font-medium text-white bg-gold hover:bg-gold-dark rounded-lg transition-colors disabled:opacity-50"
-              >
-                Add Video
+                {aiGenerating ? (
+                  <>
+                    <span className="h-3 w-3 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                    Generating...
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09Z" />
+                    </svg>
+                    Generate Description (AI)
+                  </>
+                )}
               </button>
             </div>
+
+            {aiError && (
+              <p className="mt-2 text-xs text-red-600 bg-red-50 rounded px-2 py-1">{aiError}</p>
+            )}
+
+            {aiDescription && (
+              <div className="mt-3 space-y-2">
+                <p className="text-xs font-medium text-violet-800">Generated description (preview):</p>
+                <div className="text-sm text-dark-brown bg-white border border-violet-200 rounded-lg p-3 leading-relaxed">
+                  {aiDescription}
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      // Copy description into the form — user still needs to save
+                      const textarea = document.getElementById('description') as HTMLTextAreaElement | null;
+                      if (textarea) {
+                        const nativeInputValueSetter = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value')?.set;
+                        if (nativeInputValueSetter) {
+                          nativeInputValueSetter.call(textarea, aiDescription);
+                          textarea.dispatchEvent(new Event('input', { bubbles: true }));
+                        }
+                      }
+                      setAiDescription(null);
+                    }}
+                    className="px-3 py-1.5 text-xs font-medium text-white bg-violet-600 hover:bg-violet-700 rounded-lg transition-colors"
+                  >
+                    Use this description
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setAiDescription(null)}
+                    className="px-3 py-1.5 text-xs font-medium text-taupe hover:text-dark-brown transition-colors"
+                  >
+                    Dismiss
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className="bg-white rounded-xl border border-beige p-6">
+            <LotForm
+              initialData={formData}
+              onSubmit={handleSubmit}
+              submitLabel="Save Changes"
+              loading={saving}
+            />
           </div>
         </div>
       )}
 
-      {/* Lot Form */}
-      <div className="bg-white rounded-xl border border-beige p-6">
-        <h2 className="text-lg font-serif font-semibold text-dark-brown mb-4">Lot Details</h2>
-        <LotForm
-          initialData={formData}
-          onSubmit={handleSubmit}
-          submitLabel="Save Changes"
-          loading={saving}
+      {activeTab === 'condition' && (
+        <ConditionReportTab
+          lotId={lotId}
+          auctionId={auctionId}
+          initialGrade={lot.conditionGrade}
+          initialNotes={lot.conditionNotes ?? ''}
         />
-      </div>
+      )}
 
-      {/* Translations */}
-      <LotTranslations lotId={lotId} />
+      {activeTab === 'media' && (
+        <div className="space-y-4">
+          <div className="bg-white rounded-xl border border-beige p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-base font-semibold text-dark-brown">Lot Media</h2>
+              <button
+                onClick={() => setYoutubeOpen(true)}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors"
+              >
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
+                </svg>
+                Add YouTube
+              </button>
+            </div>
+
+            <MediaUpload lotId={lotId} onUploaded={fetchLot} />
+
+            <div className="mt-4">
+              <MediaGrid
+                items={mediaItems}
+                onDelete={handleMediaDelete}
+                onSetPrimary={handleSetPrimary}
+                onReorder={handleReorder}
+              />
+            </div>
+          </div>
+
+          {youtubeOpen && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center">
+              <div className="fixed inset-0 bg-black/50" onClick={() => setYoutubeOpen(false)} />
+              <div className="relative bg-white rounded-xl shadow-lg max-w-md w-full mx-4 p-6">
+                <h3 className="text-lg font-semibold text-dark-brown">Add YouTube Video</h3>
+                <div className="mt-4">
+                  <input
+                    type="url"
+                    value={youtubeUrl}
+                    onChange={(e) => setYoutubeUrl(e.target.value)}
+                    placeholder="https://www.youtube.com/watch?v=..."
+                    className="w-full px-3 py-2 text-sm border border-beige rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold"
+                  />
+                  {youtubeError && (
+                    <p className="mt-1 text-xs text-red-600">{youtubeError}</p>
+                  )}
+                </div>
+                <div className="mt-6 flex justify-end gap-3">
+                  <button
+                    onClick={() => {
+                      setYoutubeOpen(false);
+                      setYoutubeUrl('');
+                      setYoutubeError(null);
+                    }}
+                    className="px-4 py-2 text-sm font-medium text-taupe bg-beige/50 hover:bg-beige rounded-lg transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleAddYoutube}
+                    disabled={!youtubeUrl}
+                    className="px-4 py-2 text-sm font-medium text-white bg-gold hover:bg-gold-dark rounded-lg transition-colors disabled:opacity-50"
+                  >
+                    Add Video
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {activeTab === 'translations' && (
+        <LotTranslations lotId={lotId} />
+      )}
 
       {/* Meta info */}
       <div className="bg-white rounded-xl border border-beige p-4 text-xs text-taupe">
