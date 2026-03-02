@@ -1,4 +1,248 @@
+import PDFDocument from 'pdfkit';
 import type { InvoiceWithDetails } from './invoice-service';
+
+// ─── Company settings shape ──────────────────────────────────────────────────
+
+export interface CompanySettings {
+  company_name: string;
+  company_address: string;
+  company_city: string;
+  company_postal_code: string;
+  company_country: string;
+  company_nip: string;
+  company_bank_account?: string;
+}
+
+// ─── Polish number-to-words (simplified, PLN only) ───────────────────────────
+
+const ONES = ['', 'jeden', 'dwa', 'trzy', 'cztery', 'pięć', 'sześć', 'siedem', 'osiem', 'dziewięć'];
+const TEENS = ['dziesięć', 'jedenaście', 'dwanaście', 'trzynaście', 'czternaście', 'piętnaście', 'szesnaście', 'siedemnaście', 'osiemnaście', 'dziewiętnaście'];
+const TENS = ['', 'dziesięć', 'dwadzieścia', 'trzydzieści', 'czterdzieści', 'pięćdziesiąt', 'sześćdziesiąt', 'siedemdziesiąt', 'osiemdziesiąt', 'dziewięćdziesiąt'];
+const HUNDREDS = ['', 'sto', 'dwieście', 'trzysta', 'czterysta', 'pięćset', 'sześćset', 'siedemset', 'osiemset', 'dziewięćset'];
+
+function threeDigits(n: number): string {
+  const h = Math.floor(n / 100);
+  const rest = n % 100;
+  const t = Math.floor(rest / 10);
+  const o = rest % 10;
+  const parts: string[] = [];
+  if (h) parts.push(HUNDREDS[h]);
+  if (t === 1) {
+    parts.push(TEENS[o]);
+  } else {
+    if (t) parts.push(TENS[t]);
+    if (o) parts.push(ONES[o]);
+  }
+  return parts.join(' ');
+}
+
+function numberToWords(n: number): string {
+  if (n === 0) return 'zero';
+  const millions = Math.floor(n / 1_000_000);
+  const thousands = Math.floor((n % 1_000_000) / 1_000);
+  const rest = n % 1_000;
+  const parts: string[] = [];
+  if (millions) {
+    const w = threeDigits(millions);
+    parts.push(`${w} ${millions === 1 ? 'milion' : millions < 5 ? 'miliony' : 'milionów'}`);
+  }
+  if (thousands) {
+    const w = threeDigits(thousands);
+    const last2 = thousands % 100;
+    const last1 = thousands % 10;
+    let suffix = 'tysięcy';
+    if (thousands === 1) suffix = 'tysiąc';
+    else if (last2 !== 12 && last2 !== 13 && last2 !== 14 && last1 >= 2 && last1 <= 4) suffix = 'tysiące';
+    parts.push(`${w} ${suffix}`);
+  }
+  if (rest) parts.push(threeDigits(rest));
+  return parts.join(' ');
+}
+
+export function amountInWords(amount: number): string {
+  const rounded = Math.round(amount);
+  return `${numberToWords(rounded)} złotych`;
+}
+
+// ─── PDF generation ──────────────────────────────────────────────────────────
+
+export function generateInvoicePdf(
+  invoice: InvoiceWithDetails,
+  settings: CompanySettings,
+): Promise<Buffer> {
+  return new Promise((resolve, reject) => {
+    const doc = new PDFDocument({ size: 'A4', margin: 50, info: { Title: `Faktura ${invoice.invoiceNumber}` } });
+    const chunks: Buffer[] = [];
+    doc.on('data', (chunk: Buffer) => chunks.push(chunk));
+    doc.on('end', () => resolve(Buffer.concat(chunks)));
+    doc.on('error', reject);
+
+    const GOLD = '#c9a84c';
+    const DARK = '#1a1a1a';
+    const TAUPE = '#8b7355';
+    const GRAY = '#555555';
+    const W = 495; // usable width (595 - 2*50)
+
+    // ── Header ──────────────────────────────────────────────────────────────
+    doc.fontSize(28).font('Helvetica-Bold').fillColor(DARK).text('OMENA', 50, 50);
+    doc.fontSize(9).font('Helvetica').fillColor(TAUPE).text('DOM AUKCYJNY', 50, 83);
+
+    // Right side: invoice label + number
+    const invMeta = `${invoice.invoiceNumber}`;
+    doc.fontSize(9).font('Helvetica').fillColor(TAUPE).text('FAKTURA VAT', 50, 50, { align: 'right', width: W });
+    doc.fontSize(14).font('Helvetica-Bold').fillColor(GOLD).text(invMeta, 50, 64, { align: 'right', width: W });
+
+    const dateIssued = formatDate(invoice.createdAt);
+    const dateDue = formatDate(invoice.dueDate);
+    doc.fontSize(9).font('Helvetica').fillColor(GRAY)
+      .text(`Data wystawienia: ${dateIssued}`, 50, 84, { align: 'right', width: W });
+    if (invoice.dueDate) {
+      doc.text(`Termin płatności: ${dateDue}`, 50, 96, { align: 'right', width: W });
+    }
+
+    // Gold separator line
+    doc.moveTo(50, 115).lineTo(545, 115).lineWidth(2).strokeColor(GOLD).stroke();
+
+    // ── Seller & Buyer ──────────────────────────────────────────────────────
+    const sellerX = 50;
+    const buyerX = 310;
+    const partyY = 130;
+
+    doc.fontSize(8).font('Helvetica-Bold').fillColor(TAUPE)
+      .text('SPRZEDAWCA', sellerX, partyY)
+      .text('NABYWCA', buyerX, partyY);
+
+    doc.moveTo(sellerX, partyY + 12).lineTo(260, partyY + 12).lineWidth(0.5).strokeColor('#e8e0d0').stroke();
+    doc.moveTo(buyerX, partyY + 12).lineTo(545, partyY + 12).lineWidth(0.5).strokeColor('#e8e0d0').stroke();
+
+    const sellerName = settings.company_name || 'Omena Dom Aukcyjny';
+    const sellerAddr = [
+      settings.company_address,
+      [settings.company_postal_code, settings.company_city].filter(Boolean).join(' '),
+      settings.company_country,
+    ].filter(Boolean).join('\n');
+    const sellerNip = settings.company_nip ? `NIP: ${settings.company_nip}` : '';
+
+    doc.fontSize(10).font('Helvetica-Bold').fillColor(DARK).text(sellerName, sellerX, partyY + 18, { width: 250 });
+    if (sellerAddr) {
+      doc.fontSize(9).font('Helvetica').fillColor(GRAY).text(sellerAddr, sellerX, doc.y + 2, { width: 250 });
+    }
+    if (sellerNip) {
+      doc.fontSize(9).font('Helvetica').fillColor(GRAY).text(sellerNip, sellerX, doc.y + 2, { width: 250 });
+    }
+
+    const buyerAddr = [
+      invoice.userAddress,
+      [invoice.userPostalCode, invoice.userCity].filter(Boolean).join(' '),
+      invoice.userCountry,
+    ].filter(Boolean).join('\n');
+
+    doc.fontSize(10).font('Helvetica-Bold').fillColor(DARK).text(invoice.userName, buyerX, partyY + 18, { width: 235 });
+    doc.fontSize(9).font('Helvetica').fillColor(GRAY).text(invoice.userEmail, buyerX, doc.y + 2, { width: 235 });
+    if (buyerAddr) {
+      doc.text(buyerAddr, buyerX, doc.y + 2, { width: 235 });
+    }
+
+    // ── Line items table ────────────────────────────────────────────────────
+    const tableY = 255;
+    const col = { lot: 50, desc: 85, hammer: 305, premium: 385, total: 460 };
+
+    // Table header background
+    doc.rect(50, tableY, W, 22).fill('#f5f0e8');
+
+    doc.fontSize(8).font('Helvetica-Bold').fillColor(TAUPE)
+      .text('NR', col.lot, tableY + 7, { width: 30 })
+      .text('OPIS', col.desc, tableY + 7, { width: 215 })
+      .text('CENA WYLIC.', col.hammer, tableY + 7, { width: 75, align: 'right' })
+      .text('OPŁATA AUK.', col.premium, tableY + 7, { width: 70, align: 'right' })
+      .text('RAZEM', col.total, tableY + 7, { width: 85, align: 'right' });
+
+    // Table row
+    const rowY = tableY + 28;
+    doc.fontSize(9).font('Helvetica-Bold').fillColor(DARK)
+      .text(String(invoice.lotNumber), col.lot, rowY, { width: 30 });
+
+    const titleMaxLen = 55;
+    const lotTitle = invoice.lotTitle.length > titleMaxLen
+      ? invoice.lotTitle.slice(0, titleMaxLen) + '…'
+      : invoice.lotTitle;
+
+    doc.fontSize(9).font('Helvetica-Bold').fillColor(DARK).text(lotTitle, col.desc, rowY, { width: 215 });
+    doc.fontSize(8).font('Helvetica').fillColor(TAUPE).text(invoice.auctionTitle, col.desc, doc.y + 1, { width: 215 });
+
+    doc.fontSize(9).font('Helvetica').fillColor(DARK)
+      .text(formatPLN(invoice.hammerPrice), col.hammer, rowY, { width: 75, align: 'right' })
+      .text(formatPLN(invoice.buyersPremium), col.premium, rowY, { width: 70, align: 'right' })
+      .text(formatPLN(invoice.totalAmount), col.total, rowY, { width: 85, align: 'right' });
+
+    // Row separator
+    const afterRow = rowY + 35;
+    doc.moveTo(50, afterRow).lineTo(545, afterRow).lineWidth(0.5).strokeColor('#f0ebe0').stroke();
+
+    // ── Totals block ─────────────────────────────────────────────────────────
+    const totalsX = 365;
+    let totY = afterRow + 16;
+
+    const totalsRows: [string, number][] = [
+      ['Cena wylicytowana', invoice.hammerPrice],
+      ['Opłata aukcyjna', invoice.buyersPremium],
+    ];
+
+    for (const [label, amt] of totalsRows) {
+      doc.fontSize(9).font('Helvetica').fillColor(GRAY).text(label, totalsX, totY, { width: 105 });
+      doc.text(formatPLN(amt), totalsX, totY, { width: 175, align: 'right' });
+      totY += 16;
+      doc.moveTo(totalsX, totY - 2).lineTo(540, totY - 2).lineWidth(0.3).strokeColor('#f0ebe0').stroke();
+    }
+
+    // Grand total line
+    totY += 4;
+    doc.moveTo(totalsX, totY).lineTo(540, totY).lineWidth(1.5).strokeColor(GOLD).stroke();
+    totY += 6;
+    doc.fontSize(11).font('Helvetica-Bold').fillColor(DARK)
+      .text('DO ZAPŁATY', totalsX, totY, { width: 105 })
+      .text(formatPLN(invoice.totalAmount), totalsX, totY, { width: 175, align: 'right' });
+
+    // Amount in words
+    totY += 20;
+    doc.fontSize(8).font('Helvetica').fillColor(TAUPE)
+      .text(`Słownie: ${amountInWords(invoice.totalAmount)}`, 50, totY, { width: W });
+
+    // ── Payment info ─────────────────────────────────────────────────────────
+    totY += 20;
+    if (settings.company_bank_account) {
+      doc.fontSize(8).font('Helvetica').fillColor(GRAY)
+        .text(`Przelew na rachunek: ${settings.company_bank_account}`, 50, totY, { width: W });
+      totY += 12;
+    }
+
+    // Paid date if applicable
+    if (invoice.paidAt) {
+      doc.fontSize(8).font('Helvetica').fillColor('#065f46')
+        .text(`Opłacono: ${formatDate(invoice.paidAt)}`, 50, totY, { width: W });
+      totY += 14;
+    }
+
+    // Notes
+    if (invoice.notes) {
+      totY += 4;
+      doc.rect(50, totY, W, 1).fill('#e8e0d0');
+      totY += 8;
+      doc.fontSize(8).font('Helvetica-Bold').fillColor(TAUPE).text('UWAGI', 50, totY);
+      totY += 12;
+      doc.fontSize(9).font('Helvetica').fillColor(GRAY).text(invoice.notes, 50, totY, { width: W });
+      totY += 30;
+    }
+
+    // ── Footer ────────────────────────────────────────────────────────────────
+    doc.moveTo(50, 770).lineTo(545, 770).lineWidth(0.5).strokeColor('#e8e0d0').stroke();
+    const footerParts = [sellerName, ...(sellerNip ? [sellerNip] : [])];
+    doc.fontSize(8).font('Helvetica').fillColor(TAUPE)
+      .text(footerParts.join(' · '), 50, 776, { align: 'center', width: W });
+
+    doc.end();
+  });
+}
 
 // Format currency in PLN
 function formatPLN(amount: number): string {

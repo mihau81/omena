@@ -18,6 +18,7 @@ const auctionBaseSchema = z.object({
   visibilityLevel: z.enum(visibilityLevelValues).default('0'),
   buyersPremiumRate: z.string().regex(/^\d+\.\d{4}$/).default('0.2000'),
   notes: z.string().default(''),
+  livestreamUrl: z.string().url().optional().or(z.literal('')).nullable(),
 });
 
 export const createAuctionSchema = auctionBaseSchema.refine(

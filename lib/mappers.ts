@@ -81,6 +81,7 @@ export function mapDBLotToFrontend(
     auctionSlug: string;
     images: string[];
     currentBid?: number | null;
+    conditionPhotos?: Lot['conditionPhotos'];
   },
 ): Lot {
   return {
@@ -100,5 +101,12 @@ export function mapDBLotToFrontend(
     exhibited: Array.isArray(row.exhibitions) ? row.exhibitions as string[] : [],
     lotNumber: row.lotNumber,
     status: row.status as string | undefined,
+    closingAt: row.closingAt instanceof Date
+      ? (row.closingAt as Date).toISOString()
+      : (row.closingAt as string | null | undefined) ?? null,
+    auctionId: row.auctionId as string | undefined,
+    conditionGrade: (row.conditionGrade as string | null | undefined) ?? null,
+    conditionNotes: (row.conditionNotes as string | null | undefined) ?? null,
+    conditionPhotos: opts.conditionPhotos ?? [],
   };
 }

@@ -54,6 +54,29 @@ export async function deleteFromS3(key: string): Promise<void> {
   );
 }
 
+/**
+ * Download an object from S3 as a Buffer.
+ * Returns null if the key does not exist.
+ */
+export async function getFromS3(key: string): Promise<Buffer | null> {
+  try {
+    const response = await s3Client.send(
+      new GetObjectCommand({ Bucket: S3_BUCKET, Key: key }),
+    );
+    if (!response.Body) return null;
+    // Collect streaming body into a Buffer
+    const chunks: Uint8Array[] = [];
+    for await (const chunk of response.Body as AsyncIterable<Uint8Array>) {
+      chunks.push(chunk);
+    }
+    return Buffer.concat(chunks);
+  } catch (err: unknown) {
+    const code = (err as { name?: string; Code?: string })?.name ?? (err as { Code?: string })?.Code;
+    if (code === 'NoSuchKey' || code === 'NotFound') return null;
+    throw err;
+  }
+}
+
 export async function getPresignedUploadUrl(
   key: string,
   contentType: string,

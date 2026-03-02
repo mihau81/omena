@@ -1,7 +1,7 @@
 import { eq, and, desc } from 'drizzle-orm';
 import { db } from '@/db/connection';
 import { notifications, users } from '@/db/schema';
-import { sendEmail } from '@/lib/email';
+import { queueEmail, enqueuePushNotification } from '@/lib/queue';
 import {
   outbidNotification,
   auctionStarting,
@@ -65,7 +65,38 @@ export async function createNotification(
     (err) => console.error(`[notifications] Email send failed for ${inserted.id}:`, err),
   );
 
+  // 3. Attempt push notification (non-blocking, best-effort)
+  sendPushForNotification(userId, type, title, body, metadata).catch(
+    (err) => console.warn(`[notifications] Push send failed for ${inserted.id}:`, err),
+  );
+
   return inserted.id;
+}
+
+// ─── Push Delivery ────────────────────────────────────────────────────────────
+
+async function sendPushForNotification(
+  userId: string,
+  type: NotificationType,
+  title: string,
+  body: string,
+  metadata?: NotificationMetadata,
+): Promise<void> {
+  // Only send push for time-sensitive notification types
+  const pushTypes: NotificationType[] = [
+    'outbid',
+    'lot_won',
+    'auction_starting',
+    'registration_approved',
+  ];
+  if (!pushTypes.includes(type)) return;
+
+  const url = metadata?.lotUrl ?? metadata?.auctionUrl ?? '/account/notifications';
+
+  await enqueuePushNotification({
+    userId,
+    payload: { title, body, url, tag: type },
+  });
 }
 
 // ─── Email Delivery ───────────────────────────────────────────────────────────
@@ -131,14 +162,8 @@ async function sendEmailForNotification(
 
   if (!html) return;
 
-  const sent = await sendEmail(user.email, title, html);
-
-  if (sent) {
-    await db
-      .update(notifications)
-      .set({ emailSent: true })
-      .where(eq(notifications.id, notificationId));
-  }
+  // Enqueue email — worker marks notification.emailSent = true on success
+  await queueEmail(user.email, title, html, notificationId);
 }
 
 // ─── Queries ──────────────────────────────────────────────────────────────────

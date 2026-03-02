@@ -5,9 +5,13 @@ import {
   lots, auctions, users,
 } from '@/db/schema';
 import { getNextMinBid } from '@/app/lib/bidding';
+import { isValidBidAmount } from '@/lib/bid-increments';
 import { logCreate } from '@/lib/audit';
 import { emitBid } from '@/lib/bid-events';
+import { extendLotTimer } from '@/lib/lot-timer';
 import { processAbsenteeBids } from '@/lib/absentee-service';
+import { createNotification } from '@/lib/notifications';
+import { getBaseUrl } from '@/lib/token-service';
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -79,14 +83,17 @@ export async function placeBid(
       throw new BidError('User account is not active', 'USER_INACTIVE', 403);
     }
 
-    // 2. Load lot + auction in one query
+    // 2. Load lot + auction in one query (includes closingAt for anti-sniping check)
     const [lotRow] = await db
       .select({
         lotId: lots.id,
+        lotTitle: lots.title,
         lotStatus: lots.status,
         auctionId: lots.auctionId,
+        auctionSlug: auctions.slug,
         auctionStatus: auctions.status,
         startingBid: lots.startingBid,
+        closingAt: lots.closingAt,
       })
       .from(lots)
       .innerJoin(auctions, eq(auctions.id, lots.auctionId))
@@ -163,7 +170,7 @@ export async function placeBid(
       );
     }
 
-    // 6. Check bid amount meets minimum
+    // 6. Check bid amount meets minimum and follows increment rules
     let minBid: number;
     if (currentHighestAmount === 0) {
       // No bids yet — use starting bid or the minimum increment from 0
@@ -175,6 +182,16 @@ export async function placeBid(
     if (amount < minBid) {
       throw new BidError(
         `Bid must be at least ${minBid} PLN`,
+        'BID_TOO_LOW',
+        400,
+      );
+    }
+
+    // Enforce increment rules: online bidders must follow the increment table
+    if (currentHighestAmount > 0 && !isValidBidAmount(currentHighestAmount, amount)) {
+      const validMin = getNextMinBid(currentHighestAmount);
+      throw new BidError(
+        `Bid must be at least ${validMin} PLN (minimum increment applies)`,
         'BID_TOO_LOW',
         400,
       );
@@ -229,8 +246,34 @@ export async function placeBid(
       nextMinBid: getNextMinBid(amount),
     });
 
+    // 10b. Anti-sniping: if lot has an active timer and closing is within 30s, extend by 30s
+    if (lotRow.closingAt) {
+      const secondsRemaining = (lotRow.closingAt.getTime() - Date.now()) / 1000;
+      if (secondsRemaining > 0 && secondsRemaining <= 30) {
+        extendLotTimer(lotId, 30).catch(() => {});
+      }
+    }
+
     // 11. Trigger proxy bid engine (non-blocking, non-critical)
     processAbsenteeBids(lotId, amount, userId, lotRow.auctionId).catch(() => {});
+
+    // 12. Notify the outbid user (non-blocking, non-critical)
+    if (currentHighest && currentHighest.userId && currentHighest.userId !== userId) {
+      const lotUrl = `${getBaseUrl()}/auctions/${lotRow.auctionSlug}/lots/${lotId}`;
+      createNotification(
+        currentHighest.userId,
+        'outbid',
+        'Przebito Twoje najwyższe podbicie',
+        `Ktoś przelicytował Cię na locie. Złóż nowe podbicie, by pozostać w grze.`,
+        {
+          lotId,
+          auctionId: lotRow.auctionId,
+          lotTitle: lotRow.lotTitle,
+          newBidAmount: amount,
+          lotUrl,
+        },
+      ).catch(() => {});
+    }
 
     return {
       bid: {
@@ -297,3 +340,4 @@ export async function getBidHistory(lotId: string) {
     .where(eq(bids.lotId, lotId))
     .orderBy(desc(bids.amount));
 }
+

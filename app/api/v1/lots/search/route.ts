@@ -4,24 +4,30 @@
  * Only returns lots from public auctions (visibility_level = '0').
  *
  * Query params:
- *   q        — search term (title or artist, min 2 chars)
- *   artist   — exact/partial artist name filter
- *   yearMin  — minimum creation year (inclusive)
- *   yearMax  — maximum creation year (inclusive)
- *   status   — lot status filter (published|active|sold|passed), comma-separated
- *   limit    — max results (1–100, default 20)
- *   offset   — pagination offset (default 0)
+ *   q           — search term (title or artist, min 2 chars)
+ *   artist      — exact/partial artist name filter
+ *   category    — lot category filter (comma-separated): malarstwo,rzezba,grafika,fotografia,rzemiosto,design,bizuteria,inne
+ *   yearMin     — minimum creation year (inclusive)
+ *   yearMax     — maximum creation year (inclusive)
+ *   estimateMin — minimum estimate in PLN
+ *   estimateMax — maximum estimate in PLN
+ *   status      — lot status filter (published|active|sold|passed), comma-separated
+ *   sortBy      — sort order: lot_number (default), estimate_asc, estimate_desc
+ *   limit       — max results (1–100, default 20)
+ *   offset      — pagination offset (default 0)
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { eq, and, isNull, isNotNull, lte, or, inArray, count, asc, ilike, gte } from 'drizzle-orm';
+import { eq, and, isNull, isNotNull, lte, or, inArray, count, asc, desc, ilike, gte, sql } from 'drizzle-orm';
 import { db } from '@/db/connection';
 import { auctions, lots, media } from '@/db/schema';
 import { validateApiKey, ApiKeyError } from '@/lib/api-key-auth';
 
 const AUCTION_PUBLIC_STATUSES = ['preview', 'live', 'archive'] as const;
 const ALLOWED_LOT_STATUSES = ['published', 'active', 'sold', 'passed'] as const;
+const LOT_CATEGORIES = ['malarstwo', 'rzezba', 'grafika', 'fotografia', 'rzemiosto', 'design', 'bizuteria', 'inne'] as const;
 type AllowedLotStatus = typeof ALLOWED_LOT_STATUSES[number];
+type LotCategory = typeof LOT_CATEGORIES[number];
 
 export async function GET(request: NextRequest) {
   try {
@@ -40,6 +46,17 @@ export async function GET(request: NextRequest) {
     const artistFilter = searchParams.get('artist') ?? '';
     const yearMinParam = searchParams.get('yearMin');
     const yearMaxParam = searchParams.get('yearMax');
+    const estimateMinParam = searchParams.get('estimateMin');
+    const estimateMaxParam = searchParams.get('estimateMax');
+    const sortByParam = searchParams.get('sortBy') ?? 'lot_number';
+
+    // Parse lot category filter
+    const categoryParam = searchParams.get('category');
+    const requestedCategories: LotCategory[] = categoryParam
+      ? categoryParam.split(',').map((c) => c.trim()).filter((c): c is LotCategory =>
+          (LOT_CATEGORIES as readonly string[]).includes(c),
+        )
+      : [];
 
     // Parse lot status filter
     const statusParam = searchParams.get('status');
@@ -63,12 +80,20 @@ export async function GET(request: NextRequest) {
     // Validate year params
     const yearMin = yearMinParam ? parseInt(yearMinParam, 10) : null;
     const yearMax = yearMaxParam ? parseInt(yearMaxParam, 10) : null;
+    const estimateMin = estimateMinParam ? parseInt(estimateMinParam, 10) : null;
+    const estimateMax = estimateMaxParam ? parseInt(estimateMaxParam, 10) : null;
 
     if (yearMin !== null && isNaN(yearMin)) {
       return NextResponse.json({ error: 'Invalid yearMin parameter' }, { status: 400 });
     }
     if (yearMax !== null && isNaN(yearMax)) {
       return NextResponse.json({ error: 'Invalid yearMax parameter' }, { status: 400 });
+    }
+    if (estimateMin !== null && isNaN(estimateMin)) {
+      return NextResponse.json({ error: 'Invalid estimateMin parameter' }, { status: 400 });
+    }
+    if (estimateMax !== null && isNaN(estimateMax)) {
+      return NextResponse.json({ error: 'Invalid estimateMax parameter' }, { status: 400 });
     }
     if (q.length > 0 && q.length < 2) {
       return NextResponse.json({ error: 'Search query must be at least 2 characters' }, { status: 400 });
@@ -91,11 +116,12 @@ export async function GET(request: NextRequest) {
     ];
 
     if (q.length >= 2) {
-      const pattern = `%${q}%`;
+      // Full-text search via tsvector (GIN indexed) + trigram similarity for fuzzy matching
       conditions.push(
         or(
-          ilike(lots.title, pattern),
-          ilike(lots.artist, pattern),
+          sql`${lots.searchVector} @@ plainto_tsquery('simple', ${q})`,
+          sql`similarity(${lots.title}, ${q}) > 0.3`,
+          sql`similarity(${lots.artist}, ${q}) > 0.3`,
         )!,
       );
     }
@@ -104,14 +130,30 @@ export async function GET(request: NextRequest) {
       conditions.push(ilike(lots.artist, `%${artistFilter}%`));
     }
 
+    if (requestedCategories.length > 0) {
+      conditions.push(inArray(lots.category, requestedCategories));
+    }
+
     if (yearMin !== null) {
       conditions.push(gte(lots.year, yearMin));
     }
     if (yearMax !== null) {
       conditions.push(lte(lots.year, yearMax));
     }
+    if (estimateMin !== null) {
+      conditions.push(gte(lots.estimateMin, estimateMin));
+    }
+    if (estimateMax !== null) {
+      conditions.push(lte(lots.estimateMax, estimateMax));
+    }
 
     const whereClause = and(...conditions);
+
+    const orderBy = sortByParam === 'estimate_asc'
+      ? asc(lots.estimateMin)
+      : sortByParam === 'estimate_desc'
+        ? desc(lots.estimateMin)
+        : [asc(auctions.sortOrder), asc(lots.sortOrder)] as const;
 
     // Count total
     const [{ total }] = await db
@@ -133,6 +175,7 @@ export async function GET(request: NextRequest) {
         year: lots.year,
         estimateMin: lots.estimateMin,
         estimateMax: lots.estimateMax,
+        category: lots.category,
         hammerPrice: lots.hammerPrice,
         status: lots.status,
         sortOrder: lots.sortOrder,
@@ -157,7 +200,17 @@ export async function GET(request: NextRequest) {
         ),
       )
       .where(whereClause)
-      .orderBy(asc(auctions.sortOrder), asc(lots.sortOrder))
+      .orderBy(
+        // When searching by relevance, rank by ts_rank DESC first
+        ...(q.length >= 2 && sortByParam === 'lot_number'
+          ? [sql`ts_rank(${lots.searchVector}, plainto_tsquery('simple', ${q})) DESC`, asc(auctions.sortOrder), asc(lots.sortOrder)]
+          : sortByParam === 'estimate_asc'
+            ? [asc(lots.estimateMin)]
+            : sortByParam === 'estimate_desc'
+              ? [desc(lots.estimateMin)]
+              : [asc(auctions.sortOrder), asc(lots.sortOrder)]
+        ),
+      )
       .limit(limit)
       .offset(offset);
 

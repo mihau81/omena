@@ -107,6 +107,7 @@ export async function PATCH(
     if (data.visibilityLevel !== undefined) updateValues.visibilityLevel = data.visibilityLevel;
     if (data.buyersPremiumRate !== undefined) updateValues.buyersPremiumRate = data.buyersPremiumRate;
     if (data.notes !== undefined) updateValues.notes = data.notes;
+    if ('livestreamUrl' in data) updateValues.livestreamUrl = data.livestreamUrl || null;
 
     const [updated] = await db
       .update(auctions)

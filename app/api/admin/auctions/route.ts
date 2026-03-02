@@ -81,6 +81,7 @@ export async function POST(request: Request) {
       visibilityLevel: data.visibilityLevel,
       buyersPremiumRate: data.buyersPremiumRate,
       notes: data.notes,
+      livestreamUrl: data.livestreamUrl || null,
       createdBy: admin.id,
       updatedBy: admin.id,
     }).returning();

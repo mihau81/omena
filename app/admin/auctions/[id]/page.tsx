@@ -10,6 +10,7 @@ import type { AuctionFormData } from '../../components/AuctionForm';
 import StatusBadge from '../../components/StatusBadge';
 import StatusWorkflow from '../../components/StatusWorkflow';
 import ConfirmDialog from '../../components/ConfirmDialog';
+import CatalogButton from './components/CatalogButton';
 
 interface AuctionDetail {
   id: string;
@@ -25,6 +26,8 @@ interface AuctionDetail {
   visibilityLevel: '0' | '1' | '2';
   buyersPremiumRate: string;
   notes: string;
+  livestreamUrl: string | null;
+  catalogPdfUrl: string | null;
   lotCount: number;
   createdAt: string;
   updatedAt: string;
@@ -171,6 +174,7 @@ export default function EditAuctionPage({ params }: { params: Promise<{ id: stri
     visibilityLevel: auction.visibilityLevel,
     buyersPremiumRate: auction.buyersPremiumRate,
     notes: auction.notes ?? '',
+    livestreamUrl: auction.livestreamUrl ?? '',
   };
 
   return (
@@ -221,6 +225,10 @@ export default function EditAuctionPage({ params }: { params: Promise<{ id: stri
             </svg>
             Registrations
           </Link>
+          <CatalogButton
+            auctionId={auction.id}
+            initialCatalogUrl={auction.catalogPdfUrl ?? null}
+          />
           <StatusWorkflow
             currentStatus={auction.status}
             auctionId={auction.id}

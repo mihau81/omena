@@ -18,6 +18,7 @@ interface AuctionFormData {
   visibilityLevel: '0' | '1' | '2';
   buyersPremiumRate: string;
   notes: string;
+  livestreamUrl: string;
 }
 
 interface AuctionFormProps {
@@ -77,6 +78,7 @@ const DEFAULT_DATA: AuctionFormData = {
   visibilityLevel: '0',
   buyersPremiumRate: '0.2000',
   notes: '',
+  livestreamUrl: '',
 };
 
 export default function AuctionForm({
@@ -350,6 +352,23 @@ export default function AuctionForm({
             Save the auction first to configure sliding-scale premium tiers.
           </p>
         )}
+      </div>
+
+      {/* Livestream URL */}
+      <div>
+        <label htmlFor="livestreamUrl" className={labelClass}>
+          Livestream URL
+          <span className="ml-1 text-xs text-taupe font-normal">(YouTube or Vimeo — shown when auction is live)</span>
+        </label>
+        <input
+          id="livestreamUrl"
+          name="livestreamUrl"
+          type="url"
+          value={form.livestreamUrl}
+          onChange={handleChange}
+          className={inputClass('livestreamUrl')}
+          placeholder="https://www.youtube.com/watch?v=..."
+        />
       </div>
 
       {/* Internal Notes */}

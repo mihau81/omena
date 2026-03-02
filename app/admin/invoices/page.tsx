@@ -3,6 +3,128 @@
 import { useState, useEffect, useCallback } from 'react';
 import { apiUrl } from '@/app/lib/utils';
 
+// ─── CSV Export ───────────────────────────────────────────────────────────────
+
+interface ExportModalProps {
+  onClose: () => void;
+}
+
+function ExportModal({ onClose }: ExportModalProps) {
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
+  const [status, setStatus] = useState('all');
+  const [exporting, setExporting] = useState(false);
+
+  const handleExport = async () => {
+    setExporting(true);
+    try {
+      const params = new URLSearchParams({ format: 'csv' });
+      if (dateFrom) params.set('dateFrom', dateFrom);
+      if (dateTo) params.set('dateTo', dateTo);
+      if (status !== 'all') params.set('status', status);
+
+      const res = await fetch(apiUrl(`/api/admin/invoices/export?${params}`));
+      if (!res.ok) throw new Error('Export failed');
+
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `faktury-${new Date().toISOString().slice(0, 10)}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+      onClose();
+    } catch (err) {
+      console.error('Export error:', err);
+      alert('Export failed. Please try again.');
+    } finally {
+      setExporting(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      <div className="fixed inset-0 bg-black/50" onClick={onClose} />
+      <div className="relative bg-white rounded-xl shadow-lg max-w-md w-full mx-4 p-6">
+        <div className="flex items-start justify-between mb-4">
+          <div>
+            <h3 className="text-lg font-semibold text-dark-brown">Export Invoices (CSV)</h3>
+            <p className="text-sm text-taupe mt-1">
+              Download invoices as CSV for accounting (Polish format with VAT breakdown).
+            </p>
+          </div>
+          <button onClick={onClose} className="text-taupe hover:text-dark-brown transition-colors ml-4 mt-0.5">
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <div className="space-y-4">
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-medium text-dark-brown mb-1">Date From</label>
+              <input
+                type="date"
+                value={dateFrom}
+                onChange={(e) => setDateFrom(e.target.value)}
+                className="w-full px-3 py-2 text-sm border border-beige rounded-lg bg-white text-dark-brown focus:outline-none focus:ring-2 focus:ring-gold/30 focus:border-gold"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-dark-brown mb-1">Date To</label>
+              <input
+                type="date"
+                value={dateTo}
+                onChange={(e) => setDateTo(e.target.value)}
+                className="w-full px-3 py-2 text-sm border border-beige rounded-lg bg-white text-dark-brown focus:outline-none focus:ring-2 focus:ring-gold/30 focus:border-gold"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-medium text-dark-brown mb-1">Status Filter</label>
+            <select
+              value={status}
+              onChange={(e) => setStatus(e.target.value)}
+              className="w-full px-3 py-2 text-sm border border-beige rounded-lg bg-white text-dark-brown focus:outline-none focus:ring-2 focus:ring-gold/30 focus:border-gold"
+            >
+              <option value="all">All statuses</option>
+              <option value="pending">Pending</option>
+              <option value="sent">Sent</option>
+              <option value="paid">Paid</option>
+              <option value="overdue">Overdue</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+          </div>
+        </div>
+
+        <div className="flex justify-end gap-3 mt-5">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 text-sm font-medium text-taupe bg-beige/50 hover:bg-beige rounded-lg transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleExport}
+            disabled={exporting}
+            className="px-4 py-2 text-sm font-medium text-white bg-gold hover:bg-gold-dark rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+          >
+            {exporting && (
+              <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+              </svg>
+            )}
+            {exporting ? 'Exporting…' : 'Download CSV'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 interface PaymentInfo {
@@ -369,17 +491,29 @@ function DetailPanel({ invoice, onClose, onStatusChange, onNotesChange, updating
                 {next === 'cancelled' && 'Cancel'}
               </button>
             ))}
-            <a
-              href={apiUrl(`/api/admin/invoices/${invoice.id}?format=html`)}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="ml-auto px-3 py-1 text-xs font-medium rounded-lg bg-beige/60 text-dark-brown hover:bg-beige transition-colors flex items-center gap-1.5"
-            >
-              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
-              </svg>
-              View HTML
-            </a>
+            <div className="ml-auto flex items-center gap-2">
+              <a
+                href={apiUrl(`/api/admin/invoices/${invoice.id}/pdf`)}
+                download
+                className="px-3 py-1 text-xs font-medium rounded-lg bg-beige/60 text-dark-brown hover:bg-beige transition-colors flex items-center gap-1.5"
+              >
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                </svg>
+                PDF
+              </a>
+              <a
+                href={apiUrl(`/api/admin/invoices/${invoice.id}?format=html`)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-3 py-1 text-xs font-medium rounded-lg bg-beige/60 text-dark-brown hover:bg-beige transition-colors flex items-center gap-1.5"
+              >
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+                </svg>
+                HTML
+              </a>
+            </div>
           </div>
 
           {/* Buyer */}
@@ -545,6 +679,7 @@ export default function InvoicesPage() {
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
   const [showGenerateModal, setShowGenerateModal] = useState(false);
+  const [showExportModal, setShowExportModal] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [generateResult, setGenerateResult] = useState<{
     generated: number;
@@ -703,15 +838,26 @@ export default function InvoicesPage() {
             Manage buyer invoices and payment status
           </p>
         </div>
-        <button
-          onClick={() => { setGenerateResult(null); setShowGenerateModal(true); }}
-          className="inline-flex items-center gap-2 px-4 py-2.5 bg-gold text-white text-sm font-medium rounded-lg hover:bg-gold-dark transition-colors"
-        >
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-          </svg>
-          Generate for Auction
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setShowExportModal(true)}
+            className="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-beige text-dark-brown text-sm font-medium rounded-lg hover:bg-cream/60 transition-colors"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+            </svg>
+            Export CSV
+          </button>
+          <button
+            onClick={() => { setGenerateResult(null); setShowGenerateModal(true); }}
+            className="inline-flex items-center gap-2 px-4 py-2.5 bg-gold text-white text-sm font-medium rounded-lg hover:bg-gold-dark transition-colors"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+            </svg>
+            Generate for Auction
+          </button>
+        </div>
       </div>
 
       {/* Filters row */}
@@ -842,6 +988,16 @@ export default function InvoicesPage() {
                             View
                           </a>
 
+                          {/* Download PDF */}
+                          <a
+                            href={apiUrl(`/api/admin/invoices/${invoice.id}/pdf`)}
+                            download
+                            className="text-xs font-medium text-taupe hover:text-dark-brown transition-colors"
+                            title="Download PDF"
+                          >
+                            PDF
+                          </a>
+
                           {/* Status transition buttons */}
                           {nextStatuses.map((nextStatus) => (
                             <button
@@ -893,6 +1049,11 @@ export default function InvoicesPage() {
           generating={generating}
           result={generateResult}
         />
+      )}
+
+      {/* Export CSV modal */}
+      {showExportModal && (
+        <ExportModal onClose={() => setShowExportModal(false)} />
       )}
     </div>
   );

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { apiUrl } from '@/app/lib/utils';
+import PushNotificationToggle from '@/app/components/PushNotificationToggle';
 
 interface Notification {
   id: string;
@@ -70,6 +71,11 @@ export default function AccountNotificationsPage() {
             Mark all as read
           </button>
         )}
+      </div>
+
+      {/* Push notification toggle */}
+      <div className="mt-6 rounded-xl border border-beige bg-white p-4">
+        <PushNotificationToggle />
       </div>
 
       {loading ? (

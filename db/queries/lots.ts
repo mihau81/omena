@@ -1,7 +1,9 @@
-import { eq, and, asc, desc, sql, ilike, or, count, max } from 'drizzle-orm';
+import { eq, and, asc, desc, sql, ilike, or, count, max, gte, lte, inArray, isNull } from 'drizzle-orm';
 import { db } from '../connection';
 import { auctions, lots, media, bids, bidRetractions, lotTranslations } from '../schema';
 import { notDeleted, lotVisibilityFilter } from '../helpers';
+
+export type LotCategory = 'malarstwo' | 'rzezba' | 'grafika' | 'fotografia' | 'rzemiosto' | 'design' | 'bizuteria' | 'inne';
 
 export async function getLotsByAuction(auctionId: string, userVisibility: number) {
   const rows = await db
@@ -178,31 +180,51 @@ export async function searchLots(params: {
   query: string;
   userVisibility: number;
   auctionId?: string;
+  categories?: LotCategory[];
+  estimateMin?: number;
+  estimateMax?: number;
+  sortBy?: 'lot_number' | 'estimate_asc' | 'estimate_desc' | 'relevance';
   page?: number;
   limit?: number;
 }) {
-  const { query, userVisibility, auctionId, page = 1, limit = 20 } = params;
-  const pattern = `%${query}%`;
+  const { query, userVisibility, auctionId, categories, estimateMin, estimateMax, sortBy = 'lot_number', page = 1, limit = 20 } = params;
   const offset = (page - 1) * limit;
+  const hasQuery = query.length >= 2;
+
+  // Build text search condition: full-text (tsvector) OR trigram similarity fallback
+  const textConditions = hasQuery
+    ? or(
+        // Full-text match via search_vector (fast, indexed GIN)
+        sql`${lots.searchVector} @@ plainto_tsquery('simple', ${query})`,
+        // Trigram similarity for fuzzy/partial matches (also indexed)
+        sql`similarity(${lots.title}, ${query}) > 0.3`,
+        sql`similarity(${lots.artist}, ${query}) > 0.3`,
+      )
+    : undefined;
+
+  const whereClause = and(
+    lotVisibilityFilter(userVisibility),
+    auctionId ? eq(lots.auctionId, auctionId) : undefined,
+    categories && categories.length > 0 ? inArray(lots.category, categories) : undefined,
+    estimateMin != null ? gte(lots.estimateMin, estimateMin) : undefined,
+    estimateMax != null ? lte(lots.estimateMax, estimateMax) : undefined,
+    textConditions,
+  );
+
+  // Relevance order: ts_rank DESC when searching, otherwise user-selected sort
+  const orderBy = hasQuery && sortBy === 'lot_number'
+    ? sql`ts_rank(${lots.searchVector}, plainto_tsquery('simple', ${query})) DESC, ${lots.sortOrder} ASC`
+    : sortBy === 'estimate_asc'
+      ? asc(lots.estimateMin)
+      : sortBy === 'estimate_desc'
+        ? desc(lots.estimateMin)
+        : asc(lots.sortOrder);
 
   const countQuery = db
     .select({ count: count() })
     .from(lots)
     .innerJoin(auctions, eq(lots.auctionId, auctions.id))
-    .where(
-      and(
-        lotVisibilityFilter(userVisibility),
-        auctionId ? eq(lots.auctionId, auctionId) : undefined,
-        or(
-          ilike(lots.title, pattern),
-          ilike(lots.artist, pattern),
-          ilike(lots.description, pattern),
-          // Search in JSONB arrays
-          sql`${lots.provenance}::text ILIKE ${pattern}`,
-          sql`${lots.exhibitions}::text ILIKE ${pattern}`,
-        ),
-      ),
-    );
+    .where(whereClause);
 
   const rows = await db
     .select({
@@ -218,21 +240,8 @@ export async function searchLots(params: {
       media,
       and(eq(media.lotId, lots.id), eq(media.isPrimary, true), notDeleted(media)),
     )
-    .where(
-      and(
-        lotVisibilityFilter(userVisibility),
-        auctionId ? eq(lots.auctionId, auctionId) : undefined,
-        or(
-          ilike(lots.title, pattern),
-          ilike(lots.artist, pattern),
-          ilike(lots.description, pattern),
-          // Search in JSONB arrays
-          sql`${lots.provenance}::text ILIKE ${pattern}`,
-          sql`${lots.exhibitions}::text ILIKE ${pattern}`,
-        ),
-      ),
-    )
-    .orderBy(asc(lots.sortOrder))
+    .where(whereClause)
+    .orderBy(orderBy)
     .limit(limit)
     .offset(offset);
 
@@ -253,4 +262,110 @@ export async function searchLots(params: {
       pages: Math.ceil(total / limit),
     },
   };
+}
+
+export async function getSoldLots(params: {
+  artistQuery?: string;
+  categories?: LotCategory[];
+  priceMin?: number;
+  priceMax?: number;
+  auctionId?: string;
+  dateFrom?: Date;
+  dateTo?: Date;
+  page?: number;
+  limit?: number;
+}) {
+  const { artistQuery, categories, priceMin, priceMax, auctionId, dateFrom, dateTo, page = 1, limit = 24 } = params;
+  const offset = (page - 1) * limit;
+
+  const whereClause = and(
+    isNull(lots.deletedAt),
+    isNull(auctions.deletedAt),
+    eq(lots.status, 'sold'),
+    inArray(auctions.status, ['reconciliation', 'archive']),
+    auctionId ? eq(lots.auctionId, auctionId) : undefined,
+    categories && categories.length > 0 ? inArray(lots.category, categories) : undefined,
+    artistQuery ? ilike(lots.artist, `%${artistQuery}%`) : undefined,
+    priceMin != null ? gte(lots.hammerPrice, priceMin) : undefined,
+    priceMax != null ? lte(lots.hammerPrice, priceMax) : undefined,
+    dateFrom ? gte(auctions.endDate, dateFrom) : undefined,
+    dateTo ? lte(auctions.endDate, dateTo) : undefined,
+  );
+
+  const [{ total }] = await db
+    .select({ total: count() })
+    .from(lots)
+    .innerJoin(auctions, eq(lots.auctionId, auctions.id))
+    .where(whereClause);
+
+  const rows = await db
+    .select({
+      lot: lots,
+      auctionSlug: auctions.slug,
+      auctionTitle: auctions.title,
+      auctionEndDate: auctions.endDate,
+      primaryImageUrl: media.url,
+      primaryThumbnailUrl: media.thumbnailUrl,
+    })
+    .from(lots)
+    .innerJoin(auctions, eq(lots.auctionId, auctions.id))
+    .leftJoin(
+      media,
+      and(eq(media.lotId, lots.id), eq(media.isPrimary, true), notDeleted(media)),
+    )
+    .where(whereClause)
+    .orderBy(desc(auctions.endDate), asc(lots.sortOrder))
+    .limit(limit)
+    .offset(offset);
+
+  return {
+    lots: rows.map((row) => ({
+      ...row.lot,
+      auctionSlug: row.auctionSlug,
+      auctionTitle: row.auctionTitle,
+      auctionEndDate: row.auctionEndDate,
+      primaryImageUrl: row.primaryImageUrl,
+      primaryThumbnailUrl: row.primaryThumbnailUrl,
+    })),
+    pagination: {
+      page,
+      limit,
+      total,
+      pages: Math.ceil(Number(total) / limit),
+    },
+  };
+}
+
+export async function getAuctionsForResults() {
+  const rows = await db
+    .select({
+      id: auctions.id,
+      slug: auctions.slug,
+      title: auctions.title,
+      endDate: auctions.endDate,
+    })
+    .from(auctions)
+    .where(and(
+      isNull(auctions.deletedAt),
+      inArray(auctions.status, ['reconciliation', 'archive']),
+    ))
+    .orderBy(desc(auctions.endDate));
+
+  return rows;
+}
+
+export async function getDistinctArtists(query?: string) {
+  const rows = await db
+    .selectDistinct({ artist: lots.artist })
+    .from(lots)
+    .innerJoin(auctions, eq(lots.auctionId, auctions.id))
+    .where(and(
+      isNull(lots.deletedAt),
+      isNull(auctions.deletedAt),
+      query ? ilike(lots.artist, `%${query}%`) : undefined,
+    ))
+    .orderBy(asc(lots.artist))
+    .limit(20);
+
+  return rows.map((r) => r.artist).filter(Boolean);
 }

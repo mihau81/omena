@@ -3,6 +3,9 @@ import { db } from '@/db/connection';
 import { invoices, lots, auctions, users } from '@/db/schema';
 import { getTiersForAuction } from '@/db/queries/premium';
 import { calculatePremium, calculateFlatPremium } from '@/lib/premium';
+import { sendEmail } from '@/lib/email';
+import { invoiceReady } from '@/lib/email-templates';
+import { getBaseUrl } from '@/lib/token-service';
 
 export type InvoiceStatus = 'pending' | 'sent' | 'paid' | 'overdue' | 'cancelled';
 
@@ -152,7 +155,47 @@ export async function generateInvoice(lotId: string): Promise<typeof invoices.$i
     dueDate,
   }).returning();
 
+  // Send invoice-ready email (non-blocking)
+  sendInvoiceEmail(created.id, buyerId, lot.title, lot.lotNumber, invoiceNumber, hammerPrice, buyersPremium, totalAmount, dueDate).catch(
+    (err) => console.warn('[invoice] Failed to send invoice email:', err),
+  );
+
   return created;
+}
+
+async function sendInvoiceEmail(
+  invoiceId: string,
+  userId: string,
+  lotTitle: string,
+  lotNumber: number,
+  invoiceNumber: string,
+  hammerPrice: number,
+  buyersPremium: number,
+  totalAmount: number,
+  dueDate: Date,
+): Promise<void> {
+  const [user] = await db
+    .select({ email: users.email, name: users.name })
+    .from(users)
+    .where(eq(users.id, userId))
+    .limit(1);
+
+  if (!user) return;
+
+  const invoiceUrl = `${getBaseUrl()}/account/invoices/${invoiceId}`;
+  const html = invoiceReady(
+    user.name,
+    lotTitle,
+    lotNumber,
+    invoiceNumber,
+    hammerPrice,
+    buyersPremium,
+    totalAmount,
+    dueDate,
+    invoiceUrl,
+  );
+
+  await sendEmail(user.email, `Faktura ${invoiceNumber} — Omena`, html);
 }
 
 // ─── Fetch single invoice with details ─────────────────────────────────────

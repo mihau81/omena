@@ -108,6 +108,16 @@ export const en: Dictionary = {
   // Lot detail
   provenance: 'Provenance',
   exhibitions: 'Exhibitions',
+  conditionReport: 'Condition Report',
+  conditionGrade: 'Overall Condition',
+  conditionNotes: 'Condition Notes',
+  conditionPhotos: 'Condition Photos',
+  conditionGradeMint: 'Mint',
+  conditionGradeExcellent: 'Excellent',
+  conditionGradeVeryGood: 'Very Good',
+  conditionGradeGood: 'Good',
+  conditionGradeFair: 'Fair',
+  conditionGradePoor: 'Poor',
 
   // Bidding
   placeBid: 'Place Bid',
@@ -130,6 +140,8 @@ export const en: Dictionary = {
   hammerPrice: 'Hammer price',
   watchLot: 'Watch',
   unwatchLot: 'Unwatch',
+  customAmount: 'Custom amount',
+  bidIncrementHint: 'Min. increment',
 
   // Registration
   registerTitle: 'Bidder registration',
@@ -173,4 +185,59 @@ export const en: Dictionary = {
   // Language
   languageLabel: 'Language',
   currencyLabel: 'Currency',
+
+  // Artists
+  navArtists: 'Artists',
+  artistsTitle: 'Artists',
+  artistsSearch: 'Search artist...',
+  artistsAll: 'All',
+  artistsNotFound: 'No artists found',
+  artistBio: 'Biography',
+  artistNationality: 'Nationality',
+  artistYears: 'Years',
+  artistAuctionResults: 'Auction Results',
+  artistAvailableLots: 'Available Lots',
+  artistTotalSold: 'Total Sold',
+  artistAvgHammer: 'Average Hammer Price',
+  artistHighestHammer: 'Highest Hammer Price',
+  artistNoResults: 'No auction results yet',
+  artistNoAvailable: 'No available lots',
+  artistLots: 'lots',
+
+  // Lot search filters
+  filtersTitle: 'Filters',
+  filterCategory: 'Category',
+  filterPriceRange: 'Estimate (PLN)',
+  filterPriceMin: 'Min',
+  filterPriceMax: 'Max',
+  filterArtist: 'Artist',
+  filterArtistPlaceholder: 'Search artist...',
+  filterSortBy: 'Sort by',
+  filterSortLotNumber: 'Lot number',
+  filterSortEstimateAsc: 'Estimate: low to high',
+  filterSortEstimateDesc: 'Estimate: high to low',
+  filterClearAll: 'Clear filters',
+  filterApply: 'Apply',
+
+  // Lot categories
+  catMalarstwo: 'Painting',
+  catRzezba: 'Sculpture',
+  catGrafika: 'Graphics',
+  catFotografia: 'Photography',
+  catRzemiosto: 'Craft',
+  catDesign: 'Design',
+  catBizuteria: 'Jewellery',
+  catInne: 'Other',
+
+  // Results page
+  resultsTitle: 'Auction Results',
+  resultsSubtitle: 'Price database from Omena auctions',
+  resultsSoldFor: 'Sold for',
+  resultsNoResults: 'No results matching your criteria',
+  resultsFilterAuction: 'Auction',
+  resultsAllAuctions: 'All auctions',
+  resultsDateFrom: 'Date from',
+  resultsDateTo: 'Date to',
+  navResults: 'Results',
+
 };

@@ -33,7 +33,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const { email, name, password, phone } = parsed.data;
+    const { email, name, password, phone, referrerId: refParam } = parsed.data;
 
     // Check if user already exists
     const [existing] = await db
@@ -56,7 +56,18 @@ export async function POST(request: Request) {
       .where(and(eq(userWhitelists.email, email), isNull(userWhitelists.usedAt)))
       .limit(1);
 
-    const registrationSource = whitelistEntry ? 'whitelist' : 'direct';
+    // Validate referrer if provided
+    let validatedReferrerId: string | undefined;
+    if (refParam) {
+      const [referrer] = await db
+        .select({ id: users.id })
+        .from(users)
+        .where(and(eq(users.id, refParam), isNull(users.deletedAt)))
+        .limit(1);
+      if (referrer) validatedReferrerId = referrer.id;
+    }
+
+    const registrationSource = whitelistEntry ? 'whitelist' : (validatedReferrerId ? 'invitation' : 'direct');
     const passwordHash = password ? await bcrypt.hash(password, 12) : null;
 
     const [newUser] = await db
@@ -67,6 +78,7 @@ export async function POST(request: Request) {
         phone: phone || '',
         passwordHash,
         registrationSource,
+        referrerId: validatedReferrerId ?? null,
         accountStatus: 'pending_verification',
       })
       .returning({ id: users.id, email: users.email });

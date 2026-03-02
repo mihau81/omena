@@ -7,7 +7,10 @@ const unsubscribeBidsMock = vi.fn();
 vi.mock('@/lib/bid-events', () => ({
   subscribeBids: subscribeBidsMock,
   unsubscribeBids: unsubscribeBidsMock,
+  subscribeTimer: vi.fn(),
+  unsubscribeTimer: vi.fn(),
   emitBid: vi.fn(),
+  emitTimerEvent: vi.fn(),
 }));
 
 // Mock the DB connection — the route queries auctions table to verify existence

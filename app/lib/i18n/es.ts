@@ -108,6 +108,16 @@ export const es: Dictionary = {
   // Lot detail
   provenance: 'Procedencia',
   exhibitions: 'Exposiciones',
+  conditionReport: 'Informe de estado',
+  conditionGrade: 'Estado general',
+  conditionNotes: 'Notas de estado',
+  conditionPhotos: 'Fotos de estado',
+  conditionGradeMint: 'Perfecto',
+  conditionGradeExcellent: 'Excelente',
+  conditionGradeVeryGood: 'Muy bueno',
+  conditionGradeGood: 'Bueno',
+  conditionGradeFair: 'Regular',
+  conditionGradePoor: 'Deficiente',
 
   // Bidding
   placeBid: 'Pujar',
@@ -130,6 +140,8 @@ export const es: Dictionary = {
   hammerPrice: 'Precio de remate',
   watchLot: 'Seguir',
   unwatchLot: 'Dejar de seguir',
+  customAmount: 'Otro importe',
+  bidIncrementHint: 'Incremento mín.',
 
   // Registration
   registerTitle: 'Registro de pujador',
@@ -173,4 +185,58 @@ export const es: Dictionary = {
   // Language
   languageLabel: 'Idioma',
   currencyLabel: 'Moneda',
+
+  // Artists
+  navArtists: 'Artistas',
+  artistsTitle: 'Artistas',
+  artistsSearch: 'Buscar artista...',
+  artistsAll: 'Todos',
+  artistsNotFound: 'No se encontraron artistas',
+  artistBio: 'Biografía',
+  artistNationality: 'Nacionalidad',
+  artistYears: 'Años',
+  artistAuctionResults: 'Resultados de subasta',
+  artistAvailableLots: 'Lotes disponibles',
+  artistTotalSold: 'Total vendido',
+  artistAvgHammer: 'Precio de martillo promedio',
+  artistHighestHammer: 'Precio de martillo más alto',
+  artistNoResults: 'Sin resultados de subasta',
+  artistNoAvailable: 'Sin lotes disponibles',
+  artistLots: 'lotes',
+
+  // Lot search filters
+  filtersTitle: 'Filtros',
+  filterCategory: 'Categoría',
+  filterPriceRange: 'Estimación (PLN)',
+  filterPriceMin: 'Mín',
+  filterPriceMax: 'Máx',
+  filterArtist: 'Artista',
+  filterArtistPlaceholder: 'Buscar artista...',
+  filterSortBy: 'Ordenar por',
+  filterSortLotNumber: 'Número de lote',
+  filterSortEstimateAsc: 'Estimación ascendente',
+  filterSortEstimateDesc: 'Estimación descendente',
+  filterClearAll: 'Limpiar filtros',
+  filterApply: 'Aplicar',
+
+  // Lot categories
+  catMalarstwo: 'Pintura',
+  catRzezba: 'Escultura',
+  catGrafika: 'Gráfica',
+  catFotografia: 'Fotografía',
+  catRzemiosto: 'Artesanía',
+  catDesign: 'Diseño',
+  catBizuteria: 'Joyería',
+  catInne: 'Otro',
+
+  // Results page
+  resultsTitle: 'Resultados de subasta',
+  resultsSubtitle: 'Base de precios de subastas Omena',
+  resultsSoldFor: 'Vendido por',
+  resultsNoResults: 'Sin resultados que coincidan con sus criterios',
+  resultsFilterAuction: 'Subasta',
+  resultsAllAuctions: 'Todas las subastas',
+  resultsDateFrom: 'Fecha desde',
+  resultsDateTo: 'Fecha hasta',
+  navResults: 'Resultados',
 };

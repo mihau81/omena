@@ -4,10 +4,22 @@ import { useState, useEffect } from 'react';
 import DynamicList from './DynamicList';
 import { apiUrl } from '@/app/lib/utils';
 
+export const LOT_CATEGORIES = [
+  { value: 'malarstwo', label: 'Malarstwo' },
+  { value: 'rzezba', label: 'Rzeźba' },
+  { value: 'grafika', label: 'Grafika' },
+  { value: 'fotografia', label: 'Fotografia' },
+  { value: 'rzemiosto', label: 'Rzemiosło' },
+  { value: 'design', label: 'Design' },
+  { value: 'bizuteria', label: 'Biżuteria' },
+  { value: 'inne', label: 'Inne' },
+] as const;
+
 export interface LotFormData {
   title: string;
   artist: string;
   description: string;
+  category: string;
   medium: string;
   dimensions: string;
   year: string;
@@ -41,6 +53,7 @@ const DEFAULT_DATA: LotFormData = {
   title: '',
   artist: '',
   description: '',
+  category: '',
   medium: '',
   dimensions: '',
   year: '',
@@ -154,6 +167,23 @@ export default function LotForm({
             placeholder="Artist name"
           />
         </div>
+      </div>
+
+      {/* Category */}
+      <div>
+        <label htmlFor="category" className={labelClass}>Category</label>
+        <select
+          id="category"
+          name="category"
+          value={form.category}
+          onChange={handleChange}
+          className={inputClass('category')}
+        >
+          <option value="">— No category —</option>
+          {LOT_CATEGORIES.map((cat) => (
+            <option key={cat.value} value={cat.value}>{cat.label}</option>
+          ))}
+        </select>
       </div>
 
       {/* Description */}

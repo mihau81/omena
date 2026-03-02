@@ -1,10 +1,12 @@
 import { NextResponse } from 'next/server';
 import { eq, and, isNull } from 'drizzle-orm';
 import { db } from '@/db/connection';
-import { lots } from '@/db/schema';
+import { lots, auctions } from '@/db/schema';
 import { requireAdmin, AuthError } from '@/lib/auth-utils';
 import { updateLotStatusSchema } from '@/lib/validation/lot';
 import { logUpdate } from '@/lib/audit';
+import { createNotification } from '@/lib/notifications';
+import { getWinningBid } from '@/lib/bid-service';
 
 const VALID_TRANSITIONS: Record<string, string[]> = {
   draft: ['catalogued'],
@@ -72,6 +74,13 @@ export async function PATCH(
       'admin',
     );
 
+    // When lot is sold, notify the winning bidder
+    if (newStatus === 'sold') {
+      notifyLotWon(id, existing.title, existing.auctionId, existing.hammerPrice).catch(
+        (err) => console.warn('[lot/status] lot_won notification failed:', err),
+      );
+    }
+
     return NextResponse.json({ lot: updated });
   } catch (error) {
     if (error instanceof AuthError) {
@@ -80,4 +89,45 @@ export async function PATCH(
     console.error('Admin lot status PATCH error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
+}
+
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+
+async function notifyLotWon(
+  lotId: string,
+  lotTitle: string,
+  auctionId: string,
+  hammerPrice: number | null,
+): Promise<void> {
+  const winning = await getWinningBid(lotId);
+  if (!winning || !winning.userId) return;
+
+  const [auctionRow] = await db
+    .select({ buyersPremiumRate: auctions.buyersPremiumRate })
+    .from(auctions)
+    .where(eq(auctions.id, auctionId))
+    .limit(1);
+
+  const rate = auctionRow?.buyersPremiumRate
+    ? parseFloat(String(auctionRow.buyersPremiumRate))
+    : 0.20;
+
+  const hammer = hammerPrice ?? winning.amount;
+  const buyersPremium = Math.round(hammer * rate * 100) / 100;
+  const totalAmount = hammer + buyersPremium;
+
+  await createNotification(
+    winning.userId,
+    'lot_won',
+    'Gratulacje — wygrałeś lot!',
+    `Wygrałeś lot "${lotTitle}". Faktura zostanie wysłana wkrótce.`,
+    {
+      lotId,
+      auctionId,
+      lotTitle,
+      hammerPrice: hammer,
+      buyersPremium,
+      totalAmount,
+    },
+  );
 }

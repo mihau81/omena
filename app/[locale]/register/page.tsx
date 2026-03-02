@@ -10,6 +10,7 @@ export default function RegisterPage() {
   const { locale } = useParams<{ locale: string }>();
   const qrCode = searchParams.get('qr');
   const invitationToken = searchParams.get('invitation');
+  const referrerId = searchParams.get('ref');
 
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
@@ -20,7 +21,7 @@ export default function RegisterPage() {
   const [success, setSuccess] = useState(false);
 
   // Determine context
-  const context = qrCode ? 'qr' : invitationToken ? 'invitation' : 'direct';
+  const context = qrCode ? 'qr' : invitationToken ? 'invitation' : referrerId ? 'referral' : 'direct';
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -37,6 +38,8 @@ export default function RegisterPage() {
       } else if (context === 'invitation') {
         url = apiUrl('/api/auth/register/invitation');
         body.invitationToken = invitationToken!;
+      } else if (context === 'referral' && referrerId) {
+        body.referrerId = referrerId;
       }
 
       const res = await fetch(url, {
@@ -100,6 +103,11 @@ export default function RegisterPage() {
         {context === 'invitation' && (
           <div className="mb-4 p-3 rounded-lg bg-gold/10 border border-gold/30 text-sm text-dark-brown">
             You&apos;ve been invited to Omena
+          </div>
+        )}
+        {context === 'referral' && (
+          <div className="mb-4 p-3 rounded-lg bg-gold/10 border border-gold/30 text-sm text-dark-brown">
+            You were referred by a member of Omena
           </div>
         )}
 

@@ -4,12 +4,21 @@ export const lotStatusValues = [
   'draft', 'catalogued', 'published', 'active', 'sold', 'passed', 'withdrawn',
 ] as const;
 
+export const conditionGradeValues = [
+  'mint', 'excellent', 'very_good', 'good', 'fair', 'poor',
+] as const;
+
+export const lotCategoryValues = [
+  'malarstwo', 'rzezba', 'grafika', 'fotografia', 'rzemiosto', 'design', 'bizuteria', 'inne',
+] as const;
+
 export const createLotSchema = z.object({
   auctionId: z.string().uuid(),
   lotNumber: z.number().int().positive(),
   title: z.string().min(1, 'Title is required').max(500),
   artist: z.string().default(''),
   description: z.string().default(''),
+  category: z.enum(lotCategoryValues).nullable().optional(),
   medium: z.string().default(''),
   dimensions: z.string().default(''),
   year: z.number().int().nullable().optional(),
@@ -22,6 +31,7 @@ export const createLotSchema = z.object({
   exhibitions: z.array(z.string()).default([]),
   literature: z.array(z.string()).default([]),
   conditionNotes: z.string().default(''),
+  conditionGrade: z.enum(conditionGradeValues).nullable().optional(),
   notes: z.string().default(''),
   consignorId: z.string().uuid().nullable().optional(),
 });

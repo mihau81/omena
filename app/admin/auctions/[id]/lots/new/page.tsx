@@ -23,6 +23,7 @@ export default function NewLotPage({ params }: { params: Promise<{ id: string }>
         title: data.title,
         artist: data.artist,
         description: data.description,
+        category: data.category || null,
         medium: data.medium,
         dimensions: data.dimensions,
         year: data.year ? parseInt(data.year) : null,

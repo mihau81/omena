@@ -35,6 +35,8 @@ export default function Header() {
     { href: `/${locale}`, label: t.navHome },
     { href: `/${locale}/about`, label: t.navAbout },
     { href: `/${locale}/auctions`, label: t.navAuctions },
+    { href: `/${locale}/artists`, label: t.navArtists },
+    { href: `/${locale}/results`, label: t.navResults },
     { href: `/${locale}/events`, label: t.navEvents },
     { href: `/${locale}/press`, label: t.navPress },
     { href: `/${locale}/contact`, label: t.navContact },

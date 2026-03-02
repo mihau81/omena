@@ -106,6 +106,16 @@ export const pl = {
   // Lot detail
   provenance: 'Proweniencja',
   exhibitions: 'Wystawy',
+  conditionReport: 'Raport stanu zachowania',
+  conditionGrade: 'Ogólny stan',
+  conditionNotes: 'Opis stanu',
+  conditionPhotos: 'Zdjęcia stanu',
+  conditionGradeMint: 'Idealny',
+  conditionGradeExcellent: 'Doskonały',
+  conditionGradeVeryGood: 'Bardzo dobry',
+  conditionGradeGood: 'Dobry',
+  conditionGradeFair: 'Zadowalający',
+  conditionGradePoor: 'Słaby',
 
   // Bidding
   placeBid: 'Złóż ofertę',
@@ -128,6 +138,8 @@ export const pl = {
   hammerPrice: 'Cena uzyskana',
   watchLot: 'Obserwuj',
   unwatchLot: 'Przestań obserwować',
+  customAmount: 'Inna kwota',
+  bidIncrementHint: 'Min. postąpienie',
 
   // Registration
   registerTitle: 'Rejestracja licytanta',
@@ -171,4 +183,59 @@ export const pl = {
   // Language
   languageLabel: 'Język',
   currencyLabel: 'Waluta',
+
+  // Artists
+  navArtists: 'Artyści',
+  artistsTitle: 'Artyści',
+  artistsSearch: 'Szukaj artysty...',
+  artistsAll: 'Wszyscy',
+  artistsNotFound: 'Nie znaleziono artystów',
+  artistBio: 'Biogram',
+  artistNationality: 'Narodowość',
+  artistYears: 'Lata życia',
+  artistAuctionResults: 'Wyniki aukcyjne',
+  artistAvailableLots: 'Dostępne obiekty',
+  artistTotalSold: 'Łącznie sprzedanych',
+  artistAvgHammer: 'Średnia cena uzyskana',
+  artistHighestHammer: 'Najwyższa cena uzyskana',
+  artistNoResults: 'Brak wyników aukcyjnych',
+  artistNoAvailable: 'Brak dostępnych obiektów',
+  artistLots: 'obiekty',
+
+  // Lot search filters
+  filtersTitle: 'Filtry',
+  filterCategory: 'Kategoria',
+  filterPriceRange: 'Estymata (PLN)',
+  filterPriceMin: 'Od',
+  filterPriceMax: 'Do',
+  filterArtist: 'Artysta',
+  filterArtistPlaceholder: 'Szukaj artysty...',
+  filterSortBy: 'Sortowanie',
+  filterSortLotNumber: 'Nr lotu',
+  filterSortEstimateAsc: 'Estymata rosnąco',
+  filterSortEstimateDesc: 'Estymata malejąco',
+  filterClearAll: 'Wyczyść filtry',
+  filterApply: 'Zastosuj',
+
+  // Lot categories
+  catMalarstwo: 'Malarstwo',
+  catRzezba: 'Rzeźba',
+  catGrafika: 'Grafika',
+  catFotografia: 'Fotografia',
+  catRzemiosto: 'Rzemiosło',
+  catDesign: 'Design',
+  catBizuteria: 'Biżuteria',
+  catInne: 'Inne',
+
+  // Results page
+  resultsTitle: 'Wyniki aukcji',
+  resultsSubtitle: 'Baza cen uzyskanych na aukcjach Omena',
+  resultsSoldFor: 'Sprzedano za',
+  resultsNoResults: 'Brak wyników spełniających kryteria',
+  resultsFilterAuction: 'Aukcja',
+  resultsAllAuctions: 'Wszystkie aukcje',
+  resultsDateFrom: 'Data od',
+  resultsDateTo: 'Data do',
+  navResults: 'Wyniki',
+
 } as const;

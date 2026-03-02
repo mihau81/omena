@@ -6,6 +6,7 @@ import { useBidding } from '../lib/BiddingContext';
 import { useLocale } from '../lib/LocaleContext';
 import { useCurrency } from '../lib/CurrencyContext';
 import { getNextMinBid, BUYERS_PREMIUM_RATE } from '../lib/bidding';
+import { getValidBidOptions, getBidIncrement } from '@/lib/bid-increments';
 import { showBidToast } from './BidToast';
 import AllCurrencyPrices from './AllCurrencyPrices';
 import BidHistory from './BidHistory';
@@ -38,10 +39,22 @@ export default function BidPanel({ lot, auctionStatus, auctionSlug, premiumLabel
   const currentBid = highestBid ?? lot.estimateMin;
   const nextMin = getNextMinBid(currentBid);
 
-  const [bidAmount, setBidAmount] = useState(nextMin);
+  // Quick-bid tag selection: null means "Custom amount" mode
+  const [selectedTag, setSelectedTag] = useState<number | null>(nextMin);
+  const [customAmount, setCustomAmount] = useState('');
+  const [showCustomInput, setShowCustomInput] = useState(false);
   const [showRegModal, setShowRegModal] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const watched = isLotWatched(lot.id);
+
+  // Compute quick-bid options
+  const bidOptions = getValidBidOptions(currentBid, 4);
+  const increment = getBidIncrement(currentBid);
+
+  // The effective bid amount to submit
+  const bidAmount = showCustomInput
+    ? (parseInt(customAmount.replace(/\s/g, ''), 10) || 0)
+    : (selectedTag ?? nextMin);
 
   // Track previous highest bid to detect outbids
   const prevHighestRef = useRef(highestBid);
@@ -61,10 +74,24 @@ export default function BidPanel({ lot, auctionStatus, auctionSlug, premiumLabel
     prevHighestRef.current = highestBid;
   }, [highestBid, bids, lot.id, t, formatPrice]);
 
-  // Update bid amount when next min changes
+  // When the next minimum bid changes (new bid via SSE), reset selection to first quick tag
   useEffect(() => {
-    setBidAmount(nextMin);
+    setSelectedTag(nextMin);
+    setShowCustomInput(false);
+    setCustomAmount('');
   }, [nextMin]);
+
+  const handleTagClick = (amount: number) => {
+    setSelectedTag(amount);
+    setShowCustomInput(false);
+    setCustomAmount('');
+  };
+
+  const handleCustomToggle = () => {
+    setShowCustomInput(true);
+    setSelectedTag(null);
+    setCustomAmount(String(nextMin));
+  };
 
   const handleBidClick = useCallback(() => {
     if (!isUserRegistered()) {
@@ -84,6 +111,8 @@ export default function BidPanel({ lot, auctionStatus, auctionSlug, premiumLabel
     setShowRegModal(false);
     setShowConfirmModal(true);
   }, []);
+
+  const isValidBid = bidAmount >= nextMin;
 
   return (
     <>
@@ -174,37 +203,74 @@ export default function BidPanel({ lot, auctionStatus, auctionSlug, premiumLabel
               )}
             </div>
 
-            {/* Next min bid */}
-            <p className="mt-3 text-base text-taupe">
-              {t.nextMinBid}:{' '}
-              <span className="font-medium text-dark-brown">{formatPrice(nextMin)}</span>
+            {/* Increment hint */}
+            <p className="mt-3 text-xs text-taupe">
+              {t.bidIncrementHint}:{' '}
+              <span className="font-medium text-dark-brown">{formatPrice(increment)}</span>
             </p>
 
-            {/* Bid input */}
-            <div className="mt-4">
-              <label htmlFor="bid-amount" className="sr-only">
-                {t.bidAmount}
-              </label>
-              <div className="relative">
-                <input
-                  id="bid-amount"
-                  type="text"
-                  inputMode="numeric"
-                  value={bidAmount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')}
-                  onChange={(e) => {
-                    const raw = e.target.value.replace(/\s/g, '');
-                    const num = parseInt(raw, 10);
-                    if (!isNaN(num)) setBidAmount(num);
-                    else if (raw === '') setBidAmount(0);
-                  }}
-                  className="w-full rounded-lg border border-beige px-4 py-3.5 pr-16 font-serif text-xl text-dark-brown focus:border-gold focus:ring-2 focus:ring-gold/30 focus:outline-none"
-                />
-                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-taupe">
-                  PLN
-                </span>
+            {/* Quick-bid tag buttons */}
+            <div className="mt-4 space-y-2">
+              <div className="grid grid-cols-2 gap-2">
+                {bidOptions.map((amount) => {
+                  const isSelected = !showCustomInput && selectedTag === amount;
+                  return (
+                    <button
+                      key={amount}
+                      type="button"
+                      onClick={() => handleTagClick(amount)}
+                      className={`rounded-full border px-3 py-2.5 text-sm font-semibold transition-all
+                        ${isSelected
+                          ? 'border-gold bg-gold text-white shadow-sm'
+                          : 'border-gold/50 bg-white text-dark-brown hover:border-gold hover:bg-gold/5'
+                        }`}
+                    >
+                      {formatPrice(amount)}
+                    </button>
+                  );
+                })}
               </div>
-              {bidAmount < nextMin && (
-                <p className="mt-1 text-sm text-red-600">
+
+              {/* Custom amount toggle */}
+              <button
+                type="button"
+                onClick={handleCustomToggle}
+                className={`w-full rounded-full border px-3 py-2.5 text-sm font-medium transition-all
+                  ${showCustomInput
+                    ? 'border-dark-brown bg-dark-brown/5 text-dark-brown'
+                    : 'border-beige bg-white text-taupe hover:border-dark-brown/40 hover:text-dark-brown'
+                  }`}
+              >
+                {t.customAmount}
+              </button>
+
+              {/* Custom amount input */}
+              {showCustomInput && (
+                <div className="relative mt-1">
+                  <input
+                    id="bid-amount"
+                    type="text"
+                    inputMode="numeric"
+                    autoFocus
+                    value={customAmount}
+                    onChange={(e) => {
+                      const raw = e.target.value.replace(/\s/g, '');
+                      const num = parseInt(raw, 10);
+                      if (!isNaN(num)) setCustomAmount(String(num));
+                      else if (raw === '') setCustomAmount('');
+                    }}
+                    placeholder={String(nextMin)}
+                    className="w-full rounded-lg border border-beige px-4 py-3 pr-14 font-serif text-lg text-dark-brown focus:border-gold focus:ring-2 focus:ring-gold/30 focus:outline-none"
+                  />
+                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-taupe">
+                    PLN
+                  </span>
+                </div>
+              )}
+
+              {/* Validation message for custom input */}
+              {showCustomInput && customAmount && bidAmount < nextMin && (
+                <p className="text-xs text-red-600">
                   {t.nextMinBid}: {formatPrice(nextMin)}
                 </p>
               )}
@@ -213,10 +279,10 @@ export default function BidPanel({ lot, auctionStatus, auctionSlug, premiumLabel
             {/* Place bid button */}
             <button
               onClick={handleBidClick}
-              disabled={bidAmount < nextMin}
+              disabled={!isValidBid}
               className="mt-4 w-full rounded-lg bg-gold py-3.5 text-lg font-medium text-white transition-all hover:bg-gold-dark hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
             >
-              {t.placeBid}
+              {t.placeBid} — {isValidBid ? formatPrice(bidAmount) : '…'}
             </button>
 
             {/* Watch toggle */}

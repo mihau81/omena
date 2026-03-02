@@ -10,7 +10,12 @@ export {
   getLotById,
   getLotByAuctionAndNumber,
   searchLots,
+  getSoldLots,
+  getAuctionsForResults,
+  getDistinctArtists,
 } from './lots';
+
+export type { LotCategory } from './lots';
 
 export {
   getBidsForLot,
@@ -55,3 +60,16 @@ export {
   getTiersForAuction,
   upsertTiers,
 } from './premium';
+
+export {
+  getArtists,
+  getArtistById,
+  getArtistBySlug,
+  getArtistWithLots,
+  getUnlinkedLotsByArtistName,
+  createArtist,
+  updateArtist,
+  deleteArtist,
+  linkLotsToArtist,
+  getPublicArtists,
+} from './artists';

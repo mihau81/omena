@@ -31,6 +31,7 @@ interface UserDetail {
   bidCount: number;
   registrationCount: number;
   watchedLotCount: number;
+  referralCount: number;
 }
 
 type Tab = 'details' | 'bids' | 'registrations';
@@ -154,7 +155,7 @@ export default function UserDetailClient({ user }: { user: UserDetail }) {
       </div>
 
       {/* Info Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
         <div className="bg-white rounded-xl border border-beige p-4">
           <p className="text-xs text-taupe uppercase font-semibold">Status</p>
           <div className="mt-2">
@@ -178,6 +179,10 @@ export default function UserDetailClient({ user }: { user: UserDetail }) {
         <div className="bg-white rounded-xl border border-beige p-4">
           <p className="text-xs text-taupe uppercase font-semibold">Registrations</p>
           <p className="mt-2 text-xl font-bold text-dark-brown">{user.registrationCount}</p>
+        </div>
+        <div className="bg-white rounded-xl border border-beige p-4">
+          <p className="text-xs text-taupe uppercase font-semibold">Referrals</p>
+          <p className="mt-2 text-xl font-bold text-dark-brown">{user.referralCount}</p>
         </div>
       </div>
 
@@ -219,6 +224,7 @@ export default function UserDetailClient({ user }: { user: UserDetail }) {
               <DetailRow label="Postal Code" value={user.postalCode || '—'} />
               <DetailRow label="Country" value={user.country || '—'} />
               <DetailRow label="Referrer" value={user.referrerName || '—'} />
+              <DetailRow label="Referrals Made" value={String(user.referralCount)} />
               <DetailRow
                 label="Registered"
                 value={new Date(user.createdAt).toLocaleString()}

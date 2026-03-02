@@ -25,6 +25,7 @@ export const registerUserSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   password: z.string().min(8, 'Password must be at least 8 characters').optional(),
   phone: z.string().max(30).optional(),
+  referrerId: z.string().uuid().optional(),  // Optional referrer user ID from ?ref= param
 });
 
 export const loginSchema = z.object({

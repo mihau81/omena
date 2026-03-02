@@ -10,10 +10,23 @@ vi.mock('@/lib/audit', () => ({
 
 vi.mock('@/lib/bid-events', () => ({
   emitBid: vi.fn(),
+  emitTimerEvent: vi.fn(),
+  subscribeBids: vi.fn(),
+  unsubscribeBids: vi.fn(),
+  subscribeTimer: vi.fn(),
+  unsubscribeTimer: vi.fn(),
 }));
 
 vi.mock('@/lib/absentee-service', () => ({
   processAbsenteeBids: vi.fn().mockResolvedValue(undefined),
+}));
+
+vi.mock('@/lib/lot-timer', () => ({
+  extendLotTimer: vi.fn().mockResolvedValue(null),
+}));
+
+vi.mock('@/lib/notifications', () => ({
+  createNotification: vi.fn().mockResolvedValue(undefined),
 }));
 
 describe('Bid Service Integration Tests', () => {
@@ -101,6 +114,7 @@ describe('Bid Service Integration Tests', () => {
     await db.delete(bidRegistrations).where(eq(bidRegistrations.auctionId, auctionId)).catch(() => {});
     await db.delete(lots).where(eq(lots.id, lotId)).catch(() => {});
     await db.delete(auctions).where(eq(auctions.id, auctionId)).catch(() => {});
+    await db.execute(`DELETE FROM notifications WHERE user_id IN (SELECT id FROM users WHERE email LIKE 'bid-svc-user%@example.com')`).catch(() => {});
     await db.execute(`DELETE FROM users WHERE email LIKE 'bid-svc-user%@example.com'`);
   });
 

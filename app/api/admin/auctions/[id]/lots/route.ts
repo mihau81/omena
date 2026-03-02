@@ -102,6 +102,7 @@ export async function POST(
         title: data.title,
         artist: data.artist,
         description: data.description,
+        category: data.category ?? null,
         medium: data.medium,
         dimensions: data.dimensions,
         year: data.year ?? null,

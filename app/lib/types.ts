@@ -13,6 +13,14 @@ export interface Auction {
   curator: string;
 }
 
+export interface ConditionPhoto {
+  id: string;
+  url: string;
+  thumbnailUrl: string | null;
+  mediumUrl: string | null;
+  originalFilename: string | null;
+}
+
 export interface Lot {
   id: string;
   auctionSlug: string;
@@ -30,6 +38,11 @@ export interface Lot {
   exhibited: string[];
   lotNumber: number;
   status?: string;
+  closingAt?: string | null;
+  auctionId?: string;
+  conditionGrade?: string | null;
+  conditionNotes?: string | null;
+  conditionPhotos?: ConditionPhoto[];
 }
 
 export interface TeamMember {

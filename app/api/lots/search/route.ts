@@ -2,10 +2,17 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { getToken } from 'next-auth/jwt';
 import { searchLots } from '@/db/queries';
+import type { LotCategory } from '@/db/queries';
+
+const LOT_CATEGORIES = ['malarstwo', 'rzezba', 'grafika', 'fotografia', 'rzemiosto', 'design', 'bizuteria', 'inne'] as const;
 
 const searchParamsSchema = z.object({
-  q: z.string().min(2, 'Search query must be at least 2 characters').max(200),
+  q: z.string().max(200).default(''),
   auction: z.string().optional(),
+  categories: z.string().optional(),
+  estimateMin: z.coerce.number().int().min(0).optional(),
+  estimateMax: z.coerce.number().int().min(0).optional(),
+  sortBy: z.enum(['lot_number', 'estimate_asc', 'estimate_desc', 'relevance']).default('lot_number'),
   page: z.coerce.number().int().positive().default(1),
   limit: z.coerce.number().int().min(1).max(100).default(20),
 });
@@ -15,8 +22,12 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
 
     const parsed = searchParamsSchema.safeParse({
-      q: searchParams.get('q'),
+      q: searchParams.get('q') ?? '',
       auction: searchParams.get('auction'),
+      categories: searchParams.get('categories'),
+      estimateMin: searchParams.get('estimateMin'),
+      estimateMax: searchParams.get('estimateMax'),
+      sortBy: searchParams.get('sortBy'),
       page: searchParams.get('page'),
       limit: searchParams.get('limit'),
     });
@@ -28,9 +39,12 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const { q, auction, page, limit } = parsed.data;
+    const { q, auction, categories: categoriesStr, estimateMin, estimateMax, sortBy, page, limit } = parsed.data;
 
-    // Read user visibility from session (if authenticated)
+    const categories = categoriesStr
+      ? categoriesStr.split(',').filter((c): c is LotCategory => (LOT_CATEGORIES as readonly string[]).includes(c))
+      : undefined;
+
     const token = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET });
     const userVisibility = token?.visibilityLevel ?? 0;
 
@@ -38,6 +52,10 @@ export async function GET(request: NextRequest) {
       query: q,
       userVisibility,
       auctionId: auction,
+      categories,
+      estimateMin,
+      estimateMax,
+      sortBy,
       page,
       limit,
     });
@@ -48,8 +66,10 @@ export async function GET(request: NextRequest) {
         lotNumber: lot.lotNumber,
         title: lot.title,
         artist: lot.artist,
+        category: lot.category,
         estimateMin: lot.estimateMin,
         estimateMax: lot.estimateMax,
+        status: lot.status,
         auctionSlug: lot.auctionSlug,
         auctionTitle: lot.auctionTitle,
         primaryImageUrl: lot.primaryImageUrl,

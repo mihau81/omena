@@ -108,6 +108,16 @@ export const de: Dictionary = {
   // Lot detail
   provenance: 'Provenienz',
   exhibitions: 'Ausstellungen',
+  conditionReport: 'Zustandsbericht',
+  conditionGrade: 'Gesamtzustand',
+  conditionNotes: 'Zustandsbeschreibung',
+  conditionPhotos: 'Zustandsfotos',
+  conditionGradeMint: 'Neu',
+  conditionGradeExcellent: 'Ausgezeichnet',
+  conditionGradeVeryGood: 'Sehr gut',
+  conditionGradeGood: 'Gut',
+  conditionGradeFair: 'Befriedigend',
+  conditionGradePoor: 'Schlecht',
 
   // Bidding
   placeBid: 'Gebot abgeben',
@@ -130,6 +140,8 @@ export const de: Dictionary = {
   hammerPrice: 'Zuschlagspreis',
   watchLot: 'Beobachten',
   unwatchLot: 'Nicht mehr beobachten',
+  customAmount: 'Anderer Betrag',
+  bidIncrementHint: 'Min. Schritt',
 
   // Registration
   registerTitle: 'Bieterregistrierung',
@@ -173,4 +185,59 @@ export const de: Dictionary = {
   // Language
   languageLabel: 'Sprache',
   currencyLabel: 'Währung',
+
+  // Artists
+  navArtists: 'Künstler',
+  artistsTitle: 'Künstler',
+  artistsSearch: 'Künstler suchen...',
+  artistsAll: 'Alle',
+  artistsNotFound: 'Keine Künstler gefunden',
+  artistBio: 'Biografie',
+  artistNationality: 'Nationalität',
+  artistYears: 'Lebensjahre',
+  artistAuctionResults: 'Auktionsergebnisse',
+  artistAvailableLots: 'Verfügbare Lose',
+  artistTotalSold: 'Insgesamt verkauft',
+  artistAvgHammer: 'Durchschnittlicher Zuschlagspreis',
+  artistHighestHammer: 'Höchster Zuschlagspreis',
+  artistNoResults: 'Noch keine Auktionsergebnisse',
+  artistNoAvailable: 'Keine verfügbaren Lose',
+  artistLots: 'Lose',
+
+  // Lot search filters
+  filtersTitle: 'Filter',
+  filterCategory: 'Kategorie',
+  filterPriceRange: 'Schätzpreis (PLN)',
+  filterPriceMin: 'Min',
+  filterPriceMax: 'Max',
+  filterArtist: 'Künstler',
+  filterArtistPlaceholder: 'Künstler suchen...',
+  filterSortBy: 'Sortieren nach',
+  filterSortLotNumber: 'Losnummer',
+  filterSortEstimateAsc: 'Schätzpreis aufsteigend',
+  filterSortEstimateDesc: 'Schätzpreis absteigend',
+  filterClearAll: 'Filter zurücksetzen',
+  filterApply: 'Anwenden',
+
+  // Lot categories
+  catMalarstwo: 'Malerei',
+  catRzezba: 'Skulptur',
+  catGrafika: 'Grafik',
+  catFotografia: 'Fotografie',
+  catRzemiosto: 'Kunsthandwerk',
+  catDesign: 'Design',
+  catBizuteria: 'Schmuck',
+  catInne: 'Sonstiges',
+
+  // Results page
+  resultsTitle: 'Auktionsergebnisse',
+  resultsSubtitle: 'Preisdatenbank der Omena-Auktionen',
+  resultsSoldFor: 'Verkauft für',
+  resultsNoResults: 'Keine Ergebnisse für Ihre Kriterien',
+  resultsFilterAuction: 'Auktion',
+  resultsAllAuctions: 'Alle Auktionen',
+  resultsDateFrom: 'Datum von',
+  resultsDateTo: 'Datum bis',
+  navResults: 'Ergebnisse',
+
 };

@@ -1,8 +1,9 @@
 'use client';
 
 import { apiUrl } from '@/app/lib/utils';
+import { getValidBidOptions, getBidIncrement } from '@/lib/bid-increments';
 
-import { useState, useEffect, useCallback, use } from 'react';
+import { useState, useEffect, useCallback, use, useRef } from 'react';
 import Link from 'next/link';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -25,6 +26,8 @@ interface LotSummary {
   currentHighestBid: number;
   nextMinBid: number;
   bidCount: number;
+  closingAt: string | null;
+  timerDuration: number | null;
 }
 
 interface BidRow {
@@ -87,6 +90,144 @@ function LotStatusBadge({ status }: { status: string }) {
   );
 }
 
+// ─── Countdown Component ──────────────────────────────────────────────────────
+
+function Countdown({
+  closingAt,
+  onExpired,
+}: {
+  closingAt: string;
+  onExpired?: () => void;
+}) {
+  const [secondsLeft, setSecondsLeft] = useState(() =>
+    Math.max(0, Math.floor((new Date(closingAt).getTime() - Date.now()) / 1000)),
+  );
+  const expiredRef = useRef(false);
+
+  useEffect(() => {
+    expiredRef.current = false;
+    const interval = setInterval(() => {
+      const remaining = Math.max(
+        0,
+        Math.floor((new Date(closingAt).getTime() - Date.now()) / 1000),
+      );
+      setSecondsLeft(remaining);
+      if (remaining === 0 && !expiredRef.current) {
+        expiredRef.current = true;
+        onExpired?.();
+        clearInterval(interval);
+      }
+    }, 250);
+    return () => clearInterval(interval);
+  }, [closingAt, onExpired]);
+
+  const mins = Math.floor(secondsLeft / 60);
+  const secs = secondsLeft % 60;
+  const display = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+
+  let colorClass = 'text-green-700 bg-green-50';
+  if (secondsLeft <= 10) colorClass = 'text-red-700 bg-red-50 animate-pulse';
+  else if (secondsLeft <= 30) colorClass = 'text-amber-700 bg-amber-50';
+
+  return (
+    <span
+      className={`inline-flex items-center px-2 py-0.5 rounded font-mono text-sm font-bold ${colorClass}`}
+    >
+      {display}
+    </span>
+  );
+}
+
+// ─── Timer Controls Component ─────────────────────────────────────────────────
+
+function TimerControls({
+  lotId,
+  lot,
+  onTimerChange,
+  onError,
+}: {
+  lotId: string;
+  lot: LotSummary;
+  onTimerChange: () => void;
+  onError: (msg: string) => void;
+}) {
+  const [duration, setDuration] = useState(String(lot.timerDuration ?? 120));
+  const [busy, setBusy] = useState(false);
+
+  const timerAction = async (
+    action: string,
+    extra?: { durationSeconds?: number; extensionSeconds?: number },
+  ) => {
+    setBusy(true);
+    try {
+      const res = await fetch(apiUrl(`/api/admin/lots/${lotId}/timer`), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action, ...extra }),
+      });
+      const json = await res.json();
+      if (!res.ok) {
+        onError(json.error ?? 'Timer action failed');
+        return;
+      }
+      onTimerChange();
+    } catch {
+      onError('Timer action failed');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const hasTimer = !!lot.closingAt;
+  const isActive = lot.status === 'active';
+
+  return (
+    <div className="flex items-center gap-2 flex-wrap">
+      {hasTimer ? (
+        <>
+          <Countdown closingAt={lot.closingAt!} onExpired={onTimerChange} />
+          <button
+            onClick={() => timerAction('extend', { extensionSeconds: 30 })}
+            disabled={busy}
+            className="px-2 py-1 text-xs font-medium text-amber-700 bg-amber-50 hover:bg-amber-100 rounded border border-amber-200 transition-colors disabled:opacity-50"
+          >
+            +30s
+          </button>
+          <button
+            onClick={() => timerAction('stop')}
+            disabled={busy}
+            className="px-2 py-1 text-xs font-medium text-red-600 bg-red-50 hover:bg-red-100 rounded border border-red-200 transition-colors disabled:opacity-50"
+          >
+            Stop
+          </button>
+        </>
+      ) : (
+        isActive && (
+          <>
+            <input
+              type="number"
+              min="10"
+              max="3600"
+              value={duration}
+              onChange={(e) => setDuration(e.target.value)}
+              className="w-16 px-2 py-1 text-xs border border-beige rounded focus:outline-none focus:ring-1 focus:ring-gold/30"
+              title="Timer duration in seconds"
+            />
+            <span className="text-xs text-taupe">s</span>
+            <button
+              onClick={() => timerAction('start', { durationSeconds: parseInt(duration, 10) })}
+              disabled={busy}
+              className="px-2 py-1 text-xs font-medium text-green-700 bg-green-50 hover:bg-green-100 rounded border border-green-200 transition-colors disabled:opacity-50"
+            >
+              Start Timer
+            </button>
+          </>
+        )
+      )}
+    </div>
+  );
+}
+
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function LiveAuctionPage({ params }: { params: Promise<{ id: string }> }) {
@@ -142,9 +283,6 @@ export default function LiveAuctionPage({ params }: { params: Promise<{ id: stri
       const res = await fetch(apiUrl(`/api/admin/auctions/${auctionId}/lots`));
       if (res.ok) {
         const data = await res.json();
-        // Enrich with bid data: re-fetch from bids endpoint per lot is expensive;
-        // instead, fetch from lots list and compute nextMinBid client-side.
-        // The API returns lot data; for currentHighestBid we rely on per-lot bid fetch.
         setLots(
           data.lots.map((l: LotSummary) => ({
             ...l,
@@ -171,7 +309,6 @@ export default function LiveAuctionPage({ params }: { params: Promise<{ id: stri
         setBidHistory(data.bids ?? []);
         setCurrentHighestBid(data.currentHighestBid ?? 0);
         setNextMinBid(data.nextMinBid ?? 0);
-        // Pre-fill bid amount with next min
         setBidAmount(String(data.nextMinBid ?? ''));
       } else {
         setError('Failed to load bid history');
@@ -252,10 +389,7 @@ export default function LiveAuctionPage({ params }: { params: Promise<{ id: stri
       );
       setTimeout(() => setSuccess(null), 4_000);
 
-      // Refresh data
       await Promise.all([fetchBidHistory(selectedLotId), fetchLots()]);
-
-      // Update bid amount field to new next min
       setBidAmount(String(json.nextMinBid ?? ''));
     } catch {
       setError('An unexpected error occurred');
@@ -374,44 +508,66 @@ export default function LiveAuctionPage({ params }: { params: Promise<{ id: stri
             <div className="px-4 py-8 text-center text-sm text-taupe">No lots found for this auction.</div>
           ) : (
             <div className="overflow-y-auto max-h-64 lg:max-h-[calc(100vh-260px)]">
-              {lots.map((lot) => (
-                <button
-                  key={lot.id}
-                  onClick={() => handleSelectLot(lot.id)}
-                  className={`w-full text-left px-4 py-4 lg:py-3 border-b border-beige/50 transition-colors min-h-[60px] ${
-                    selectedLotId === lot.id
-                      ? 'bg-gold/10 border-l-4 border-l-gold'
-                      : 'hover:bg-cream/30'
-                  }`}
-                >
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-xs font-mono text-taupe">#{lot.lotNumber}</span>
-                        <LotStatusBadge status={lot.status} />
-                      </div>
-                      <p className="text-sm font-medium text-dark-brown mt-0.5 truncate">
-                        {lot.title}
-                      </p>
-                      {lot.artist && (
-                        <p className="text-xs text-taupe truncate">{lot.artist}</p>
-                      )}
-                    </div>
-                    <div className="text-right shrink-0">
-                      {lot.currentHighestBid > 0 ? (
-                        <p className="text-sm font-semibold text-dark-brown">
-                          {formatPLN(lot.currentHighestBid)}
+              {lots.map((lot) => {
+                const hasTimer = !!lot.closingAt;
+                return (
+                  <button
+                    key={lot.id}
+                    onClick={() => handleSelectLot(lot.id)}
+                    className={`w-full text-left px-4 py-4 lg:py-3 border-b border-beige/50 transition-colors min-h-[60px] ${
+                      selectedLotId === lot.id
+                        ? 'bg-gold/10 border-l-4 border-l-gold'
+                        : hasTimer
+                        ? 'border-l-4 border-l-amber-400 hover:bg-amber-50/30 animate-[pulse_3s_ease-in-out_infinite]'
+                        : 'hover:bg-cream/30'
+                    }`}
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="text-xs font-mono text-taupe">#{lot.lotNumber}</span>
+                          <LotStatusBadge status={lot.status} />
+                          {hasTimer && (
+                            <Countdown
+                              closingAt={lot.closingAt!}
+                              onExpired={fetchLots}
+                            />
+                          )}
+                        </div>
+                        <p className="text-sm font-medium text-dark-brown mt-0.5 truncate">
+                          {lot.title}
                         </p>
-                      ) : (
-                        <p className="text-xs text-taupe">No bids</p>
-                      )}
-                      <p className="text-xs text-taupe">
-                        {lot.bidCount} bid{lot.bidCount !== 1 ? 's' : ''}
-                      </p>
+                        {lot.artist && (
+                          <p className="text-xs text-taupe truncate">{lot.artist}</p>
+                        )}
+                        {/* Timer controls inline for active lots */}
+                        {selectedLotId === lot.id && (
+                          <div className="mt-2" onClick={(e) => e.stopPropagation()}>
+                            <TimerControls
+                              lotId={lot.id}
+                              lot={lot}
+                              onTimerChange={fetchLots}
+                              onError={setError}
+                            />
+                          </div>
+                        )}
+                      </div>
+                      <div className="text-right shrink-0">
+                        {lot.currentHighestBid > 0 ? (
+                          <p className="text-sm font-semibold text-dark-brown">
+                            {formatPLN(lot.currentHighestBid)}
+                          </p>
+                        ) : (
+                          <p className="text-xs text-taupe">No bids</p>
+                        )}
+                        <p className="text-xs text-taupe">
+                          {lot.bidCount} bid{lot.bidCount !== 1 ? 's' : ''}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                </button>
-              ))}
+                  </button>
+                );
+              })}
             </div>
           )}
         </div>
@@ -430,8 +586,16 @@ export default function LiveAuctionPage({ params }: { params: Promise<{ id: stri
             ) : (
               <div className="space-y-3">
                 {/* Selected lot info */}
-                <div className="bg-cream/40 rounded-lg px-3 py-2">
-                  <p className="text-xs text-taupe">Selected lot</p>
+                <div className={`rounded-lg px-3 py-2 ${selectedLot?.closingAt ? 'bg-amber-50 border border-amber-200' : 'bg-cream/40'}`}>
+                  <div className="flex items-center justify-between">
+                    <p className="text-xs text-taupe">Selected lot</p>
+                    {selectedLot?.closingAt && (
+                      <Countdown
+                        closingAt={selectedLot.closingAt}
+                        onExpired={() => { fetchLots(); if (selectedLotId) fetchBidHistory(selectedLotId); }}
+                      />
+                    )}
+                  </div>
                   <p className="text-sm font-medium text-dark-brown">
                     #{selectedLot?.lotNumber} — {selectedLot?.title}
                   </p>
@@ -448,6 +612,19 @@ export default function LiveAuctionPage({ params }: { params: Promise<{ id: stri
                     </span>
                   </div>
                 </div>
+
+                {/* Timer controls */}
+                {selectedLot && (
+                  <div className="rounded-lg bg-gray-50 border border-gray-200 px-3 py-2">
+                    <p className="text-xs font-medium text-taupe mb-2">Timer Control</p>
+                    <TimerControls
+                      lotId={selectedLotId}
+                      lot={selectedLot}
+                      onTimerChange={fetchLots}
+                      onError={setError}
+                    />
+                  </div>
+                )}
 
                 {/* Bid type selector */}
                 <div>
@@ -511,22 +688,34 @@ export default function LiveAuctionPage({ params }: { params: Promise<{ id: stri
                   </div>
                 </div>
 
-                {/* Quick-fill buttons — larger on mobile */}
+                {/* Quick-bid increment tags */}
                 {nextMinBid > 0 && (
-                  <div className="flex gap-2 flex-wrap">
-                    {[0, 1, 2].map((extra) => {
-                      const suggestedAmount = nextMinBid + extra * Math.round(nextMinBid * 0.1);
-                      return (
-                        <button
-                          key={extra}
-                          type="button"
-                          onClick={() => setBidAmount(String(suggestedAmount))}
-                          className="flex-1 px-3 py-2.5 min-h-[44px] text-sm font-semibold text-dark-brown bg-cream hover:bg-beige rounded-lg transition-colors border border-beige/60"
-                        >
-                          {formatPLN(suggestedAmount)}
-                        </button>
-                      );
-                    })}
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <label className="block text-xs font-medium text-taupe">Quick Bid</label>
+                      <span className="text-xs text-taupe">
+                        Increment: {formatPLN(getBidIncrement(currentHighestBid))}
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-2 gap-1.5">
+                      {getValidBidOptions(currentHighestBid, 4).map((amount) => {
+                        const isSelected = bidAmount === String(amount);
+                        return (
+                          <button
+                            key={amount}
+                            type="button"
+                            onClick={() => setBidAmount(String(amount))}
+                            className={`px-3 py-2.5 min-h-[44px] text-sm font-semibold rounded-lg border transition-colors ${
+                              isSelected
+                                ? 'bg-gold text-white border-gold'
+                                : 'text-dark-brown bg-cream hover:bg-beige border-beige/60 hover:border-gold/40'
+                            }`}
+                          >
+                            {formatPLN(amount)}
+                          </button>
+                        );
+                      })}
+                    </div>
                   </div>
                 )}
 

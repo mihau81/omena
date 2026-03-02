@@ -108,6 +108,16 @@ export const fr: Dictionary = {
   // Lot detail
   provenance: 'Provenance',
   exhibitions: 'Expositions',
+  conditionReport: 'Rapport de condition',
+  conditionGrade: 'État général',
+  conditionNotes: 'Notes de condition',
+  conditionPhotos: 'Photos de condition',
+  conditionGradeMint: 'Neuf',
+  conditionGradeExcellent: 'Excellent',
+  conditionGradeVeryGood: 'Très bon',
+  conditionGradeGood: 'Bon',
+  conditionGradeFair: 'Passable',
+  conditionGradePoor: 'Mauvais',
 
   // Bidding
   placeBid: 'Enchérir',
@@ -130,6 +140,8 @@ export const fr: Dictionary = {
   hammerPrice: "Prix d'adjudication",
   watchLot: 'Suivre',
   unwatchLot: 'Ne plus suivre',
+  customAmount: 'Autre montant',
+  bidIncrementHint: 'Incrément min.',
 
   // Registration
   registerTitle: "Inscription d'enchérisseur",
@@ -173,4 +185,59 @@ export const fr: Dictionary = {
   // Language
   languageLabel: 'Langue',
   currencyLabel: 'Devise',
+
+  // Artists
+  navArtists: 'Artistes',
+  artistsTitle: 'Artistes',
+  artistsSearch: 'Rechercher un artiste...',
+  artistsAll: 'Tous',
+  artistsNotFound: 'Aucun artiste trouvé',
+  artistBio: 'Biographie',
+  artistNationality: 'Nationalité',
+  artistYears: 'Années',
+  artistAuctionResults: 'Résultats de ventes',
+  artistAvailableLots: 'Lots disponibles',
+  artistTotalSold: 'Total vendu',
+  artistAvgHammer: 'Prix marteau moyen',
+  artistHighestHammer: 'Prix marteau le plus élevé',
+  artistNoResults: 'Aucun résultat de vente',
+  artistNoAvailable: 'Aucun lot disponible',
+  artistLots: 'lots',
+
+  // Lot search filters
+  filtersTitle: 'Filtres',
+  filterCategory: 'Catégorie',
+  filterPriceRange: 'Estimation (PLN)',
+  filterPriceMin: 'Min',
+  filterPriceMax: 'Max',
+  filterArtist: 'Artiste',
+  filterArtistPlaceholder: 'Rechercher un artiste...',
+  filterSortBy: 'Trier par',
+  filterSortLotNumber: 'Numéro de lot',
+  filterSortEstimateAsc: 'Estimation croissante',
+  filterSortEstimateDesc: 'Estimation décroissante',
+  filterClearAll: 'Effacer les filtres',
+  filterApply: 'Appliquer',
+
+  // Lot categories
+  catMalarstwo: 'Peinture',
+  catRzezba: 'Sculpture',
+  catGrafika: 'Graphique',
+  catFotografia: 'Photographie',
+  catRzemiosto: 'Artisanat',
+  catDesign: 'Design',
+  catBizuteria: 'Bijouterie',
+  catInne: 'Autre',
+
+  // Results page
+  resultsTitle: 'Résultats de ventes',
+  resultsSubtitle: 'Base de prix des ventes Omena',
+  resultsSoldFor: 'Vendu pour',
+  resultsNoResults: 'Aucun résultat correspondant à vos critères',
+  resultsFilterAuction: 'Vente',
+  resultsAllAuctions: 'Toutes les ventes',
+  resultsDateFrom: 'Date de',
+  resultsDateTo: 'Date à',
+  navResults: 'Résultats',
+
 };

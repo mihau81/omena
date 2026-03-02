@@ -81,6 +81,7 @@ export async function PATCH(
     if (data.title !== undefined) updateValues.title = data.title;
     if (data.artist !== undefined) updateValues.artist = data.artist;
     if (data.description !== undefined) updateValues.description = data.description;
+    if (data.category !== undefined) updateValues.category = data.category;
     if (data.medium !== undefined) updateValues.medium = data.medium;
     if (data.dimensions !== undefined) updateValues.dimensions = data.dimensions;
     if (data.year !== undefined) updateValues.year = data.year;
@@ -93,6 +94,7 @@ export async function PATCH(
     if (data.exhibitions !== undefined) updateValues.exhibitions = data.exhibitions;
     if (data.literature !== undefined) updateValues.literature = data.literature;
     if (data.conditionNotes !== undefined) updateValues.conditionNotes = data.conditionNotes;
+    if (data.conditionGrade !== undefined) updateValues.conditionGrade = data.conditionGrade;
     if (data.notes !== undefined) updateValues.notes = data.notes;
     if (data.consignorId !== undefined) updateValues.consignorId = data.consignorId;
 

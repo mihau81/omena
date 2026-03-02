@@ -294,3 +294,66 @@ export function adminNewUserPending(
     ${paragraph('Please review and approve or reject this application in the admin panel.')}
   `);
 }
+
+export function invoiceReady(
+  userName: string,
+  lotTitle: string,
+  lotNumber: number,
+  invoiceNumber: string,
+  hammerPrice: number,
+  buyersPremium: number,
+  totalAmount: number,
+  dueDate: Date,
+  invoiceUrl: string,
+): string {
+  const fmt = (n: number) => new Intl.NumberFormat('pl-PL', { style: 'currency', currency: 'PLN' }).format(n);
+  const dueDateFormatted = new Intl.DateTimeFormat('pl-PL', {
+    day: 'numeric', month: 'long', year: 'numeric',
+  }).format(dueDate);
+
+  return layout(`
+    ${heading('Faktura jest gotowa')}
+    ${paragraph(`Szanowny/a ${userName},`)}
+    ${paragraph(`Dziękujemy za udział w aukcji. Poniżej znajdziesz szczegóły faktury za wylicytowany lot.`)}
+    ${table(
+      highlight('Lot', `#${lotNumber} — ${lotTitle}`) +
+      highlight('Nr faktury', invoiceNumber) +
+      highlight('Cena wylicytowana', fmt(hammerPrice)) +
+      highlight('Opłata aukcyjna', fmt(buyersPremium)) +
+      highlight('Łączna kwota', fmt(totalAmount)) +
+      highlight('Termin płatności', dueDateFormatted),
+    )}
+    ${paragraph('Prosimy o dokonanie płatności w terminie wskazanym powyżej. Szczegóły płatności znajdziesz w fakturze.')}
+    ${button('Wyświetl fakturę', invoiceUrl)}
+    ${paragraph(`<span style="color:#999;font-size:12px;">W razie pytań prosimy o kontakt: <a href="mailto:info@omena.pl" style="color:${GOLD};">info@omena.pl</a>.</span>`)}
+  `);
+}
+
+export function paymentReminder(
+  userName: string,
+  lotTitle: string,
+  invoiceNumber: string,
+  totalAmount: number,
+  dueDate: Date,
+  invoiceUrl: string,
+): string {
+  const fmt = (n: number) => new Intl.NumberFormat('pl-PL', { style: 'currency', currency: 'PLN' }).format(n);
+  const dueDateFormatted = new Intl.DateTimeFormat('pl-PL', {
+    day: 'numeric', month: 'long', year: 'numeric',
+  }).format(dueDate);
+
+  return layout(`
+    ${heading('Przypomnienie o płatności')}
+    ${paragraph(`Szanowny/a ${userName},`)}
+    ${paragraph(`Przypominamy o nieuregulowanej płatności za wylicytowany lot.`)}
+    ${table(
+      highlight('Lot', lotTitle) +
+      highlight('Nr faktury', invoiceNumber) +
+      highlight('Kwota do zapłaty', fmt(totalAmount)) +
+      highlight('Termin płatności', dueDateFormatted),
+    )}
+    ${paragraph('Prosimy o jak najszybsze uregulowanie należności, aby uniknąć konsekwencji wynikających z regulaminu aukcji.')}
+    ${button('Przejdź do faktury', invoiceUrl)}
+    ${paragraph(`<span style="color:#999;font-size:12px;">W razie pytań prosimy o kontakt: <a href="mailto:info@omena.pl" style="color:${GOLD};">info@omena.pl</a>.</span>`)}
+  `);
+}

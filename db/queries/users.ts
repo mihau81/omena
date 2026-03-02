@@ -138,10 +138,11 @@ export async function getUserDetail(id: string) {
   }
 
   // Get counts
-  const [bidCountResult, registrationCountResult, watchedCountResult] = await Promise.all([
+  const [bidCountResult, registrationCountResult, watchedCountResult, referralCountResult] = await Promise.all([
     db.select({ total: count() }).from(bids).where(eq(bids.userId, id)),
     db.select({ total: count() }).from(bidRegistrations).where(eq(bidRegistrations.userId, id)),
     db.select({ total: count() }).from(watchedLots).where(eq(watchedLots.userId, id)),
+    db.select({ total: count() }).from(users).where(and(eq(users.referrerId, id), notDeleted(users))),
   ]);
 
   return {
@@ -150,6 +151,7 @@ export async function getUserDetail(id: string) {
     bidCount: bidCountResult[0].total,
     registrationCount: registrationCountResult[0].total,
     watchedLotCount: watchedCountResult[0].total,
+    referralCount: referralCountResult[0].total,
   };
 }
 
