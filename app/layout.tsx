@@ -4,6 +4,8 @@ import "./globals.css";
 import { BiddingProvider } from "./lib/BiddingContext";
 import { CurrencyProvider } from "./lib/CurrencyContext";
 import AuthProvider from "./components/AuthProvider";
+import ServiceWorkerRegistrar from "./components/ServiceWorkerRegistrar";
+import SentryErrorBoundary from "./components/SentryErrorBoundary";
 
 const playfair = Playfair_Display({
   variable: "--font-playfair",
@@ -49,9 +51,12 @@ export default function RootLayout({
         <AuthProvider>
           <BiddingProvider>
             <CurrencyProvider>
-              {children}
+              <SentryErrorBoundary>
+                {children}
+              </SentryErrorBoundary>
             </CurrencyProvider>
           </BiddingProvider>
+          <ServiceWorkerRegistrar />
         </AuthProvider>
       </body>
     </html>

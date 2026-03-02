@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import * as Sentry from '@sentry/nextjs';
 import { handlePaymentWebhook } from '@/lib/payment-service';
 
 export const dynamic = 'force-dynamic';
@@ -39,6 +40,10 @@ export async function POST(request: Request) {
     await handlePaymentWebhook(event);
     return NextResponse.json({ received: true });
   } catch (error) {
+    Sentry.captureException(error, {
+      tags: { area: 'payment_webhook', stripe_event_type: event.type },
+      extra: { stripeEventId: event.id },
+    });
     console.error('[payments/webhook] Handler error:', error);
     // Return 200 so Stripe does not retry — the error has been logged
     return NextResponse.json({ received: true, error: 'Handler error logged' });

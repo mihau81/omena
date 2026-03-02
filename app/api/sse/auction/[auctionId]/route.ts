@@ -1,10 +1,12 @@
 import type { NextRequest } from 'next/server';
+import * as Sentry from '@sentry/nextjs';
 import { getToken } from 'next-auth/jwt';
 import { eq, and, isNull } from 'drizzle-orm';
 import { db } from '@/db/connection';
 import { auctions } from '@/db/schema';
-import { subscribeBids, unsubscribeBids } from '@/lib/bid-events';
-import type { BidEvent } from '@/lib/bid-events';
+import { subscribeBids, unsubscribeBids, subscribeTimer, unsubscribeTimer } from '@/lib/bid-events';
+import type { BidEvent, TimerEvent } from '@/lib/bid-events';
+import { checkExpiredLots } from '@/lib/lot-timer';
 
 // Prevent static optimization — this is a streaming endpoint
 export const dynamic = 'force-dynamic';
@@ -63,12 +65,27 @@ export async function GET(
         }
       };
 
+      // Push timer events to the stream
+      const onTimer = (data: TimerEvent) => {
+        try {
+          controller.enqueue(sseChunk(data.type, data));
+        } catch {
+          // Already closed
+        }
+      };
+
       subscribeBids(auctionId, onBid);
+      subscribeTimer(auctionId, onTimer);
 
       // Keep-alive heartbeat every 15 seconds
+      // Also check for expired lot timers on each heartbeat
       const heartbeat = setInterval(() => {
         try {
           controller.enqueue(encoder.encode(':heartbeat\n\n'));
+          // Check and auto-close any expired lots (non-blocking)
+          checkExpiredLots().catch((err) => {
+            Sentry.captureException(err, { tags: { area: 'sse_lot_timer' } });
+          });
         } catch {
           clearInterval(heartbeat);
         }
@@ -78,6 +95,7 @@ export async function GET(
       request.signal.addEventListener('abort', () => {
         clearInterval(heartbeat);
         unsubscribeBids(auctionId, onBid);
+        unsubscribeTimer(auctionId, onTimer);
         try {
           controller.close();
         } catch {

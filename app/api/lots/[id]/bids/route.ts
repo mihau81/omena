@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
+import * as Sentry from '@sentry/nextjs';
 import { requireAuth } from '@/lib/auth-utils';
 import { AuthError } from '@/lib/auth-utils';
 import { placeBid, getBidHistory, BidError } from '@/lib/bid-service';
@@ -89,6 +90,10 @@ export async function POST(
         { status: error.statusCode },
       );
     }
+    Sentry.captureException(error, {
+      tags: { area: 'bid_placement' },
+      extra: { lotId: params },
+    });
     console.error('Bid placement error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
