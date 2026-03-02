@@ -31,6 +31,13 @@ function applySecurityHeaders(response: NextResponse): void {
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  // Helper: create redirect URL that respects basePath
+  function redirectTo(path: string) {
+    const url = request.nextUrl.clone();
+    url.pathname = path;
+    return url;
+  }
+
   const token = await getToken({
     req: request,
     secret: process.env.NEXTAUTH_SECRET,
@@ -46,7 +53,7 @@ export async function middleware(request: NextRequest) {
     // For page routes, determine correct login redirect
     const isAdminPath = pathname.startsWith('/admin');
     const loginUrl = isAdminPath ? '/admin/login' : '/en/login';
-    const response = NextResponse.redirect(new URL(loginUrl, request.url));
+    const response = NextResponse.redirect(redirectTo(loginUrl));
     applySecurityHeaders(response);
     return response;
   }
@@ -66,7 +73,7 @@ export async function middleware(request: NextRequest) {
   if (accountMatch) {
     if (!token || userType !== 'user') {
       const locale = accountMatch[1];
-      const response = NextResponse.redirect(new URL(`/${locale}/login`, request.url));
+      const response = NextResponse.redirect(redirectTo(`/${locale}/login`));
       applySecurityHeaders(response);
       return response;
     }
@@ -78,7 +85,7 @@ export async function middleware(request: NextRequest) {
     if (pathname === '/admin/login') {
       // If already logged in as admin, redirect to dashboard
       if (token && userType === 'admin') {
-        return NextResponse.redirect(new URL('/admin', request.url));
+        return NextResponse.redirect(redirectTo('/admin'));
       }
       const response = NextResponse.next();
       applySecurityHeaders(response);
@@ -87,7 +94,7 @@ export async function middleware(request: NextRequest) {
 
     // All other admin routes require admin auth
     if (!token || userType !== 'admin') {
-      return NextResponse.redirect(new URL('/admin/login', request.url));
+      return NextResponse.redirect(redirectTo('/admin/login'));
     }
   }
 
