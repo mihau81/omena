@@ -1,8 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { signIn } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
+import { apiUrl } from '@/app/lib/utils';
 
 export default function AdminLoginPage() {
   const [email, setEmail] = useState('');
@@ -11,7 +10,6 @@ export default function AdminLoginPage() {
   const [requiresTOTP, setRequiresTOTP] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -19,9 +17,9 @@ export default function AdminLoginPage() {
     setLoading(true);
 
     try {
-      // If TOTP is required but not yet provided, check with pre-auth endpoint
+      // Step 1: Pre-auth — validate credentials and check TOTP
       if (!requiresTOTP) {
-        const preAuth = await fetch('/omena/api/admin/login', {
+        const preAuth = await fetch(apiUrl('/api/admin/login'), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, password }),
@@ -41,18 +39,28 @@ export default function AdminLoginPage() {
         }
       }
 
-      // Sign in with NextAuth (TOTP verified in authorize callback)
-      const result = await signIn('admin-credentials', {
-        email,
-        password,
-        totpCode: totpCode || undefined,
-        redirect: false,
+      // Step 2: Get CSRF token from Auth.js
+      const csrfRes = await fetch(apiUrl('/api/auth/csrf'));
+      const { csrfToken } = await csrfRes.json();
+
+      // Step 3: POST directly to Auth.js callback (bypasses signIn basePath issues)
+      const callbackRes = await fetch(apiUrl('/api/auth/callback/admin-credentials'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({
+          csrfToken,
+          email,
+          password,
+          totpCode: totpCode || '',
+          json: 'true',
+        }),
+        redirect: 'follow',
       });
 
-      if (result?.error) {
-        setError(requiresTOTP ? 'Invalid TOTP code' : 'Invalid email or password');
+      if (callbackRes.ok || callbackRes.redirected) {
+        window.location.href = apiUrl('/admin');
       } else {
-        window.location.href = '/omena/admin';
+        setError(requiresTOTP ? 'Invalid TOTP code' : 'Invalid email or password');
       }
     } catch {
       setError('An unexpected error occurred');
