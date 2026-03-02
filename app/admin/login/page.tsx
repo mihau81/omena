@@ -44,7 +44,9 @@ export default function AdminLoginPage() {
       const { csrfToken } = await csrfRes.json();
 
       // Step 3: POST directly to Auth.js callback (bypasses signIn basePath issues)
-      const callbackRes = await fetch(apiUrl('/api/auth/callback/admin-credentials'), {
+      // Use redirect: 'manual' — we only need the Set-Cookie from the response,
+      // not the redirect target (which Auth.js points to NEXTAUTH_URL without basePath)
+      await fetch(apiUrl('/api/auth/callback/admin-credentials'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: new URLSearchParams({
@@ -54,14 +56,12 @@ export default function AdminLoginPage() {
           totpCode: totpCode || '',
           json: 'true',
         }),
-        redirect: 'follow',
+        redirect: 'manual',
+        credentials: 'same-origin',
       });
 
-      if (callbackRes.ok || callbackRes.redirected) {
-        window.location.href = apiUrl('/admin');
-      } else {
-        setError(requiresTOTP ? 'Invalid TOTP code' : 'Invalid email or password');
-      }
+      // Session cookie was set by the callback response — redirect to admin
+      window.location.href = apiUrl('/admin');
     } catch {
       setError('An unexpected error occurred');
     } finally {
