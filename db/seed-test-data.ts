@@ -7,7 +7,7 @@
 
 import { db } from './connection';
 import { users, bids, bidRegistrations, watchedLots, lots, auctions } from './schema';
-import { eq, and, isNull, inArray } from 'drizzle-orm';
+import { eq, and, isNull, inArray, sql } from 'drizzle-orm';
 import bcrypt from 'bcryptjs';
 
 const TEST_PASSWORD = 'User2026';
@@ -43,28 +43,23 @@ async function seed() {
 
   for (const u of TEST_USERS) {
     const isApproved = u.status === 'approved';
-    const [inserted] = await db
-      .insert(users)
-      .values({
-        email: u.email,
-        passwordHash,
-        name: u.name,
-        phone: u.phone,
-        city: u.city,
-        country: 'Poland',
-        accountStatus: u.status,
-        emailVerified: isApproved,
-        emailVerifiedAt: isApproved ? new Date() : null,
-        approvedAt: isApproved ? new Date() : null,
-        registrationSource: 'direct',
-        isActive: true,
-        lastLoginAt: isApproved ? new Date(Date.now() - Math.random() * 7 * 86400000) : null,
-      })
-      .onConflictDoNothing({ target: users.email })
-      .returning({ id: users.id, name: users.name, accountStatus: users.accountStatus });
+    const emailVerifiedAt = isApproved ? new Date() : null;
+    const approvedAt = isApproved ? new Date() : null;
+    const lastLoginAt = isApproved ? new Date(Date.now() - Math.random() * 7 * 86400000) : null;
 
+    // Use raw SQL to avoid Drizzle inserting columns that may not exist in prod DB
+    const result = await db.execute(sql`
+      INSERT INTO users (email, password_hash, name, phone, city, country, account_status,
+        email_verified, email_verified_at, approved_at, registration_source, is_active, last_login_at)
+      VALUES (${u.email}, ${passwordHash}, ${u.name}, ${u.phone}, ${u.city}, 'Poland', ${u.status},
+        ${isApproved}, ${emailVerifiedAt}, ${approvedAt}, 'direct', true, ${lastLoginAt})
+      ON CONFLICT (email) DO NOTHING
+      RETURNING id, name, account_status
+    `);
+
+    const inserted = result.rows[0] as { id: string; name: string; account_status: string } | undefined;
     if (inserted) {
-      insertedUsers.push({ id: inserted.id, name: inserted.name, status: inserted.accountStatus });
+      insertedUsers.push({ id: inserted.id, name: inserted.name, status: inserted.account_status });
       console.log(`✅ User: ${u.name} (${u.status})`);
     } else {
       // Already exists — fetch
