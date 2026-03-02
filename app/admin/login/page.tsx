@@ -52,8 +52,7 @@ export default function AdminLoginPage() {
       if (result?.error) {
         setError(requiresTOTP ? 'Invalid TOTP code' : 'Invalid email or password');
       } else {
-        router.push('/admin');
-        router.refresh();
+        window.location.href = '/omena/admin';
       }
     } catch {
       setError('An unexpected error occurred');
