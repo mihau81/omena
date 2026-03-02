@@ -35,7 +35,7 @@ declare module 'next-auth/jwt' {
 }
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
-  basePath: '/omena/api/auth',
+  basePath: '/api/auth',
   trustHost: true,
   session: { strategy: 'jwt' },
   pages: {
