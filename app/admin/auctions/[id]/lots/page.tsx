@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, use } from 'react';
 import Link from 'next/link';
+import { apiUrl } from '@/app/lib/utils';
 import SortableLotList from '../../../components/SortableLotList';
 import LotImport from '../../../components/LotImport';
 
@@ -33,8 +34,8 @@ export default function LotsListPage({ params }: { params: Promise<{ id: string 
   const fetchData = useCallback(async () => {
     try {
       const [auctionRes, lotsRes] = await Promise.all([
-        fetch(`/omena/api/admin/auctions/${auctionId}`),
-        fetch(`/omena/api/admin/auctions/${auctionId}/lots`),
+        fetch(apiUrl(`/api/admin/auctions/${auctionId}`)),
+        fetch(apiUrl(`/api/admin/auctions/${auctionId}/lots`)),
       ]);
 
       if (auctionRes.ok) {
@@ -96,7 +97,7 @@ export default function LotsListPage({ params }: { params: Promise<{ id: string 
         {/* Action buttons */}
         <div className="flex items-center gap-2">
           <a
-            href={`/api/admin/auctions/${auctionId}/condition-reports`}
+            href={apiUrl(`/api/admin/auctions/${auctionId}/condition-reports`)}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 px-4 py-2 bg-white text-amber-700 text-sm font-medium rounded-lg border border-amber-200 hover:bg-amber-50 transition-colors"

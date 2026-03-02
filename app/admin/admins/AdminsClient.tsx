@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { apiUrl } from '@/app/lib/utils';
 
 type AdminRole = 'super_admin' | 'admin' | 'cataloguer' | 'auctioneer' | 'viewer';
 
@@ -104,7 +105,7 @@ export default function AdminsClient({
     setSaving(true);
     setError(null);
 
-    const res = await fetch('/api/admin/admins', {
+    const res = await fetch(apiUrl('/api/admin/admins'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(createForm),
@@ -136,7 +137,7 @@ export default function AdminsClient({
     };
     if (editForm.password) payload.password = editForm.password;
 
-    const res = await fetch(`/api/admin/admins/${editingAdmin.id}`, {
+    const res = await fetch(apiUrl(`/api/admin/admins/${editingAdmin.id}`), {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
@@ -163,7 +164,7 @@ export default function AdminsClient({
   const handleDeactivate = async (admin: AdminRow) => {
     if (!confirm(`${admin.isActive ? 'Deactivate' : 'Activate'} ${admin.name}?`)) return;
 
-    const res = await fetch(`/api/admin/admins/${admin.id}`, {
+    const res = await fetch(apiUrl(`/api/admin/admins/${admin.id}`), {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ isActive: !admin.isActive }),
@@ -180,7 +181,7 @@ export default function AdminsClient({
   const handleDelete = async (admin: AdminRow) => {
     if (!confirm(`Permanently delete ${admin.name}? This action cannot be undone.`)) return;
 
-    const res = await fetch(`/api/admin/admins/${admin.id}`, { method: 'DELETE' });
+    const res = await fetch(apiUrl(`/api/admin/admins/${admin.id}`), { method: 'DELETE' });
 
     if (res.ok) {
       setAdminList((prev) => prev.filter((a) => a.id !== admin.id));

@@ -43,10 +43,33 @@ export async function middleware(request: NextRequest) {
     if (pathname.startsWith('/api/')) {
       return NextResponse.json({ error: 'Session revoked' }, { status: 401 });
     }
-    // For page routes, redirect to login
-    const response = NextResponse.redirect(new URL('/admin/login', request.url));
+    // For page routes, determine correct login redirect
+    const isAdminPath = pathname.startsWith('/admin');
+    const loginUrl = isAdminPath ? '/admin/login' : '/en/login';
+    const response = NextResponse.redirect(new URL(loginUrl, request.url));
     applySecurityHeaders(response);
     return response;
+  }
+
+  // Protect /api/me/* routes — return 401 if not authenticated user
+  if (pathname.startsWith('/api/me')) {
+    if (!token || userType !== 'user') {
+      return NextResponse.json(
+        { error: 'Authentication required' },
+        { status: 401 },
+      );
+    }
+  }
+
+  // Protect /[locale]/account/* routes — redirect to login if not user
+  const accountMatch = pathname.match(/^\/([a-z]{2})\/account(\/|$)/);
+  if (accountMatch) {
+    if (!token || userType !== 'user') {
+      const locale = accountMatch[1];
+      const response = NextResponse.redirect(new URL(`/${locale}/login`, request.url));
+      applySecurityHeaders(response);
+      return response;
+    }
   }
 
   // Protect /admin/* routes — redirect to admin login if not admin
@@ -81,6 +104,12 @@ export async function middleware(request: NextRequest) {
 
   const response = NextResponse.next();
   applySecurityHeaders(response);
+
+  // Propagate user info to downstream handlers via headers
+  response.headers.set('x-user-visibility', String(token?.visibilityLevel ?? 0));
+  response.headers.set('x-user-id', token?.sub ?? '');
+  response.headers.set('x-user-type', userType);
+
   return response;
 }
 

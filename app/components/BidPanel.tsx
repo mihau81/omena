@@ -6,7 +6,6 @@ import { useBidding } from '../lib/BiddingContext';
 import { useLocale } from '../lib/LocaleContext';
 import { useCurrency } from '../lib/CurrencyContext';
 import { getNextMinBid, BUYERS_PREMIUM_RATE } from '../lib/bidding';
-import { endedAuctionResults } from '../lib/data';
 import { showBidToast } from './BidToast';
 import AllCurrencyPrices from './AllCurrencyPrices';
 import BidHistory from './BidHistory';
@@ -86,9 +85,6 @@ export default function BidPanel({ lot, auctionStatus, auctionSlug, premiumLabel
     setShowConfirmModal(true);
   }, []);
 
-  // Ended auction result
-  const endResult = endedAuctionResults.find((r) => r.lotId === lot.id);
-
   return (
     <>
       <div className="rounded-2xl bg-white p-6 shadow-sm sticky top-24">
@@ -96,14 +92,14 @@ export default function BidPanel({ lot, auctionStatus, auctionSlug, premiumLabel
         {auctionStatus === 'upcoming' && (
           <>
             <div className="rounded-lg bg-blue-50 px-4 py-3 text-center">
-              <p className="text-sm font-medium text-blue-800">
+              <p className="text-base font-medium text-blue-800">
                 {t.auctionNotStarted}
               </p>
             </div>
 
             <div className="mt-4">
-              <p className="text-xs uppercase text-taupe">{t.estimate}</p>
-              <p className="mt-1 font-serif text-xl text-dark-brown">
+              <p className="text-sm uppercase text-taupe">{t.estimate}</p>
+              <p className="mt-1 font-serif text-2xl text-dark-brown">
                 {formatPrice(lot.estimateMin)} &ndash; {formatPrice(lot.estimateMax)}
               </p>
               <div className="mt-2">
@@ -113,7 +109,7 @@ export default function BidPanel({ lot, auctionStatus, auctionSlug, premiumLabel
 
             <button
               onClick={() => toggleWatch(lot.id, auctionSlug)}
-              className="mt-4 flex w-full items-center justify-center gap-2 rounded-lg border border-beige py-2.5 text-sm font-medium text-dark-brown transition-colors hover:bg-beige/50"
+              className="mt-4 flex w-full items-center justify-center gap-2 rounded-lg border border-beige py-2.5 text-base font-medium text-dark-brown transition-colors hover:bg-beige/50"
             >
               <HeartIcon filled={watched} />
               {watched ? t.unwatchLot : t.watchLot}
@@ -124,26 +120,32 @@ export default function BidPanel({ lot, auctionStatus, auctionSlug, premiumLabel
         {/* ENDED */}
         {auctionStatus === 'ended' && (
           <>
-            {endResult?.sold ? (
+            {lot.status === 'sold' && lot.currentBid ? (
               <div className="rounded-lg bg-green-50 px-4 py-4 text-center">
-                <p className="text-xs uppercase tracking-wide text-green-700">
+                <p className="text-sm uppercase tracking-wide text-green-700">
                   {t.sold}
                 </p>
                 <p className="mt-1 font-serif text-2xl font-bold text-green-800">
-                  {formatPrice(endResult.hammerPrice!)}
+                  {formatPrice(lot.currentBid)}
+                </p>
+              </div>
+            ) : lot.status === 'passed' || lot.status === 'withdrawn' ? (
+              <div className="rounded-lg bg-gray-100 px-4 py-4 text-center">
+                <p className="text-base font-medium text-gray-600">
+                  {t.unsold}
                 </p>
               </div>
             ) : (
               <div className="rounded-lg bg-gray-100 px-4 py-4 text-center">
-                <p className="text-sm font-medium text-gray-600">
+                <p className="text-base font-medium text-gray-600">
                   {t.unsold}
                 </p>
               </div>
             )}
 
-            {endResult?.sold && endResult.hammerPrice && (
+            {lot.status === 'sold' && lot.currentBid && (
               <div className="mt-3">
-                <AllCurrencyPrices amountPLN={endResult.hammerPrice} />
+                <AllCurrencyPrices amountPLN={lot.currentBid} />
               </div>
             )}
 
@@ -156,12 +158,12 @@ export default function BidPanel({ lot, auctionStatus, auctionSlug, premiumLabel
           <>
             {/* Current bid */}
             <div>
-              <p className="text-xs uppercase text-taupe">{t.currentBid}</p>
-              <p className="mt-1 font-serif text-2xl font-bold text-gold">
+              <p className="text-sm uppercase text-taupe">{t.currentBid}</p>
+              <p className="mt-1 font-serif text-3xl font-bold text-gold">
                 {highestBid ? formatPrice(highestBid) : t.noBidsYet}
               </p>
               {isUserWinning(lot.id) && (
-                <p className="mt-1 text-xs font-medium text-green-600">
+                <p className="mt-1 text-sm font-medium text-green-600">
                   {t.myBidsWinning}
                 </p>
               )}
@@ -173,7 +175,7 @@ export default function BidPanel({ lot, auctionStatus, auctionSlug, premiumLabel
             </div>
 
             {/* Next min bid */}
-            <p className="mt-3 text-sm text-taupe">
+            <p className="mt-3 text-base text-taupe">
               {t.nextMinBid}:{' '}
               <span className="font-medium text-dark-brown">{formatPrice(nextMin)}</span>
             </p>
@@ -195,14 +197,14 @@ export default function BidPanel({ lot, auctionStatus, auctionSlug, premiumLabel
                     if (!isNaN(num)) setBidAmount(num);
                     else if (raw === '') setBidAmount(0);
                   }}
-                  className="w-full rounded-lg border border-beige px-4 py-3 pr-16 font-serif text-lg text-dark-brown focus:border-gold focus:ring-2 focus:ring-gold/30 focus:outline-none"
+                  className="w-full rounded-lg border border-beige px-4 py-3.5 pr-16 font-serif text-xl text-dark-brown focus:border-gold focus:ring-2 focus:ring-gold/30 focus:outline-none"
                 />
                 <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-taupe">
                   PLN
                 </span>
               </div>
               {bidAmount < nextMin && (
-                <p className="mt-1 text-xs text-red-600">
+                <p className="mt-1 text-sm text-red-600">
                   {t.nextMinBid}: {formatPrice(nextMin)}
                 </p>
               )}
@@ -212,7 +214,7 @@ export default function BidPanel({ lot, auctionStatus, auctionSlug, premiumLabel
             <button
               onClick={handleBidClick}
               disabled={bidAmount < nextMin}
-              className="mt-4 w-full rounded-lg bg-gold py-3 font-medium text-white transition-all hover:bg-gold-dark hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+              className="mt-4 w-full rounded-lg bg-gold py-3.5 text-lg font-medium text-white transition-all hover:bg-gold-dark hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
             >
               {t.placeBid}
             </button>
@@ -220,7 +222,7 @@ export default function BidPanel({ lot, auctionStatus, auctionSlug, premiumLabel
             {/* Watch toggle */}
             <button
               onClick={() => toggleWatch(lot.id, auctionSlug)}
-              className="mt-3 flex w-full items-center justify-center gap-2 rounded-lg border border-beige py-2.5 text-sm font-medium text-dark-brown transition-colors hover:bg-beige/50"
+              className="mt-3 flex w-full items-center justify-center gap-2 rounded-lg border border-beige py-2.5 text-base font-medium text-dark-brown transition-colors hover:bg-beige/50"
             >
               <HeartIcon filled={watched} />
               {watched ? t.unwatchLot : t.watchLot}
@@ -230,7 +232,7 @@ export default function BidPanel({ lot, auctionStatus, auctionSlug, premiumLabel
             <MaxBidPanel lotId={lot.id} nextMin={nextMin} />
 
             {/* Premium info */}
-            <p className="mt-3 text-center text-xs text-taupe">
+            <p className="mt-3 text-center text-sm text-taupe">
               {t.buyersPremium}
               {premiumLabel && (
                 <span className="ml-1 font-medium text-dark-brown">{premiumLabel}</span>

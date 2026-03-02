@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useSession, signOut } from 'next-auth/react';
 import { useLocale } from '../lib/LocaleContext';
 import { useCurrency, CURRENCIES, type CurrencyCode } from '../lib/CurrencyContext';
 import { useBidding } from '../lib/BiddingContext';
@@ -13,16 +14,23 @@ export default function Header() {
   const { locale, t } = useLocale();
   const { currency, setCurrency } = useCurrency();
   const { getUserBids } = useBidding();
+  const { data: session } = useSession();
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [langDropdown, setLangDropdown] = useState(false);
   const [currDropdown, setCurrDropdown] = useState(false);
+  const [userDropdown, setUserDropdown] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
   const pathname = usePathname();
   const langRef = useRef<HTMLDivElement>(null);
   const currRef = useRef<HTMLDivElement>(null);
+  const userRef = useRef<HTMLDivElement>(null);
 
+  const isLoggedIn = session?.user?.userType === 'user';
+  const userName = session?.user?.name || '';
   const userBidsCount = getUserBids().length;
 
+  // Build nav links — only show "My Bids" for logged-in users
   const navLinks = [
     { href: `/${locale}`, label: t.navHome },
     { href: `/${locale}/about`, label: t.navAbout },
@@ -30,8 +38,18 @@ export default function Header() {
     { href: `/${locale}/events`, label: t.navEvents },
     { href: `/${locale}/press`, label: t.navPress },
     { href: `/${locale}/contact`, label: t.navContact },
-    { href: `/${locale}/my-bids`, label: t.navMyBids },
   ];
+
+  // Fetch unread notifications count
+  useEffect(() => {
+    if (!isLoggedIn) return;
+    fetch(apiUrl('/api/me/notifications?limit=1'))
+      .then((res) => res.ok ? res.json() : null)
+      .then((data) => {
+        if (data?.unreadCount != null) setUnreadCount(data.unreadCount);
+      })
+      .catch(() => {});
+  }, [isLoggedIn]);
 
   // Scroll handler
   useEffect(() => {
@@ -51,6 +69,7 @@ export default function Header() {
     function handleClick(e: MouseEvent) {
       if (langRef.current && !langRef.current.contains(e.target as Node)) setLangDropdown(false);
       if (currRef.current && !currRef.current.contains(e.target as Node)) setCurrDropdown(false);
+      if (userRef.current && !userRef.current.contains(e.target as Node)) setUserDropdown(false);
     }
     document.addEventListener('mousedown', handleClick);
     return () => document.removeEventListener('mousedown', handleClick);
@@ -66,6 +85,16 @@ export default function Header() {
   function isActive(href: string) {
     if (href === `/${locale}`) return pathname === `/${locale}` || pathname === `/${locale}/`;
     return pathname.startsWith(href);
+  }
+
+  // Get user initials
+  function getInitials(name: string) {
+    return name
+      .split(' ')
+      .map((n) => n[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
   }
 
   return (
@@ -91,23 +120,18 @@ export default function Header() {
                     }`}
                   >
                     {link.label}
-                    {link.href === `/${locale}/my-bids` && userBidsCount > 0 && (
-                      <span className="ml-1 inline-flex h-5 w-5 items-center justify-center rounded-full bg-gold text-[10px] font-bold text-white">
-                        {userBidsCount > 9 ? '9+' : userBidsCount}
-                      </span>
-                    )}
                   </Link>
                 </li>
               ))}
             </ul>
           </nav>
 
-          {/* Desktop: Language + Currency selectors */}
+          {/* Desktop: right side */}
           <div className="hidden lg:flex items-center gap-3">
             {/* Language dropdown */}
             <div ref={langRef} className="relative">
               <button
-                onClick={() => { setLangDropdown(!langDropdown); setCurrDropdown(false); }}
+                onClick={() => { setLangDropdown(!langDropdown); setCurrDropdown(false); setUserDropdown(false); }}
                 className="flex items-center gap-1.5 rounded-lg border border-beige px-3 py-1.5 text-sm text-dark-brown transition-colors hover:border-gold"
               >
                 <span>{LOCALE_FLAGS[locale as Locale]}</span>
@@ -135,7 +159,7 @@ export default function Header() {
             {/* Currency dropdown */}
             <div ref={currRef} className="relative">
               <button
-                onClick={() => { setCurrDropdown(!currDropdown); setLangDropdown(false); }}
+                onClick={() => { setCurrDropdown(!currDropdown); setLangDropdown(false); setUserDropdown(false); }}
                 className="flex items-center gap-1.5 rounded-lg border border-beige px-3 py-1.5 text-sm text-dark-brown transition-colors hover:border-gold"
               >
                 <span>{CURRENCIES.find(c => c.code === currency)?.symbol}</span>
@@ -158,6 +182,73 @@ export default function Header() {
                 </div>
               )}
             </div>
+
+            {/* Auth section */}
+            {isLoggedIn ? (
+              <>
+                {/* Notification bell */}
+                <Link
+                  href={`/${locale}/account/notifications`}
+                  className="relative flex items-center justify-center w-9 h-9 rounded-lg text-taupe hover:text-gold transition-colors"
+                >
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" />
+                  </svg>
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-0.5 -right-0.5 inline-flex h-4 min-w-[16px] items-center justify-center rounded-full bg-gold px-1 text-[9px] font-bold text-white">
+                      {unreadCount > 9 ? '9+' : unreadCount}
+                    </span>
+                  )}
+                </Link>
+
+                {/* User dropdown */}
+                <div ref={userRef} className="relative">
+                  <button
+                    onClick={() => { setUserDropdown(!userDropdown); setLangDropdown(false); setCurrDropdown(false); }}
+                    className="flex items-center gap-2 rounded-lg border border-beige px-2 py-1.5 text-sm text-dark-brown transition-colors hover:border-gold"
+                  >
+                    <span className="flex items-center justify-center w-7 h-7 rounded-full bg-gold text-white text-xs font-bold">
+                      {getInitials(userName)}
+                    </span>
+                    <ChevronDown />
+                  </button>
+                  {userDropdown && (
+                    <div className="absolute right-0 top-full mt-1 w-48 rounded-lg border border-beige bg-white py-1 shadow-lg z-50">
+                      <div className="px-3 py-2 border-b border-beige">
+                        <p className="text-sm font-medium text-dark-brown truncate">{userName}</p>
+                      </div>
+                      <Link href={`/${locale}/account`} onClick={() => setUserDropdown(false)}
+                        className="block px-3 py-2 text-sm text-dark-brown hover:bg-beige/50 transition-colors">
+                        My Account
+                      </Link>
+                      <Link href={`/${locale}/account/bids`} onClick={() => setUserDropdown(false)}
+                        className="block px-3 py-2 text-sm text-dark-brown hover:bg-beige/50 transition-colors">
+                        My Bids
+                      </Link>
+                      <Link href={`/${locale}/account/favorites`} onClick={() => setUserDropdown(false)}
+                        className="block px-3 py-2 text-sm text-dark-brown hover:bg-beige/50 transition-colors">
+                        Favorites
+                      </Link>
+                      <div className="border-t border-beige mt-1 pt-1">
+                        <button
+                          onClick={() => signOut({ callbackUrl: `/${locale}` })}
+                          className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                        >
+                          Sign Out
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </>
+            ) : (
+              <Link
+                href={`/${locale}/login`}
+                className="px-4 py-1.5 bg-gold text-white text-sm font-medium rounded-lg hover:bg-gold/90 transition-colors"
+              >
+                Sign In
+              </Link>
+            )}
           </div>
 
           {/* Mobile hamburger */}
@@ -194,13 +285,35 @@ export default function Header() {
                 }`}
               >
                 {link.label}
-                {link.href === `/${locale}/my-bids` && userBidsCount > 0 && (
-                  <span className="ml-2 inline-flex h-6 w-6 items-center justify-center rounded-full bg-gold text-xs font-bold text-white">
-                    {userBidsCount > 9 ? '9+' : userBidsCount}
-                  </span>
-                )}
               </Link>
             ))}
+
+            {/* Auth links in mobile menu */}
+            {isLoggedIn ? (
+              <>
+                <Link
+                  href={`/${locale}/account`}
+                  onClick={() => setMenuOpen(false)}
+                  className="font-serif text-2xl tracking-wide text-dark-brown hover:text-gold transition-colors"
+                >
+                  My Account
+                </Link>
+                <button
+                  onClick={() => { setMenuOpen(false); signOut({ callbackUrl: `/${locale}` }); }}
+                  className="font-serif text-2xl tracking-wide text-red-600 hover:text-red-700 transition-colors"
+                >
+                  Sign Out
+                </button>
+              </>
+            ) : (
+              <Link
+                href={`/${locale}/login`}
+                onClick={() => setMenuOpen(false)}
+                className="font-serif text-2xl tracking-wide text-gold hover:text-gold/80 transition-colors"
+              >
+                Sign In
+              </Link>
+            )}
 
             {/* Mobile language/currency */}
             <div className="mt-4 flex items-center gap-4">

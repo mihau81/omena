@@ -1,5 +1,7 @@
 'use client';
 
+import { apiUrl } from '@/app/lib/utils';
+
 import { useState, useEffect, useCallback } from 'react';
 
 interface MaxBidPanelProps {
@@ -18,7 +20,7 @@ export default function MaxBidPanel({ lotId, nextMin }: MaxBidPanelProps) {
   // Check if user already has an absentee bid when panel opens
   useEffect(() => {
     if (!isOpen) return;
-    fetch(`/api/lots/${lotId}/absentee`)
+    fetch(apiUrl(`/api/lots/${lotId}/absentee`))
       .then((r) => r.json())
       .then((data) => {
         if (data.hasAbsenteeBid) setHasAbsenteeBid(true);
@@ -36,7 +38,7 @@ export default function MaxBidPanel({ lotId, nextMin }: MaxBidPanelProps) {
     setLoading(true);
     setStatus('idle');
     try {
-      const res = await fetch(`/api/lots/${lotId}/absentee`, {
+      const res = await fetch(apiUrl(`/api/lots/${lotId}/absentee`), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ maxAmount }),
@@ -62,7 +64,7 @@ export default function MaxBidPanel({ lotId, nextMin }: MaxBidPanelProps) {
     setLoading(true);
     setStatus('idle');
     try {
-      const res = await fetch(`/api/lots/${lotId}/absentee`, { method: 'DELETE' });
+      const res = await fetch(apiUrl(`/api/lots/${lotId}/absentee`), { method: 'DELETE' });
       if (res.ok) {
         setHasAbsenteeBid(false);
         setStatus('idle');

@@ -1,5 +1,7 @@
 'use client';
 
+import { apiUrl } from '@/app/lib/utils';
+
 import { useState, useCallback } from 'react';
 import { calculatePremium, calculateFlatPremium, STANDARD_TIERS, formatRate } from '@/lib/premium';
 
@@ -148,7 +150,7 @@ export default function PremiumTierEditor({
     setSaveSuccess(false);
 
     try {
-      const res = await fetch(`/api/admin/auctions/${auctionId}/premium-tiers`, {
+      const res = await fetch(apiUrl(`/api/admin/auctions/${auctionId}/premium-tiers`), {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ tiers: tiersToApiPayload(tiers) }),

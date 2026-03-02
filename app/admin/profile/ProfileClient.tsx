@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { apiUrl } from '@/app/lib/utils';
 import TwoFactorSetup from '@/app/admin/components/TwoFactorSetup';
 
 type AdminRole = 'super_admin' | 'admin' | 'cataloguer' | 'auctioneer' | 'viewer';
@@ -52,7 +53,7 @@ export default function ProfileClient({ admin }: { admin: AdminProfile }) {
     setNameError(null);
     setNameSuccess(false);
 
-    const res = await fetch('/api/admin/admins/me', {
+    const res = await fetch(apiUrl('/api/admin/admins/me'), {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name }),
@@ -76,7 +77,7 @@ export default function ProfileClient({ admin }: { admin: AdminProfile }) {
     setPasswordError(null);
     setPasswordSuccess(false);
 
-    const res = await fetch('/api/admin/admins/me', {
+    const res = await fetch(apiUrl('/api/admin/admins/me'), {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ currentPassword, newPassword }),

@@ -3,7 +3,7 @@ import Credentials from 'next-auth/providers/credentials';
 import { eq, and, isNull } from 'drizzle-orm';
 import bcrypt from 'bcryptjs';
 import { db } from '@/db/connection';
-import { users, admins } from '@/db/schema';
+import { users, admins, verificationTokens } from '@/db/schema';
 import type { AdminRole } from '@/lib/permissions';
 import { verifyTOTP, decryptSecret } from '@/lib/totp';
 
@@ -30,6 +30,7 @@ declare module 'next-auth/jwt' {
     userType: 'user' | 'admin' | 'revoked';
     visibilityLevel: number;
     role: AdminRole | null;
+    lastValidated?: number;
   }
 }
 
@@ -111,10 +112,19 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           .where(and(eq(users.email, email), isNull(users.deletedAt)))
           .limit(1);
 
-        if (!user || !user.isActive || !user.passwordHash) return null;
+        if (!user || !user.passwordHash) return null;
+
+        // Check account status — only approved users can log in
+        if (user.accountStatus !== 'approved') return null;
 
         const valid = await bcrypt.compare(password, user.passwordHash);
         if (!valid) return null;
+
+        // Update last login
+        await db
+          .update(users)
+          .set({ lastLoginAt: new Date() })
+          .where(eq(users.id, user.id));
 
         return {
           id: user.id,
@@ -127,16 +137,62 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       },
     }),
 
-    // Email provider placeholder for magic link (Phase 2)
-    // Uncomment when SMTP is configured:
-    // Email({
-    //   server: {
-    //     host: process.env.SMTP_HOST,
-    //     port: Number(process.env.SMTP_PORT),
-    //     auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
-    //   },
-    //   from: process.env.EMAIL_FROM,
-    // }),
+    // Magic link verification: token-based login
+    Credentials({
+      id: 'magic-link-verify',
+      name: 'Magic Link',
+      credentials: {
+        token: { label: 'Token', type: 'text' },
+      },
+      async authorize(credentials) {
+        const token = credentials?.token as string | undefined;
+        if (!token) return null;
+
+        // Atomically consume the token
+        const consumed = await db
+          .update(verificationTokens)
+          .set({ usedAt: new Date() })
+          .where(
+            and(
+              eq(verificationTokens.token, token),
+              eq(verificationTokens.purpose, 'magic_link'),
+              isNull(verificationTokens.usedAt),
+            ),
+          )
+          .returning({ identifier: verificationTokens.identifier, expiresAt: verificationTokens.expiresAt });
+
+        if (consumed.length === 0) return null;
+
+        // Check expiry
+        if (consumed[0].expiresAt < new Date()) return null;
+
+        const email = consumed[0].identifier;
+
+        // Lookup user
+        const [user] = await db
+          .select()
+          .from(users)
+          .where(and(eq(users.email, email), isNull(users.deletedAt)))
+          .limit(1);
+
+        if (!user || user.accountStatus !== 'approved') return null;
+
+        // Update last login
+        await db
+          .update(users)
+          .set({ lastLoginAt: new Date() })
+          .where(eq(users.id, user.id));
+
+        return {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          userType: 'user' as const,
+          visibilityLevel: parseInt(user.visibilityLevel),
+          role: null,
+        };
+      },
+    }),
   ],
   callbacks: {
     async jwt({ token, user }) {
@@ -146,6 +202,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         token.userType = user.userType;
         token.visibilityLevel = user.visibilityLevel;
         token.role = user.role;
+        token.lastValidated = Date.now();
       }
 
       // Re-validate admin sessions against DB on each token refresh
@@ -164,6 +221,25 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
         // Update role if changed
         token.role = admin.role as AdminRole;
+      }
+
+      // Re-validate user sessions every 5 minutes
+      if (token.userType === 'user' && token.sub) {
+        const now = Date.now();
+        const lastValidated = token.lastValidated ?? 0;
+        if (now - lastValidated > 5 * 60 * 1000) {
+          const [user] = await db
+            .select({ accountStatus: users.accountStatus, deletedAt: users.deletedAt })
+            .from(users)
+            .where(eq(users.id, token.sub))
+            .limit(1);
+
+          if (!user || user.accountStatus !== 'approved' || user.deletedAt) {
+            return { ...token, userType: 'revoked' as const };
+          }
+
+          token.lastValidated = now;
+        }
       }
 
       return token;

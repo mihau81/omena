@@ -99,5 +99,6 @@ export function mapDBLotToFrontend(
     provenance: Array.isArray(row.provenance) ? row.provenance as string[] : [],
     exhibited: Array.isArray(row.exhibitions) ? row.exhibitions as string[] : [],
     lotNumber: row.lotNumber,
+    status: row.status as string | undefined,
   };
 }

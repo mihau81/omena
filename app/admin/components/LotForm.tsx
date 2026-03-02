@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import DynamicList from './DynamicList';
+import { apiUrl } from '@/app/lib/utils';
 
 export interface LotFormData {
   title: string;
@@ -66,7 +67,7 @@ export default function LotForm({
   const [consignors, setConsignors] = useState<ConsignorOption[]>([]);
 
   useEffect(() => {
-    fetch('/api/admin/consignors?isActive=true&limit=100')
+    fetch(apiUrl('/api/admin/consignors?isActive=true&limit=100'))
       .then((r) => r.json())
       .then((d) => setConsignors(d.data ?? []))
       .catch(() => setConsignors([]));

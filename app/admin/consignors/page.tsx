@@ -1,5 +1,7 @@
 'use client';
 
+import { apiUrl } from '@/app/lib/utils';
+
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -52,7 +54,7 @@ export default function ConsignorsPage() {
     params.set('limit', '20');
 
     try {
-      const res = await fetch(`/api/admin/consignors?${params}`);
+      const res = await fetch(apiUrl(`/api/admin/consignors?${params}`));
       if (res.ok) {
         const json = await res.json();
         setData(json);

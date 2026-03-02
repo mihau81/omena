@@ -4,6 +4,7 @@ import {
   bidRegistrations, bids, bidRetractions, absenteeBids,
   watchedLots, notifications, invoices, sessions, lotTranslations,
   premiumTiers, consignors, payments,
+  userWhitelists, userInvitations, qrRegistrations,
 } from './schema';
 
 // ─── Auction Relations ───────────────────────────────────────────────────────
@@ -208,3 +209,40 @@ export const consignorsRelations = relations(consignors, ({ many }) => ({
 // ─── Session Relations ───────────────────────────────────────────────────────
 // Sessions reference users OR admins polymorphically via userType field.
 // No Drizzle relation defined since it's polymorphic — use manual queries.
+
+// ─── User Whitelist Relations ───────────────────────────────────────────────
+
+export const userWhitelistsRelations = relations(userWhitelists, ({ one }) => ({
+  importedByAdmin: one(admins, {
+    fields: [userWhitelists.importedBy],
+    references: [admins.id],
+  }),
+  user: one(users, {
+    fields: [userWhitelists.userId],
+    references: [users.id],
+  }),
+}));
+
+// ─── User Invitation Relations ──────────────────────────────────────────────
+
+export const userInvitationsRelations = relations(userInvitations, ({ one }) => ({
+  inviter: one(users, {
+    fields: [userInvitations.invitedBy],
+    references: [users.id],
+    relationName: 'inviter',
+  }),
+  usedByUser: one(users, {
+    fields: [userInvitations.usedByUserId],
+    references: [users.id],
+    relationName: 'invitee',
+  }),
+}));
+
+// ─── QR Registration Relations ──────────────────────────────────────────────
+
+export const qrRegistrationsRelations = relations(qrRegistrations, ({ one }) => ({
+  createdByAdmin: one(admins, {
+    fields: [qrRegistrations.createdBy],
+    references: [admins.id],
+  }),
+}));

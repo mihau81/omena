@@ -1,5 +1,7 @@
 'use client';
 
+import { apiUrl } from '@/app/lib/utils';
+
 import { useState } from 'react';
 
 interface BidEntryFormProps {
@@ -48,7 +50,7 @@ export default function BidEntryForm({
 
     setLoading(true);
     try {
-      const res = await fetch(`/api/admin/lots/${lotId}/bids`, {
+      const res = await fetch(apiUrl(`/api/admin/lots/${lotId}/bids`), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

@@ -1,5 +1,7 @@
 'use client';
 
+import { apiUrl } from '@/app/lib/utils';
+
 import { useState, useEffect, useCallback, use } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -69,7 +71,7 @@ export default function EditLotPage({
 
   const fetchLot = useCallback(async () => {
     try {
-      const res = await fetch(`/api/admin/lots/${lotId}`);
+      const res = await fetch(apiUrl(`/api/admin/lots/${lotId}`));
       if (res.ok) {
         const data = await res.json();
         setLot(data.lot);
@@ -114,7 +116,7 @@ export default function EditLotPage({
         consignorId: data.consignorId || null,
       };
 
-      const res = await fetch(`/api/admin/lots/${lotId}`, {
+      const res = await fetch(apiUrl(`/api/admin/lots/${lotId}`), {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
@@ -144,7 +146,7 @@ export default function EditLotPage({
     setError(null);
 
     try {
-      const res = await fetch(`/api/admin/lots/${lotId}/status`, {
+      const res = await fetch(apiUrl(`/api/admin/lots/${lotId}/status`), {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: newStatus }),
@@ -169,7 +171,7 @@ export default function EditLotPage({
 
   const handleDelete = async () => {
     try {
-      const res = await fetch(`/api/admin/lots/${lotId}`, { method: 'DELETE' });
+      const res = await fetch(apiUrl(`/api/admin/lots/${lotId}`), { method: 'DELETE' });
       if (res.ok) {
         router.push(`/admin/auctions/${auctionId}/lots`);
       }
@@ -181,7 +183,7 @@ export default function EditLotPage({
 
   const handleMediaDelete = async (mediaId: string) => {
     try {
-      const res = await fetch(`/api/admin/media/${mediaId}`, { method: 'DELETE' });
+      const res = await fetch(apiUrl(`/api/admin/media/${mediaId}`), { method: 'DELETE' });
       if (res.ok) {
         setMediaItems((prev) => prev.filter((m) => m.id !== mediaId));
       }
@@ -192,7 +194,7 @@ export default function EditLotPage({
 
   const handleSetPrimary = async (mediaId: string) => {
     try {
-      const res = await fetch(`/api/admin/media/${mediaId}`, {
+      const res = await fetch(apiUrl(`/api/admin/media/${mediaId}`), {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ isPrimary: true }),
@@ -209,7 +211,7 @@ export default function EditLotPage({
 
   const handleReorder = async (items: { id: string; sortOrder: number }[]) => {
     try {
-      const res = await fetch(`/api/admin/lots/${lotId}/media/reorder`, {
+      const res = await fetch(apiUrl(`/api/admin/lots/${lotId}/media/reorder`), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ items }),
@@ -231,7 +233,7 @@ export default function EditLotPage({
   const handleAddYoutube = async () => {
     setYoutubeError(null);
     try {
-      const res = await fetch(`/api/admin/lots/${lotId}/media/youtube`, {
+      const res = await fetch(apiUrl(`/api/admin/lots/${lotId}/media/youtube`), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ url: youtubeUrl }),
@@ -324,7 +326,7 @@ export default function EditLotPage({
             loading={statusLoading}
           />
           <a
-            href={`/api/admin/lots/${lotId}/condition-report`}
+            href={apiUrl(`/api/admin/lots/${lotId}/condition-report`)}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-amber-700 bg-amber-50 hover:bg-amber-100 rounded-lg transition-colors"

@@ -47,6 +47,7 @@ interface ListUsersFilters {
   search?: string;
   visibilityLevel?: '0' | '1' | '2';
   isActive?: boolean;
+  accountStatus?: string;
   page?: number;
   limit?: number;
 }
@@ -75,6 +76,10 @@ export async function listUsers(filters: ListUsersFilters = {}) {
     conditions.push(eq(users.isActive, filters.isActive));
   }
 
+  if (filters.accountStatus) {
+    conditions.push(eq(users.accountStatus, filters.accountStatus as typeof users.accountStatus.enumValues[number]));
+  }
+
   const whereClause = and(...conditions);
 
   const [rows, totalResult] = await Promise.all([
@@ -88,6 +93,8 @@ export async function listUsers(filters: ListUsersFilters = {}) {
         referrerId: users.referrerId,
         isActive: users.isActive,
         emailVerified: users.emailVerified,
+        accountStatus: users.accountStatus,
+        registrationSource: users.registrationSource,
         createdAt: users.createdAt,
       })
       .from(users)

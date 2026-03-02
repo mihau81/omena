@@ -1,5 +1,7 @@
 'use client';
 
+import { apiUrl } from '@/app/lib/utils';
+
 import { useState, useEffect, useCallback, use } from 'react';
 import Link from 'next/link';
 
@@ -123,7 +125,7 @@ export default function LiveAuctionPage({ params }: { params: Promise<{ id: stri
 
   const fetchAuction = useCallback(async () => {
     try {
-      const res = await fetch(`/api/admin/auctions/${auctionId}`);
+      const res = await fetch(apiUrl(`/api/admin/auctions/${auctionId}`));
       if (res.ok) {
         const data = await res.json();
         setAuction({ id: data.auction.id, title: data.auction.title, status: data.auction.status });
@@ -137,7 +139,7 @@ export default function LiveAuctionPage({ params }: { params: Promise<{ id: stri
 
   const fetchLots = useCallback(async () => {
     try {
-      const res = await fetch(`/api/admin/auctions/${auctionId}/lots`);
+      const res = await fetch(apiUrl(`/api/admin/auctions/${auctionId}/lots`));
       if (res.ok) {
         const data = await res.json();
         // Enrich with bid data: re-fetch from bids endpoint per lot is expensive;
@@ -163,7 +165,7 @@ export default function LiveAuctionPage({ params }: { params: Promise<{ id: stri
   const fetchBidHistory = useCallback(async (lotId: string) => {
     setBidsLoading(true);
     try {
-      const res = await fetch(`/api/admin/lots/${lotId}/bids`);
+      const res = await fetch(apiUrl(`/api/admin/lots/${lotId}/bids`));
       if (res.ok) {
         const data = await res.json();
         setBidHistory(data.bids ?? []);
@@ -228,7 +230,7 @@ export default function LiveAuctionPage({ params }: { params: Promise<{ id: stri
     setSuccess(null);
 
     try {
-      const res = await fetch(`/api/admin/lots/${selectedLotId}/bids`, {
+      const res = await fetch(apiUrl(`/api/admin/lots/${selectedLotId}/bids`), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -271,7 +273,7 @@ export default function LiveAuctionPage({ params }: { params: Promise<{ id: stri
     setError(null);
 
     try {
-      const res = await fetch(`/api/admin/bids/${retractingId}/retract`, {
+      const res = await fetch(apiUrl(`/api/admin/bids/${retractingId}/retract`), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ reason: retractReason.trim() }),

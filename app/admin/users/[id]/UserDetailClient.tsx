@@ -1,5 +1,7 @@
 'use client';
 
+import { apiUrl } from '@/app/lib/utils';
+
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -44,7 +46,7 @@ export default function UserDetailClient({ user }: { user: UserDetail }) {
   const handleToggleActive = async () => {
     setActionLoading(true);
     try {
-      const res = await fetch(`/api/admin/users/${user.id}`, {
+      const res = await fetch(apiUrl(`/api/admin/users/${user.id}`), {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ isActive: !user.isActive }),
@@ -61,7 +63,7 @@ export default function UserDetailClient({ user }: { user: UserDetail }) {
   const handleDelete = async () => {
     setActionLoading(true);
     try {
-      const res = await fetch(`/api/admin/users/${user.id}`, { method: 'DELETE' });
+      const res = await fetch(apiUrl(`/api/admin/users/${user.id}`), { method: 'DELETE' });
       if (res.ok) {
         router.push('/admin/users');
       }

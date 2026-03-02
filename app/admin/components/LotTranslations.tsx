@@ -1,5 +1,7 @@
 'use client';
 
+import { apiUrl } from '@/app/lib/utils';
+
 import { useState, useEffect, useCallback } from 'react';
 import DynamicList from './DynamicList';
 
@@ -56,7 +58,7 @@ export default function LotTranslations({ lotId }: LotTranslationsProps) {
   const fetchTranslations = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch(`/api/admin/lots/${lotId}/translations`);
+      const res = await fetch(apiUrl(`/api/admin/lots/${lotId}/translations`));
       if (!res.ok) return;
       const data = await res.json();
       const byLocale: Record<string, TranslationRecord | null> = {};
@@ -128,7 +130,7 @@ export default function LotTranslations({ lotId }: LotTranslationsProps) {
     });
 
     try {
-      const res = await fetch(`/api/admin/lots/${lotId}/translations/${locale}`, {
+      const res = await fetch(apiUrl(`/api/admin/lots/${lotId}/translations/${locale}`), {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -169,7 +171,7 @@ export default function LotTranslations({ lotId }: LotTranslationsProps) {
     setDeleting((prev) => ({ ...prev, [locale]: true }));
 
     try {
-      const res = await fetch(`/api/admin/lots/${lotId}/translations/${locale}`, {
+      const res = await fetch(apiUrl(`/api/admin/lots/${lotId}/translations/${locale}`), {
         method: 'DELETE',
       });
 

@@ -1,5 +1,7 @@
 'use client';
 
+import { apiUrl } from '@/app/lib/utils';
+
 import { useState, useEffect, useCallback, use } from 'react';
 import Link from 'next/link';
 import BidEntryForm from '../../../components/BidEntryForm';
@@ -76,8 +78,8 @@ export default function AuctionBidsPage({ params }: { params: Promise<{ id: stri
   const fetchPageData = useCallback(async () => {
     try {
       const [auctionRes, lotsRes] = await Promise.all([
-        fetch(`/api/admin/auctions/${auctionId}`),
-        fetch(`/api/admin/auctions/${auctionId}/lots`),
+        fetch(apiUrl(`/api/admin/auctions/${auctionId}`)),
+        fetch(apiUrl(`/api/admin/auctions/${auctionId}/lots`)),
       ]);
 
       if (auctionRes.ok) {
@@ -111,7 +113,7 @@ export default function AuctionBidsPage({ params }: { params: Promise<{ id: stri
     setLoadingBids(true);
     setBidsData(null);
     try {
-      const res = await fetch(`/api/admin/lots/${lotId}/bids`);
+      const res = await fetch(apiUrl(`/api/admin/lots/${lotId}/bids`));
       if (res.ok) {
         const data = await res.json();
         setBidsData(data);

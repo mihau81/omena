@@ -1,5 +1,7 @@
 'use client';
 
+import { apiUrl } from '@/app/lib/utils';
+
 import { useState, useEffect, useCallback, use } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -56,7 +58,7 @@ export default function ConsignorDetailPage({
 
   const fetchConsignor = useCallback(async () => {
     try {
-      const res = await fetch(`/api/admin/consignors/${id}`);
+      const res = await fetch(apiUrl(`/api/admin/consignors/${id}`));
       if (res.ok) {
         const data = await res.json();
         setConsignor(data.consignor);
@@ -78,7 +80,7 @@ export default function ConsignorDetailPage({
   const handleDelete = async () => {
     setDeleteLoading(true);
     try {
-      const res = await fetch(`/api/admin/consignors/${id}`, { method: 'DELETE' });
+      const res = await fetch(apiUrl(`/api/admin/consignors/${id}`), { method: 'DELETE' });
       if (res.ok) {
         router.push('/admin/consignors');
       }

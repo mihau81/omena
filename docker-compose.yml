@@ -35,7 +35,8 @@ services:
       - MINIO_ACCESS_KEY=omena
       - MINIO_SECRET_KEY=omena_dev
       - NEXTAUTH_SECRET=dev-secret-change-in-production
-      - NEXTAUTH_URL=http://localhost:3080/omena
+      - NEXTAUTH_URL=http://192.168.5.31:3080
+      - AUTH_TRUST_HOST=true
     depends_on:
       - db
       - minio

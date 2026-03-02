@@ -22,11 +22,13 @@ export async function GET(request: NextRequest) {
     const visibilityLevel = searchParams.get('visibilityLevel') as '0' | '1' | '2' | null;
     const isActiveParam = searchParams.get('isActive');
     const isActive = isActiveParam === 'true' ? true : isActiveParam === 'false' ? false : undefined;
+    const accountStatus = searchParams.get('accountStatus') || undefined;
 
     const result = await listUsers({
       search,
       visibilityLevel: visibilityLevel || undefined,
       isActive,
+      accountStatus,
       page,
       limit,
     });

@@ -1,5 +1,7 @@
 'use client';
 
+import { apiUrl } from '@/app/lib/utils';
+
 import { useState, useEffect, useCallback, use } from 'react';
 import Link from 'next/link';
 
@@ -64,7 +66,7 @@ export default function RegistrationsPage({ params }: { params: Promise<{ id: st
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch(`/api/admin/auctions/${auctionId}/registrations`);
+      const res = await fetch(apiUrl(`/api/admin/auctions/${auctionId}/registrations`));
       if (res.ok) {
         const data = await res.json();
         setAuction(data.auction);
@@ -88,7 +90,7 @@ export default function RegistrationsPage({ params }: { params: Promise<{ id: st
     setActionLoading(regId);
     setError(null);
     try {
-      const res = await fetch(`/api/admin/registrations/${regId}/approve`, { method: 'PATCH' });
+      const res = await fetch(apiUrl(`/api/admin/registrations/${regId}/approve`), { method: 'PATCH' });
       const json = await res.json();
       if (!res.ok) {
         setError(json.error || 'Failed to approve registration');
@@ -116,7 +118,7 @@ export default function RegistrationsPage({ params }: { params: Promise<{ id: st
     setActionLoading(rejectId);
     setError(null);
     try {
-      const res = await fetch(`/api/admin/registrations/${rejectId}/reject`, {
+      const res = await fetch(apiUrl(`/api/admin/registrations/${rejectId}/reject`), {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ reason: rejectReason }),
@@ -151,7 +153,7 @@ export default function RegistrationsPage({ params }: { params: Promise<{ id: st
     setBulkLoading(true);
     setError(null);
     try {
-      const res = await fetch(`/api/admin/auctions/${auctionId}/registrations`, {
+      const res = await fetch(apiUrl(`/api/admin/auctions/${auctionId}/registrations`), {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'bulk_approve', ids }),

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useCallback, DragEvent, ChangeEvent } from 'react';
+import { apiUrl } from '@/app/lib/utils';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -85,7 +86,7 @@ export default function LotImport({ auctionId, onImported, onClose }: LotImportP
       const formData = new FormData();
       formData.append('file', selectedFile);
 
-      const res = await fetch(`/omena/api/admin/auctions/${auctionId}/lots/import`, {
+      const res = await fetch(apiUrl(`/api/admin/auctions/${auctionId}/lots/import`), {
         method: 'POST',
         body: formData,
       });
@@ -129,7 +130,7 @@ export default function LotImport({ auctionId, onImported, onClose }: LotImportP
       const formData = new FormData();
       formData.append('file', file);
 
-      const res = await fetch(`/omena/api/admin/auctions/${auctionId}/lots/import?confirm=true`, {
+      const res = await fetch(apiUrl(`/api/admin/auctions/${auctionId}/lots/import?confirm=true`), {
         method: 'POST',
         body: formData,
       });
@@ -151,7 +152,7 @@ export default function LotImport({ auctionId, onImported, onClose }: LotImportP
   };
 
   const handleDownloadTemplate = () => {
-    window.location.href = '/omena/api/admin/lots/import-template';
+    window.location.href = apiUrl('/api/admin/lots/import-template');
   };
 
   // ─── Header Errors (row 0) ─────────────────────────────────────────────────

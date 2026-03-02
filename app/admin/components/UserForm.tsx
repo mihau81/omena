@@ -1,7 +1,34 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { apiUrl } from '@/app/lib/utils';
+
+const COUNTRIES = [
+  'Afghanistan','Albania','Algeria','Andorra','Angola','Antigua and Barbuda','Argentina','Armenia',
+  'Australia','Austria','Azerbaijan','Bahamas','Bahrain','Bangladesh','Barbados','Belarus','Belgium',
+  'Belize','Benin','Bhutan','Bolivia','Bosnia and Herzegovina','Botswana','Brazil','Brunei','Bulgaria',
+  'Burkina Faso','Burundi','Cabo Verde','Cambodia','Cameroon','Canada','Central African Republic','Chad',
+  'Chile','China','Colombia','Comoros','Congo','Costa Rica','Croatia','Cuba','Cyprus','Czech Republic',
+  'Denmark','Djibouti','Dominica','Dominican Republic','Ecuador','Egypt','El Salvador','Equatorial Guinea',
+  'Eritrea','Estonia','Eswatini','Ethiopia','Fiji','Finland','France','Gabon','Gambia','Georgia','Germany',
+  'Ghana','Greece','Grenada','Guatemala','Guinea','Guinea-Bissau','Guyana','Haiti','Honduras','Hungary',
+  'Iceland','India','Indonesia','Iran','Iraq','Ireland','Israel','Italy','Ivory Coast','Jamaica','Japan',
+  'Jordan','Kazakhstan','Kenya','Kiribati','Kosovo','Kuwait','Kyrgyzstan','Laos','Latvia','Lebanon',
+  'Lesotho','Liberia','Libya','Liechtenstein','Lithuania','Luxembourg','Madagascar','Malawi','Malaysia',
+  'Maldives','Mali','Malta','Marshall Islands','Mauritania','Mauritius','Mexico','Micronesia','Moldova',
+  'Monaco','Mongolia','Montenegro','Morocco','Mozambique','Myanmar','Namibia','Nauru','Nepal','Netherlands',
+  'New Zealand','Nicaragua','Niger','Nigeria','North Korea','North Macedonia','Norway','Oman','Pakistan',
+  'Palau','Palestine','Panama','Papua New Guinea','Paraguay','Peru','Philippines','Poland','Portugal',
+  'Qatar','Romania','Russia','Rwanda','Saint Kitts and Nevis','Saint Lucia',
+  'Saint Vincent and the Grenadines','Samoa','San Marino','Sao Tome and Principe','Saudi Arabia','Senegal',
+  'Serbia','Seychelles','Sierra Leone','Singapore','Slovakia','Slovenia','Solomon Islands','Somalia',
+  'South Africa','South Korea','South Sudan','Spain','Sri Lanka','Sudan','Suriname','Sweden','Switzerland',
+  'Syria','Taiwan','Tajikistan','Tanzania','Thailand','Timor-Leste','Togo','Tonga','Trinidad and Tobago',
+  'Tunisia','Turkey','Turkmenistan','Tuvalu','Uganda','Ukraine','United Arab Emirates','United Kingdom',
+  'United States','Uruguay','Uzbekistan','Vanuatu','Vatican City','Venezuela','Vietnam','Yemen','Zambia',
+  'Zimbabwe',
+];
 
 interface UserData {
   id?: string;
@@ -47,13 +74,21 @@ export default function UserForm({ user, mode }: UserFormProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(form.email)) {
+      setError('Please enter a valid email address');
+      return;
+    }
+
     setSaving(true);
     setError(null);
 
     try {
       const url = mode === 'create'
-        ? '/api/admin/users'
-        : `/api/admin/users/${user?.id}`;
+        ? apiUrl('/api/admin/users')
+        : apiUrl(`/api/admin/users/${user?.id}`);
       const method = mode === 'create' ? 'POST' : 'PATCH';
 
       const res = await fetch(url, {
@@ -201,12 +236,7 @@ export default function UserForm({ user, mode }: UserFormProps) {
         {/* Country */}
         <div>
           <label className="block text-xs font-semibold text-taupe uppercase mb-1">Country</label>
-          <input
-            type="text"
-            value={form.country}
-            onChange={(e) => handleChange('country', e.target.value)}
-            className="w-full px-3 py-2 text-sm border border-beige rounded-lg focus:ring-2 focus:ring-gold/30 focus:border-gold outline-none"
-          />
+          <CountryCombobox value={form.country} onChange={(v) => handleChange('country', v)} />
         </div>
       </div>
 
@@ -240,5 +270,73 @@ export default function UserForm({ user, mode }: UserFormProps) {
         </button>
       </div>
     </form>
+  );
+}
+
+function CountryCombobox({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState(value);
+  const ref = useRef<HTMLDivElement>(null);
+
+  const filtered = query
+    ? COUNTRIES.filter((c) => c.toLowerCase().includes(query.toLowerCase()))
+    : COUNTRIES;
+
+  useEffect(() => {
+    setQuery(value);
+  }, [value]);
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setOpen(false);
+        // If typed value doesn't match any country, revert
+        if (!COUNTRIES.includes(query)) {
+          setQuery(value);
+        }
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [query, value]);
+
+  return (
+    <div ref={ref} className="relative">
+      <input
+        type="text"
+        value={query}
+        onChange={(e) => {
+          setQuery(e.target.value);
+          setOpen(true);
+        }}
+        onFocus={() => setOpen(true)}
+        placeholder="Start typing..."
+        className="w-full px-3 py-2 text-sm border border-beige rounded-lg focus:ring-2 focus:ring-gold/30 focus:border-gold outline-none"
+      />
+      {open && filtered.length > 0 && (
+        <ul className="absolute z-50 mt-1 max-h-48 w-full overflow-auto rounded-lg border border-beige bg-white shadow-lg">
+          {filtered.slice(0, 20).map((c) => (
+            <li key={c}>
+              <button
+                type="button"
+                onClick={() => {
+                  onChange(c);
+                  setQuery(c);
+                  setOpen(false);
+                }}
+                className={`w-full px-3 py-1.5 text-left text-sm hover:bg-cream transition-colors ${
+                  c === value ? 'bg-cream font-medium text-gold' : 'text-dark-brown'
+                }`}
+              >
+                {c}
+              </button>
+            </li>
+          ))}
+          {filtered.length > 20 && (
+            <li className="px-3 py-1.5 text-xs text-taupe">Type more to narrow results...</li>
+          )}
+        </ul>
+      )}
+    </div>
   );
 }

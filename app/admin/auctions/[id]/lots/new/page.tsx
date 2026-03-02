@@ -1,5 +1,7 @@
 'use client';
 
+import { apiUrl } from '@/app/lib/utils';
+
 import { useState, use } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -37,7 +39,7 @@ export default function NewLotPage({ params }: { params: Promise<{ id: string }>
         consignorId: data.consignorId || null,
       };
 
-      const res = await fetch(`/api/admin/auctions/${auctionId}/lots`, {
+      const res = await fetch(apiUrl(`/api/admin/auctions/${auctionId}/lots`), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),

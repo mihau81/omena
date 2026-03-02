@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { apiUrl } from '@/app/lib/utils';
 
 interface ConsignorLot {
   lotId: string;
@@ -109,8 +110,8 @@ export default function ConsignorForm({ mode, consignor, lots = [] }: ConsignorF
 
     try {
       const url = mode === 'create'
-        ? '/api/admin/consignors'
-        : `/api/admin/consignors/${consignor?.id}`;
+        ? apiUrl('/api/admin/consignors')
+        : apiUrl(`/api/admin/consignors/${consignor?.id}`);
       const method = mode === 'create' ? 'POST' : 'PATCH';
 
       const payload = {

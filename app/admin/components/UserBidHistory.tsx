@@ -1,5 +1,7 @@
 'use client';
 
+import { apiUrl } from '@/app/lib/utils';
+
 import { useState, useEffect } from 'react';
 
 interface BidRow {
@@ -29,7 +31,7 @@ export default function UserBidHistory({ userId }: { userId: string }) {
 
   useEffect(() => {
     setLoading(true);
-    fetch(`/api/admin/users/${userId}?include=bids&page=${page}&limit=10`)
+    fetch(apiUrl(`/api/admin/users/${userId}?include=bids&page=${page}&limit=10`))
       .then((res) => res.json())
       .then((json) => {
         setData(json.bids ?? null);

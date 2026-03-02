@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import { apiUrl } from '@/app/lib/utils';
 
 interface TwoFactorSetupProps {
   totpEnabled: boolean;
@@ -33,7 +34,7 @@ export default function TwoFactorSetup({ totpEnabled }: TwoFactorSetupProps) {
     setSetupLoading(true);
     setSetupError(null);
 
-    const res = await fetch('/api/admin/2fa/setup', { method: 'POST' });
+    const res = await fetch(apiUrl('/api/admin/2fa/setup'), { method: 'POST' });
     const data = await res.json();
     setSetupLoading(false);
 
@@ -55,7 +56,7 @@ export default function TwoFactorSetup({ totpEnabled }: TwoFactorSetupProps) {
     setSetupLoading(true);
     setSetupError(null);
 
-    const res = await fetch('/api/admin/2fa/enable', {
+    const res = await fetch(apiUrl('/api/admin/2fa/enable'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ secret: pendingSecret, token: enableToken }),
@@ -89,7 +90,7 @@ export default function TwoFactorSetup({ totpEnabled }: TwoFactorSetupProps) {
     setDisableLoading(true);
     setDisableError(null);
 
-    const res = await fetch('/api/admin/2fa/disable', {
+    const res = await fetch(apiUrl('/api/admin/2fa/disable'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ token: disableToken }),

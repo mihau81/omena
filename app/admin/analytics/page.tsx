@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
+import { apiUrl } from '@/app/lib/utils';
 import AnalyticsCard from '../components/AnalyticsCard';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -206,7 +207,7 @@ export default function AnalyticsPage() {
     setError(null);
 
     try {
-      const base = '/omena/api/admin/analytics';
+      const base = apiUrl('/api/admin/analytics');
 
       if (tab === 'overview') {
         const [ovRes, perfRes] = await Promise.all([

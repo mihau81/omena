@@ -3,7 +3,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import type { Lot } from '../lib/types';
-import { endedAuctionResults } from '../lib/data';
 import { useBidding } from '../lib/BiddingContext';
 import { useLocale } from '../lib/LocaleContext';
 import { useCurrency } from '../lib/CurrencyContext';
@@ -23,7 +22,6 @@ export default function LotCardEnhanced({
   const { locale, t } = useLocale();
   const { formatPrice } = useCurrency();
 
-  const endResult = endedAuctionResults.find((r) => r.lotId === lot.id);
   const liveBid = auctionStatus === 'live' ? getHighestBid(lot.id) : null;
 
   return (
@@ -49,12 +47,12 @@ export default function LotCardEnhanced({
           {t.lot} {lot.lotNumber}
         </span>
 
-        {auctionStatus === 'ended' && endResult?.sold && (
+        {auctionStatus === 'ended' && lot.status === 'sold' && (
           <span className="absolute right-3 top-3 rounded bg-green-600 px-2.5 py-1 text-xs font-bold uppercase tracking-wide text-white shadow">
             {t.sold}
           </span>
         )}
-        {auctionStatus === 'ended' && endResult && !endResult.sold && (
+        {auctionStatus === 'ended' && (lot.status === 'passed' || lot.status === 'withdrawn') && (
           <span className="absolute right-3 top-3 rounded bg-gray-500 px-2.5 py-1 text-xs font-bold uppercase tracking-wide text-white shadow">
             {t.unsold}
           </span>
@@ -73,9 +71,9 @@ export default function LotCardEnhanced({
           {formatPrice(lot.estimateMax)}
         </p>
 
-        {auctionStatus === 'ended' && endResult?.sold && endResult.hammerPrice && (
+        {auctionStatus === 'ended' && lot.status === 'sold' && lot.currentBid && (
           <p className="mt-1 text-sm font-medium text-green-700">
-            {t.hammerPrice}: {formatPrice(endResult.hammerPrice)}
+            {t.hammerPrice}: {formatPrice(lot.currentBid)}
           </p>
         )}
 

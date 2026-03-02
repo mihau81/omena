@@ -187,3 +187,110 @@ export function lotWon(
     ${paragraph(`<span style="color:#999;font-size:12px;">For payment queries, contact us at <a href="mailto:info@omena.pl" style="color:${GOLD};">info@omena.pl</a>.</span>`)}
   `);
 }
+
+// ─── Account Lifecycle Templates ────────────────────────────────────────────
+
+export function emailVerification(
+  userName: string,
+  verifyUrl: string,
+): string {
+  return layout(`
+    ${heading('Verify Your Email')}
+    ${paragraph(`Dear ${userName},`)}
+    ${paragraph('Thank you for registering at Omena Auction House. Please verify your email address by clicking the button below.')}
+    ${button('Verify Email', verifyUrl)}
+    ${paragraph('<span style="color:#999;font-size:12px;">This link is valid for 24 hours. If you did not create an account, please ignore this email.</span>')}
+  `);
+}
+
+export function magicLinkLogin(
+  email: string,
+  magicUrl: string,
+): string {
+  return layout(`
+    ${heading('Sign In to Omena')}
+    ${paragraph(`A sign-in link was requested for <strong>${email}</strong>.`)}
+    ${paragraph('Click the button below to sign in to your account. No password needed.')}
+    ${button('Sign In', magicUrl)}
+    ${paragraph('<span style="color:#999;font-size:12px;">This link is valid for 15 minutes and can only be used once. If you did not request this, please ignore this email.</span>')}
+  `);
+}
+
+export function accountApproved(
+  userName: string,
+): string {
+  return layout(`
+    ${heading('Account Approved')}
+    ${paragraph(`Dear ${userName},`)}
+    ${paragraph('Your account at Omena Auction House has been approved. You can now sign in and start exploring our auctions.')}
+    ${paragraph('Welcome to Omena — we look forward to seeing you at our upcoming events.')}
+    ${paragraph(`<span style="color:#999;font-size:12px;">If you have any questions, contact us at <a href="mailto:info@omena.pl" style="color:${GOLD};">info@omena.pl</a>.</span>`)}
+  `);
+}
+
+export function accountRejected(
+  userName: string,
+  reason?: string,
+): string {
+  return layout(`
+    ${heading('Account Application')}
+    ${paragraph(`Dear ${userName},`)}
+    ${paragraph('We regret to inform you that your account application at Omena Auction House has not been approved at this time.')}
+    ${reason ? paragraph(`<strong>Reason:</strong> ${reason}`) : ''}
+    ${paragraph('If you believe this is an error or would like to provide additional information, please contact us.')}
+    ${paragraph(`<span style="color:#999;font-size:12px;">For enquiries, contact us at <a href="mailto:info@omena.pl" style="color:${GOLD};">info@omena.pl</a>.</span>`)}
+  `);
+}
+
+export function pendingApproval(
+  userName: string,
+): string {
+  return layout(`
+    ${heading('Email Verified — Awaiting Approval')}
+    ${paragraph(`Dear ${userName},`)}
+    ${paragraph('Your email address has been successfully verified. Your account is now being reviewed by our team.')}
+    ${paragraph('You will receive an email once your account has been approved. This usually takes 1–2 business days.')}
+    ${paragraph(`<span style="color:#999;font-size:12px;">If you have any questions, contact us at <a href="mailto:info@omena.pl" style="color:${GOLD};">info@omena.pl</a>.</span>`)}
+  `);
+}
+
+export function invitationTemplate(
+  inviterName: string,
+  inviteUrl: string,
+): string {
+  return layout(`
+    ${heading('You\'re Invited to Omena')}
+    ${paragraph(`<strong>${inviterName}</strong> has invited you to join Omena Auction House — a curated platform for art and collectibles auctions.`)}
+    ${paragraph('Click the button below to create your account and start exploring our upcoming events.')}
+    ${button('Accept Invitation', inviteUrl)}
+    ${paragraph('<span style="color:#999;font-size:12px;">This invitation is valid for 72 hours and can only be used once. If you did not expect this, please ignore this email.</span>')}
+  `);
+}
+
+export function passwordReset(
+  userName: string,
+  resetUrl: string,
+): string {
+  return layout(`
+    ${heading('Reset Your Password')}
+    ${paragraph(`Dear ${userName},`)}
+    ${paragraph('A password reset was requested for your Omena Auction House account. Click the button below to set a new password.')}
+    ${button('Reset Password', resetUrl)}
+    ${paragraph('<span style="color:#999;font-size:12px;">This link is valid for 1 hour. If you did not request a password reset, please ignore this email — your password will remain unchanged.</span>')}
+  `);
+}
+
+export function adminNewUserPending(
+  userName: string,
+  userEmail: string,
+): string {
+  return layout(`
+    ${heading('New User Awaiting Approval')}
+    ${paragraph('A new user has verified their email and is awaiting your approval:')}
+    ${table(
+      highlight('Name', userName) +
+      highlight('Email', userEmail),
+    )}
+    ${paragraph('Please review and approve or reject this application in the admin panel.')}
+  `);
+}

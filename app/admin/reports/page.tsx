@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import StatCard from '../components/StatCard';
+import { apiUrl } from '@/app/lib/utils';
 
 interface ReportsData {
   salesSummary: Array<{
@@ -47,7 +48,7 @@ export default function ReportsPage() {
   useEffect(() => {
     async function fetchReports() {
       try {
-        const response = await fetch('/api/admin/reports');
+        const response = await fetch(apiUrl('/api/admin/reports'));
         if (!response.ok) {
           throw new Error('Failed to fetch reports');
         }

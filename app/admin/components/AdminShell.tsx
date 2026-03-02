@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import AdminSidebar from './AdminSidebar';
 import AdminHeader from './AdminHeader';
+import { apiUrl } from '@/app/lib/utils';
 
 interface AdminShellProps {
   userName: string;
@@ -12,6 +13,16 @@ interface AdminShellProps {
 
 export default function AdminShell({ userName, userRole, children }: AdminShellProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [pendingUsersCount, setPendingUsersCount] = useState(0);
+
+  useEffect(() => {
+    fetch(apiUrl('/api/admin/users/pending-count'))
+      .then((res) => res.ok ? res.json() : null)
+      .then((data) => {
+        if (data?.count != null) setPendingUsersCount(data.count);
+      })
+      .catch(() => {});
+  }, []);
 
   return (
     <div className="flex h-screen bg-cream/50 overflow-hidden">
@@ -19,6 +30,7 @@ export default function AdminShell({ userName, userRole, children }: AdminShellP
         role={userRole}
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
+        pendingUsersCount={pendingUsersCount}
       />
       <div className="flex flex-col flex-1 min-w-0">
         <AdminHeader

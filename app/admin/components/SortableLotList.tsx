@@ -1,5 +1,7 @@
 'use client';
 
+import { apiUrl } from '@/app/lib/utils';
+
 import { useState, useCallback } from 'react';
 import Link from 'next/link';
 import {
@@ -164,7 +166,7 @@ export default function SortableLotList({ initialLots, auctionId }: SortableLotL
     const snapshot = lots; // for rollback
 
     try {
-      const res = await fetch(`/api/admin/auctions/${auctionId}/lots/reorder`, {
+      const res = await fetch(apiUrl(`/api/admin/auctions/${auctionId}/lots/reorder`), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ items }),

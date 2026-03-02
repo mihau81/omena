@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useCallback } from 'react';
+import { apiUrl } from '@/app/lib/utils';
 
 interface MediaUploadProps {
   lotId: string;
@@ -22,7 +23,7 @@ export default function MediaUpload({ lotId, onUploaded }: MediaUploadProps) {
       formData.append('file', file);
       formData.append('lotId', lotId);
 
-      const res = await fetch('/api/admin/media/upload', {
+      const res = await fetch(apiUrl('/api/admin/media/upload'), {
         method: 'POST',
         body: formData,
       });

@@ -3,7 +3,7 @@ import { eq, and, isNull } from 'drizzle-orm';
 import { db } from '@/db/connection';
 import { media } from '@/db/schema';
 import { requireAdmin, AuthError } from '@/lib/auth-utils';
-import { logDelete } from '@/lib/audit';
+import { logDelete, logUpdate } from '@/lib/audit';
 
 // ─── PATCH: Set as primary image ────────────────────────────────────────────
 
@@ -46,6 +46,15 @@ export async function PATCH(
       .from(media)
       .where(eq(media.id, id))
       .limit(1);
+
+    await logUpdate(
+      'media',
+      id,
+      existing as unknown as Record<string, unknown>,
+      updated as unknown as Record<string, unknown>,
+      admin.id,
+      'admin',
+    );
 
     return NextResponse.json({ media: updated });
   } catch (error) {

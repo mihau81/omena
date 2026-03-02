@@ -44,3 +44,13 @@ export async function requireAdmin(permission?: Permission) {
 
   return user;
 }
+
+export async function requireApprovedUser() {
+  const user = await requireAuth();
+
+  if (user.userType !== 'user') {
+    throw new AuthError('User access required', 403);
+  }
+
+  return user;
+}

@@ -1,5 +1,7 @@
 'use client';
 
+import { apiUrl } from '@/app/lib/utils';
+
 import { useState, useEffect, useCallback, use } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -49,7 +51,7 @@ export default function EditAuctionPage({ params }: { params: Promise<{ id: stri
 
   const fetchAuction = useCallback(async () => {
     try {
-      const res = await fetch(`/api/admin/auctions/${id}`);
+      const res = await fetch(apiUrl(`/api/admin/auctions/${id}`));
       if (res.ok) {
         const data = await res.json();
         setAuction(data.auction);
@@ -71,7 +73,7 @@ export default function EditAuctionPage({ params }: { params: Promise<{ id: stri
     setSuccess(null);
 
     try {
-      const res = await fetch(`/api/admin/auctions/${id}`, {
+      const res = await fetch(apiUrl(`/api/admin/auctions/${id}`), {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
@@ -105,7 +107,7 @@ export default function EditAuctionPage({ params }: { params: Promise<{ id: stri
     setError(null);
 
     try {
-      const res = await fetch(`/api/admin/auctions/${id}/status`, {
+      const res = await fetch(apiUrl(`/api/admin/auctions/${id}/status`), {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: newStatus }),
@@ -130,7 +132,7 @@ export default function EditAuctionPage({ params }: { params: Promise<{ id: stri
 
   const handleDelete = async () => {
     try {
-      const res = await fetch(`/api/admin/auctions/${id}`, { method: 'DELETE' });
+      const res = await fetch(apiUrl(`/api/admin/auctions/${id}`), { method: 'DELETE' });
       if (res.ok) {
         router.push('/admin/auctions');
       }

@@ -1,5 +1,7 @@
 'use client';
 
+import { apiUrl } from '@/app/lib/utils';
+
 import { useState } from 'react';
 
 interface BidRetractDialogProps {
@@ -35,7 +37,7 @@ export default function BidRetractDialog({
     setError(null);
 
     try {
-      const res = await fetch(`/api/admin/bids/${bidId}/retract`, {
+      const res = await fetch(apiUrl(`/api/admin/bids/${bidId}/retract`), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ reason: reason.trim() }),

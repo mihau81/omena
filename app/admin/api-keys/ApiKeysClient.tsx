@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { apiUrl } from '@/app/lib/utils';
 
 interface ApiKeyRow {
   id: string;
@@ -54,7 +55,7 @@ export default function ApiKeysClient({ initialKeys }: ApiKeysClientProps) {
       payload.expiresAt = new Date(createForm.expiresAt).toISOString();
     }
 
-    const res = await fetch('/api/admin/api-keys', {
+    const res = await fetch(apiUrl('/api/admin/api-keys'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
@@ -78,7 +79,7 @@ export default function ApiKeysClient({ initialKeys }: ApiKeysClientProps) {
     const action = key.isActive ? 'Deactivate' : 'Activate';
     if (!confirm(`${action} API key "${key.name}"?`)) return;
 
-    const res = await fetch(`/api/admin/api-keys/${key.id}`, {
+    const res = await fetch(apiUrl(`/api/admin/api-keys/${key.id}`), {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ isActive: !key.isActive }),
@@ -96,7 +97,7 @@ export default function ApiKeysClient({ initialKeys }: ApiKeysClientProps) {
   const handleDelete = async (key: ApiKeyRow) => {
     if (!confirm(`Permanently delete API key "${key.name}" (prefix: ${key.keyPrefix}...)?\n\nThis will immediately revoke all access for clients using this key. This action cannot be undone.`)) return;
 
-    const res = await fetch(`/api/admin/api-keys/${key.id}`, { method: 'DELETE' });
+    const res = await fetch(apiUrl(`/api/admin/api-keys/${key.id}`), { method: 'DELETE' });
 
     if (res.ok) {
       setKeys((prev) => prev.filter((k) => k.id !== key.id));
@@ -143,7 +144,7 @@ export default function ApiKeysClient({ initialKeys }: ApiKeysClientProps) {
         </div>
         <div className="flex items-center gap-3">
           <a
-            href="/api/v1/docs"
+            href={apiUrl('/api/v1/docs')}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-taupe border border-beige rounded-lg hover:bg-beige/50 transition-colors"

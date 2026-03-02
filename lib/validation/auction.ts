@@ -6,7 +6,7 @@ export const auctionStatusValues = [
 
 export const visibilityLevelValues = ['0', '1', '2'] as const;
 
-export const createAuctionSchema = z.object({
+const auctionBaseSchema = z.object({
   title: z.string().min(1, 'Title is required').max(500),
   slug: z.string().min(1).max(255).regex(/^[a-z0-9-]+$/, 'Slug must be lowercase alphanumeric with hyphens'),
   description: z.string().default(''),
@@ -20,7 +20,20 @@ export const createAuctionSchema = z.object({
   notes: z.string().default(''),
 });
 
-export const updateAuctionSchema = createAuctionSchema.partial();
+export const createAuctionSchema = auctionBaseSchema.refine(
+  (data) => new Date(data.endDate) > new Date(data.startDate),
+  { message: 'End date must be after start date', path: ['endDate'] },
+);
+
+export const updateAuctionSchema = auctionBaseSchema.partial().refine(
+  (data) => {
+    if (data.startDate && data.endDate) {
+      return new Date(data.endDate) > new Date(data.startDate);
+    }
+    return true;
+  },
+  { message: 'End date must be after start date', path: ['endDate'] },
+);
 
 export const updateAuctionStatusSchema = z.object({
   status: z.enum(auctionStatusValues),

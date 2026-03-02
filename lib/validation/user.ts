@@ -23,7 +23,8 @@ export const updateUserVisibilitySchema = z.object({
 export const registerUserSchema = z.object({
   email: z.string().email().max(320),
   name: z.string().min(1, 'Name is required'),
-  password: z.string().min(8, 'Password must be at least 8 characters'),
+  password: z.string().min(8, 'Password must be at least 8 characters').optional(),
+  phone: z.string().max(30).optional(),
 });
 
 export const loginSchema = z.object({
@@ -40,5 +41,40 @@ export const updateProfileSchema = z.object({
   country: z.string().max(100).optional(),
 });
 
+export const magicLinkRequestSchema = z.object({
+  email: z.string().email().max(320),
+});
+
+export const passwordResetRequestSchema = z.object({
+  email: z.string().email().max(320),
+});
+
+export const passwordResetConfirmSchema = z.object({
+  token: z.string().min(1),
+  newPassword: z.string().min(8, 'Password must be at least 8 characters'),
+});
+
+export const changePasswordSchema = z.object({
+  currentPassword: z.string().min(1).optional(),
+  newPassword: z.string().min(8, 'Password must be at least 8 characters'),
+});
+
+export const registerQrSchema = registerUserSchema.extend({
+  qrCode: z.string().min(1, 'QR code is required'),
+});
+
+export const registerInvitationSchema = registerUserSchema.extend({
+  invitationToken: z.string().min(1, 'Invitation token is required'),
+});
+
+export const sendInvitationSchema = z.object({
+  email: z.string().email().max(320),
+});
+
+export const rejectUserSchema = z.object({
+  reason: z.string().optional(),
+});
+
 export type CreateUserInput = z.infer<typeof createUserSchema>;
 export type UpdateUserInput = z.infer<typeof updateUserSchema>;
+export type RegisterUserInput = z.infer<typeof registerUserSchema>;

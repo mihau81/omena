@@ -1,4 +1,4 @@
-import { isNull, lte, or, and, isNotNull, sql } from 'drizzle-orm';
+import { isNull, lte, or, and, isNotNull, notInArray, sql } from 'drizzle-orm';
 import { auctions, lots, type visibilityLevelEnum } from './schema';
 
 type VisibilityLevel = (typeof visibilityLevelEnum.enumValues)[number];
@@ -12,6 +12,7 @@ export function auctionVisibilityFilter(userVisibility: number) {
   return and(
     lte(auctions.visibilityLevel, level),
     isNull(auctions.deletedAt),
+    notInArray(auctions.status, ['draft']),
   );
 }
 
@@ -20,6 +21,7 @@ export function lotVisibilityFilter(userVisibility: number) {
   // If lot has visibilityOverride, use it. Otherwise, inherit from auction.
   return and(
     isNull(lots.deletedAt),
+    notInArray(lots.status, ['draft', 'catalogued']),
     or(
       // Lot has explicit override — check against user level
       and(

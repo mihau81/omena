@@ -22,7 +22,7 @@ export async function getSellThroughRate(auctionId?: string) {
     .from(lots)
     .innerJoin(auctions, eq(lots.auctionId, auctions.id))
     .where(and(...conditions))
-    .groupBy(lots.auctionId, auctions.title);
+    .groupBy(lots.auctionId, auctions.id, auctions.title);
 
   const rows = results.map((row) => {
     const total = Number(row.totalLots) || 0;
@@ -80,7 +80,7 @@ export async function getHammerToEstimateRatio(auctionId?: string) {
     .from(lots)
     .innerJoin(auctions, eq(lots.auctionId, auctions.id))
     .where(and(...conditions))
-    .groupBy(lots.auctionId, auctions.title);
+    .groupBy(lots.auctionId, auctions.id, auctions.title);
 
   return results.map((row) => ({
     auctionId: row.auctionId,

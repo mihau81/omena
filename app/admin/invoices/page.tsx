@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { apiUrl } from '@/app/lib/utils';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -369,7 +370,7 @@ function DetailPanel({ invoice, onClose, onStatusChange, onNotesChange, updating
               </button>
             ))}
             <a
-              href={`/omena/api/admin/invoices/${invoice.id}?format=html`}
+              href={apiUrl(`/api/admin/invoices/${invoice.id}?format=html`)}
               target="_blank"
               rel="noopener noreferrer"
               className="ml-auto px-3 py-1 text-xs font-medium rounded-lg bg-beige/60 text-dark-brown hover:bg-beige transition-colors flex items-center gap-1.5"
@@ -555,7 +556,7 @@ export default function InvoicesPage() {
 
   const fetchAuctions = useCallback(async () => {
     try {
-      const res = await fetch('/omena/api/admin/auctions');
+      const res = await fetch(apiUrl('/api/admin/auctions'));
       if (res.ok) {
         const data = await res.json();
         setAuctions(
@@ -578,7 +579,7 @@ export default function InvoicesPage() {
       if (status && status !== 'all') params.set('status', status);
       if (auctionId && auctionId !== 'all') params.set('auctionId', auctionId);
       const qs = params.toString();
-      const url = `/omena/api/admin/invoices${qs ? `?${qs}` : ''}`;
+      const url = apiUrl(`/api/admin/invoices${qs ? `?${qs}` : ''}`);
       const res = await fetch(url);
       if (res.ok) {
         const data = await res.json();
@@ -604,7 +605,7 @@ export default function InvoicesPage() {
   const handleStatusChange = async (id: string, newStatus: string) => {
     setUpdatingId(id);
     try {
-      const res = await fetch(`/omena/api/admin/invoices/${id}`, {
+      const res = await fetch(apiUrl(`/api/admin/invoices/${id}`), {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: newStatus }),
@@ -634,7 +635,7 @@ export default function InvoicesPage() {
     try {
       const current = invoices.find((i) => i.id === id);
       if (!current) return;
-      const res = await fetch(`/omena/api/admin/invoices/${id}`, {
+      const res = await fetch(apiUrl(`/api/admin/invoices/${id}`), {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: current.status, notes }),
@@ -658,7 +659,7 @@ export default function InvoicesPage() {
   const handleGenerate = async (auctionId: string) => {
     setGenerating(true);
     try {
-      const res = await fetch('/omena/api/admin/invoices/generate', {
+      const res = await fetch(apiUrl('/api/admin/invoices/generate'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ auctionId }),
@@ -833,7 +834,7 @@ export default function InvoicesPage() {
                         <div className="flex items-center justify-end gap-2">
                           {/* View HTML invoice */}
                           <a
-                            href={`/omena/api/admin/invoices/${invoice.id}?format=html`}
+                            href={apiUrl(`/api/admin/invoices/${invoice.id}?format=html`)}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="text-xs font-medium text-gold hover:text-gold-dark transition-colors"

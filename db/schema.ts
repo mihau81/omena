@@ -7,6 +7,27 @@ import {
 
 // ─── Enums ───────────────────────────────────────────────────────────────────
 
+export const accountStatusEnum = pgEnum('account_status', [
+  'pending_verification', // Email not yet verified
+  'pending_approval',     // Email verified, waiting for admin approval
+  'approved',             // Full access granted
+  'rejected',             // Admin rejected the application
+  'deactivated',          // Account deactivated by admin
+]);
+
+export const tokenPurposeEnum = pgEnum('token_purpose', [
+  'email_verification',
+  'magic_link',
+  'password_reset',
+]);
+
+export const registrationSourceEnum = pgEnum('registration_source', [
+  'direct',       // Self-registered via public form
+  'whitelist',    // Email was on admin whitelist
+  'invitation',   // Invited by another user
+  'qr_code',      // Registered via QR code from event
+]);
+
 export const visibilityLevelEnum = pgEnum('visibility_level', ['0', '1', '2']);
 // 0 = Public, 1 = Private, 2 = VIP
 
@@ -195,7 +216,16 @@ export const users = pgTable('users', {
   referrerId:       uuid('referrer_id'),  // FK to self — who referred this user
   notes:            text('notes').default(''),  // Admin-editable notes
   emailVerified:    boolean('email_verified').notNull().default(false),
+  emailVerifiedAt:  timestamp('email_verified_at', { withTimezone: true }),
   isActive:         boolean('is_active').notNull().default(true),
+  // Account lifecycle
+  accountStatus:    accountStatusEnum('account_status').notNull().default('pending_verification'),
+  registrationSource: varchar('registration_source', { length: 30 }).notNull().default('direct'),
+  qrRegistrationId: uuid('qr_registration_id'),  // FK to qr_registrations — which QR code was used
+  approvedBy:       uuid('approved_by'),  // FK to admins
+  approvedAt:       timestamp('approved_at', { withTimezone: true }),
+  rejectedReason:   text('rejected_reason'),
+  lastLoginAt:      timestamp('last_login_at', { withTimezone: true }),
   // Soft delete & audit
   createdAt:        timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt:        timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
@@ -205,6 +235,7 @@ export const users = pgTable('users', {
   index('users_visibility_idx').on(table.visibilityLevel),
   index('users_referrer_idx').on(table.referrerId),
   index('users_deleted_at_idx').on(table.deletedAt),
+  index('users_account_status_idx').on(table.accountStatus),
 ]);
 
 // Self-referencing FK for referrer
@@ -352,8 +383,60 @@ export const verificationTokens = pgTable('verification_tokens', {
   identifier:       varchar('identifier', { length: 320 }).notNull(),  // email
   token:            text('token').notNull().unique(),
   expiresAt:        timestamp('expires_at', { withTimezone: true }).notNull(),
+  purpose:          tokenPurposeEnum('purpose').notNull().default('email_verification'),
+  usedAt:           timestamp('used_at', { withTimezone: true }),  // null = unused
 }, (table) => [
   primaryKey({ columns: [table.identifier, table.token] }),
+]);
+
+// ─── User Whitelists ────────────────────────────────────────────────────────
+
+export const userWhitelists = pgTable('user_whitelists', {
+  id:               uuid('id').defaultRandom().primaryKey(),
+  email:            varchar('email', { length: 320 }).notNull().unique(),
+  name:             text('name'),
+  notes:            text('notes'),
+  importedBy:       uuid('imported_by'),  // FK to admins
+  usedAt:           timestamp('used_at', { withTimezone: true }),  // null = unused
+  userId:           uuid('user_id'),  // FK to users, set after registration
+  createdAt:        timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+}, (table) => [
+  index('user_whitelists_email_idx').on(table.email),
+]);
+
+// ─── User Invitations ───────────────────────────────────────────────────────
+
+export const userInvitations = pgTable('user_invitations', {
+  id:               uuid('id').defaultRandom().primaryKey(),
+  token:            text('token').notNull().unique(),
+  invitedBy:        uuid('invited_by').notNull(),  // FK to users
+  invitedEmail:     varchar('invited_email', { length: 320 }).notNull(),
+  expiresAt:        timestamp('expires_at', { withTimezone: true }).notNull(),
+  usedAt:           timestamp('used_at', { withTimezone: true }),  // null = unused
+  usedByUserId:     uuid('used_by_user_id'),  // FK to users
+  createdAt:        timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+}, (table) => [
+  index('user_invitations_token_idx').on(table.token),
+  index('user_invitations_email_idx').on(table.invitedEmail),
+]);
+
+// ─── QR Registrations ───────────────────────────────────────────────────────
+
+export const qrRegistrations = pgTable('qr_registrations', {
+  id:               uuid('id').defaultRandom().primaryKey(),
+  code:             text('code').notNull().unique(),
+  label:            text('label').notNull(),  // e.g. "Gala Wiosna 2026"
+  validFrom:        timestamp('valid_from', { withTimezone: true }).notNull(),
+  validUntil:       timestamp('valid_until', { withTimezone: true }).notNull(),
+  maxUses:          integer('max_uses'),  // null = unlimited
+  useCount:         integer('use_count').notNull().default(0),
+  isActive:         boolean('is_active').notNull().default(true),
+  createdBy:        uuid('created_by'),  // FK to admins
+  notes:            text('notes'),
+  createdAt:        timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+}, (table) => [
+  index('qr_registrations_code_idx').on(table.code),
+  index('qr_registrations_active_idx').on(table.isActive),
 ]);
 
 // ─── Notifications ───────────────────────────────────────────────────────────

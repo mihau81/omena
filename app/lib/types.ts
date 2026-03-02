@@ -29,6 +29,7 @@ export interface Lot {
   provenance: string[];
   exhibited: string[];
   lotNumber: number;
+  status?: string;
 }
 
 export interface TeamMember {

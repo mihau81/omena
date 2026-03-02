@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { apiUrl } from '@/app/lib/utils';
 import AuctionForm from '../../components/AuctionForm';
 import type { AuctionFormData } from '../../components/AuctionForm';
 
@@ -16,7 +17,7 @@ export default function NewAuctionPage() {
     setError(null);
 
     try {
-      const res = await fetch('/api/admin/auctions', {
+      const res = await fetch(apiUrl('/api/admin/auctions'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),

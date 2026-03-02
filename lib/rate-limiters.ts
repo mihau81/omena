@@ -27,3 +27,27 @@ export const publicApiLimiter = rateLimit({
   maxRequests: 100,
   windowMs: 60 * 1000,
 });
+
+// 3 magic link requests per 10 minutes per email
+export const magicLinkLimiter = rateLimit({
+  maxRequests: 3,
+  windowMs: 10 * 60 * 1000,
+});
+
+// 5 registration requests per hour per IP
+export const registrationLimiter = rateLimit({
+  maxRequests: 5,
+  windowMs: 60 * 60 * 1000,
+});
+
+// 3 invitation sends per 24 hours per user
+export const inviteLimiter = rateLimit({
+  maxRequests: 3,
+  windowMs: 24 * 60 * 60 * 1000,
+});
+
+// 3 password reset requests per 10 minutes per email
+export const passwordResetLimiter = rateLimit({
+  maxRequests: 3,
+  windowMs: 10 * 60 * 1000,
+});

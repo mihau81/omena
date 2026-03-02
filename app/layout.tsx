@@ -3,6 +3,7 @@ import { Playfair_Display, Lato } from "next/font/google";
 import "./globals.css";
 import { BiddingProvider } from "./lib/BiddingContext";
 import { CurrencyProvider } from "./lib/CurrencyContext";
+import AuthProvider from "./components/AuthProvider";
 
 const playfair = Playfair_Display({
   variable: "--font-playfair",
@@ -45,11 +46,13 @@ export default function RootLayout({
       <body
         className={`${playfair.variable} ${lato.variable} font-sans antialiased`}
       >
-        <BiddingProvider>
-          <CurrencyProvider>
-            {children}
-          </CurrencyProvider>
-        </BiddingProvider>
+        <AuthProvider>
+          <BiddingProvider>
+            <CurrencyProvider>
+              {children}
+            </CurrencyProvider>
+          </BiddingProvider>
+        </AuthProvider>
       </body>
     </html>
   );

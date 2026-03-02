@@ -1,6 +1,16 @@
 import type { Auction } from './types';
 
 // ---------------------------------------------------------------------------
+// Base path helper — prepends Next.js basePath to API fetch URLs
+// ---------------------------------------------------------------------------
+
+const BASE_PATH = '/omena';
+
+export function apiUrl(path: string): string {
+  return `${BASE_PATH}${path}`;
+}
+
+// ---------------------------------------------------------------------------
 // YouTube helpers
 // ---------------------------------------------------------------------------
 

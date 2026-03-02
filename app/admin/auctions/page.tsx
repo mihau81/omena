@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import StatusBadge from '../components/StatusBadge';
+import { apiUrl } from '@/app/lib/utils';
 import ConfirmDialog from '../components/ConfirmDialog';
 
 interface Auction {
@@ -35,7 +36,7 @@ export default function AuctionsListPage() {
 
   const fetchAuctions = useCallback(async () => {
     try {
-      const res = await fetch('/api/admin/auctions');
+      const res = await fetch(apiUrl('/api/admin/auctions'));
       if (res.ok) {
         const data = await res.json();
         setAuctions(data.auctions);
@@ -56,7 +57,7 @@ export default function AuctionsListPage() {
   const handleDelete = async () => {
     if (!deleteTarget) return;
     try {
-      const res = await fetch(`/api/admin/auctions/${deleteTarget.id}`, { method: 'DELETE' });
+      const res = await fetch(apiUrl(`/api/admin/auctions/${deleteTarget.id}`), { method: 'DELETE' });
       if (res.ok) {
         setAuctions((prev) => prev.filter((a) => a.id !== deleteTarget.id));
       }
@@ -101,7 +102,7 @@ export default function AuctionsListPage() {
 
     // Persist to backend
     try {
-      await fetch('/api/admin/auctions/reorder', {
+      await fetch(apiUrl('/api/admin/auctions/reorder'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

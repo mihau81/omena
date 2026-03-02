@@ -8,6 +8,7 @@ import {
   useElements,
 } from '@stripe/react-stripe-js';
 import { loadStripe, type Stripe as StripeClient } from '@stripe/stripe-js';
+import { apiUrl } from '@/app/lib/utils';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -170,7 +171,7 @@ export default function PaymentForm({
       setLoading(true);
       setError(null);
       try {
-        const res = await fetch('/omena/api/payments/create-intent', {
+        const res = await fetch(apiUrl('/api/payments/create-intent'), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ invoiceId }),
