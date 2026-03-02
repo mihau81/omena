@@ -1,6 +1,6 @@
-import { eq, and, sql, count, sum, avg, isNotNull, desc } from 'drizzle-orm';
+import { eq, and, sql, count, sum, avg, isNotNull, desc, isNull } from 'drizzle-orm';
 import { db } from '../connection';
-import { auctions, lots, bids, users, bidRegistrations } from '../schema';
+import { auctions, lots, bids, users, bidRegistrations, auditLog } from '../schema';
 import { notDeleted } from '../helpers';
 
 // ─── Sell-Through Rate ────────────────────────────────────────────────────────
@@ -354,4 +354,127 @@ export async function getLotPerformance(auctionId?: string) {
     totalHammerPrice: Number(row.totalHammer ?? 0),
     avgEstimateMin: row.avgEstimateMin ? Math.round(Number(row.avgEstimateMin)) : 0,
   }));
+}
+
+// ─── Dashboard Stats ─────────────────────────────────────────────────────────
+
+export async function getDashboardStats() {
+  const [auctionCountRows, totalLotsResult, totalUsersResult, totalBidsResult, liveAuctionRows, activityRows] =
+    await Promise.all([
+      // Auction counts by status
+      db
+        .select({ status: auctions.status, count: count() })
+        .from(auctions)
+        .where(isNull(auctions.deletedAt))
+        .groupBy(auctions.status),
+
+      // Total lots
+      db.select({ count: count() }).from(lots).where(notDeleted(lots)),
+
+      // Total users
+      db.select({ count: count() }).from(users).where(notDeleted(users)),
+
+      // Total bids
+      db.select({ count: count() }).from(bids),
+
+      // Live auctions with lot/bid/registration counts
+      db.execute(sql`
+        SELECT
+          a.id,
+          a.title,
+          a.status,
+          COUNT(DISTINCT l.id) FILTER (WHERE l.deleted_at IS NULL) AS lot_count,
+          COUNT(DISTINCT b.id) AS bid_count,
+          COUNT(DISTINCT br.id) AS registration_count
+        FROM auctions a
+        LEFT JOIN lots l ON l.auction_id = a.id AND l.deleted_at IS NULL
+        LEFT JOIN bids b ON b.lot_id = l.id
+        LEFT JOIN bid_registrations br ON br.auction_id = a.id
+        WHERE a.status = 'live' AND a.deleted_at IS NULL
+        GROUP BY a.id, a.title, a.status
+        ORDER BY a.start_date ASC
+      `),
+
+      // Recent activity from multiple sources
+      db.execute(sql`
+        (
+          SELECT
+            b.id::text AS id,
+            'New bid' AS action,
+            'Lot #' || l.lot_number || ' — PLN ' || TO_CHAR(b.amount, 'FM999,999,999') AS detail,
+            b.created_at AS time,
+            'bid' AS type
+          FROM bids b
+          INNER JOIN lots l ON l.id = b.lot_id
+          ORDER BY b.created_at DESC
+          LIMIT 4
+        )
+        UNION ALL
+        (
+          SELECT
+            u.id::text AS id,
+            'User registered' AS action,
+            u.email AS detail,
+            u.created_at AS time,
+            'user' AS type
+          FROM users u
+          WHERE u.deleted_at IS NULL
+          ORDER BY u.created_at DESC
+          LIMIT 3
+        )
+        UNION ALL
+        (
+          SELECT
+            br.id::text AS id,
+            'Bid registration' AS action,
+            a.title || ' — paddle #' || br.paddle_number AS detail,
+            br.created_at AS time,
+            'registration' AS type
+          FROM bid_registrations br
+          INNER JOIN auctions a ON a.id = br.auction_id
+          ORDER BY br.created_at DESC
+          LIMIT 3
+        )
+        ORDER BY time DESC
+        LIMIT 10
+      `),
+    ]);
+
+  // Build auction counts map
+  const statusMap: Record<string, number> = {};
+  let totalAuctions = 0;
+  for (const row of auctionCountRows) {
+    const c = Number(row.count);
+    statusMap[row.status] = c;
+    totalAuctions += c;
+  }
+
+  return {
+    auctionCounts: {
+      total: totalAuctions,
+      draft: statusMap.draft ?? 0,
+      preview: statusMap.preview ?? 0,
+      live: statusMap.live ?? 0,
+      reconciliation: statusMap.reconciliation ?? 0,
+      archive: statusMap.archive ?? 0,
+    },
+    totalLots: Number(totalLotsResult[0]?.count ?? 0),
+    totalUsers: Number(totalUsersResult[0]?.count ?? 0),
+    totalBids: Number(totalBidsResult[0]?.count ?? 0),
+    liveAuctions: (liveAuctionRows.rows as Array<Record<string, unknown>>).map((row) => ({
+      id: String(row.id),
+      title: String(row.title),
+      status: String(row.status),
+      lotCount: Number(row.lot_count ?? 0),
+      bidCount: Number(row.bid_count ?? 0),
+      registrationCount: Number(row.registration_count ?? 0),
+    })),
+    recentActivity: (activityRows.rows as Array<Record<string, unknown>>).map((row, i) => ({
+      id: String(row.id ?? i),
+      action: String(row.action),
+      detail: String(row.detail),
+      time: row.time as Date,
+      type: String(row.type),
+    })),
+  };
 }

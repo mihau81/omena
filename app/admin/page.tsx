@@ -2,30 +2,18 @@ import { auth } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import StatCard from './components/StatCard';
 import StatusBadge from './components/StatusBadge';
+import { getDashboardStats } from '@/db/queries/analytics';
 
-// Mock data — will be replaced with real DB queries in Task #10
-const MOCK_STATS = {
-  auctions: { total: 12, live: 2, preview: 1, draft: 3, archive: 6 },
-  lots: 347,
-  users: 89,
-  bids: 1243,
-};
-
-const MOCK_LIVE_AUCTIONS = [
-  { id: '1', title: 'Spring Contemporary Art', status: 'live', lots: 45, bids: 312, registrations: 23 },
-  { id: '2', title: 'Old Masters & 19th Century', status: 'live', lots: 38, bids: 189, registrations: 15 },
-];
-
-const MOCK_ACTIVITY = [
-  { id: 1, action: 'New bid', detail: 'Lot #12 — PLN 45,000', time: '2 minutes ago', type: 'bid' },
-  { id: 2, action: 'User registered', detail: 'jan.kowalski@example.com', time: '15 minutes ago', type: 'user' },
-  { id: 3, action: 'Bid registration', detail: 'Spring Contemporary Art — paddle #24', time: '1 hour ago', type: 'registration' },
-  { id: 4, action: 'New bid', detail: 'Lot #7 — PLN 22,000', time: '1 hour ago', type: 'bid' },
-  { id: 5, action: 'Lot updated', detail: 'Lot #34 estimate changed', time: '2 hours ago', type: 'lot' },
-  { id: 6, action: 'New bid', detail: 'Lot #19 — PLN 8,500', time: '3 hours ago', type: 'bid' },
-  { id: 7, action: 'Auction status', detail: 'Old Masters moved to live', time: '5 hours ago', type: 'auction' },
-  { id: 8, action: 'User registered', detail: 'maria.nowak@example.com', time: '6 hours ago', type: 'user' },
-];
+function timeAgo(date: Date): string {
+  const seconds = Math.floor((Date.now() - new Date(date).getTime()) / 1000);
+  if (seconds < 60) return 'just now';
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes} minute${minutes === 1 ? '' : 's'} ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours} hour${hours === 1 ? '' : 's'} ago`;
+  const days = Math.floor(hours / 24);
+  return `${days} day${days === 1 ? '' : 's'} ago`;
+}
 
 const ACTIVITY_ICONS: Record<string, string> = {
   bid: 'text-green-600 bg-green-100',
@@ -41,6 +29,8 @@ export default async function AdminDashboard() {
     redirect('/admin/login');
   }
 
+  const stats = await getDashboardStats();
+
   return (
     <div className="space-y-6">
       {/* Page heading */}
@@ -55,8 +45,8 @@ export default async function AdminDashboard() {
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
         <StatCard
           label="Auctions"
-          value={MOCK_STATS.auctions.total}
-          sublabel={`${MOCK_STATS.auctions.live} live, ${MOCK_STATS.auctions.preview} preview`}
+          value={stats.auctionCounts.total}
+          sublabel={`${stats.auctionCounts.live} live, ${stats.auctionCounts.preview} preview`}
           icon={
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
@@ -65,7 +55,7 @@ export default async function AdminDashboard() {
         />
         <StatCard
           label="Lots"
-          value={MOCK_STATS.lots}
+          value={stats.totalLots}
           sublabel="Across all auctions"
           icon={
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -75,7 +65,7 @@ export default async function AdminDashboard() {
         />
         <StatCard
           label="Users"
-          value={MOCK_STATS.users}
+          value={stats.totalUsers}
           sublabel="Registered clients"
           icon={
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -85,7 +75,7 @@ export default async function AdminDashboard() {
         />
         <StatCard
           label="Total Bids"
-          value={MOCK_STATS.bids.toLocaleString()}
+          value={stats.totalBids.toLocaleString()}
           sublabel="All-time bids placed"
           icon={
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -100,10 +90,10 @@ export default async function AdminDashboard() {
         <div className="xl:col-span-2 bg-white rounded-xl border border-beige">
           <div className="px-5 py-4 border-b border-beige flex items-center justify-between">
             <h2 className="font-semibold text-dark-brown">Live Auctions</h2>
-            <span className="text-xs text-taupe">{MOCK_LIVE_AUCTIONS.length} active</span>
+            <span className="text-xs text-taupe">{stats.liveAuctions.length} active</span>
           </div>
           <div className="divide-y divide-beige/50">
-            {MOCK_LIVE_AUCTIONS.map((auction) => (
+            {stats.liveAuctions.map((auction) => (
               <div key={auction.id} className="px-5 py-4 flex items-center justify-between gap-4">
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
@@ -111,7 +101,7 @@ export default async function AdminDashboard() {
                     <StatusBadge status={auction.status} />
                   </div>
                   <p className="text-xs text-taupe mt-1">
-                    {auction.lots} lots &middot; {auction.bids} bids &middot; {auction.registrations} registrations
+                    {auction.lotCount} lots &middot; {auction.bidCount} bids &middot; {auction.registrationCount} registrations
                   </p>
                 </div>
                 <button className="shrink-0 text-xs font-medium text-gold hover:text-gold-dark transition-colors">
@@ -119,7 +109,7 @@ export default async function AdminDashboard() {
                 </button>
               </div>
             ))}
-            {MOCK_LIVE_AUCTIONS.length === 0 && (
+            {stats.liveAuctions.length === 0 && (
               <div className="px-5 py-8 text-center text-sm text-taupe">
                 No live auctions at the moment.
               </div>
@@ -133,7 +123,7 @@ export default async function AdminDashboard() {
             <h2 className="font-semibold text-dark-brown">Recent Activity</h2>
           </div>
           <div className="divide-y divide-beige/30 max-h-96 overflow-y-auto">
-            {MOCK_ACTIVITY.map((item) => (
+            {stats.recentActivity.map((item) => (
               <div key={item.id} className="px-5 py-3 flex items-start gap-3">
                 <div className={`mt-0.5 w-7 h-7 rounded-full flex items-center justify-center shrink-0 ${ACTIVITY_ICONS[item.type] ?? 'text-gray-600 bg-gray-100'}`}>
                   <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -143,10 +133,15 @@ export default async function AdminDashboard() {
                 <div className="min-w-0">
                   <p className="text-sm text-dark-brown font-medium">{item.action}</p>
                   <p className="text-xs text-taupe truncate">{item.detail}</p>
-                  <p className="text-xs text-taupe/60 mt-0.5">{item.time}</p>
+                  <p className="text-xs text-taupe/60 mt-0.5">{timeAgo(item.time)}</p>
                 </div>
               </div>
             ))}
+            {stats.recentActivity.length === 0 && (
+              <div className="px-5 py-8 text-center text-sm text-taupe">
+                No recent activity.
+              </div>
+            )}
           </div>
         </div>
       </div>
