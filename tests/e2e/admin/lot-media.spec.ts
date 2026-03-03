@@ -4,7 +4,7 @@ import fs from 'fs';
 
 test.use({ storageState: 'tests/e2e/.auth/admin.json' });
 
-const BASE = '/omena';
+const BASE = '/omenaa';
 
 test.describe('Admin - Lot Media Management', () => {
   let auctionId: string | null = null;

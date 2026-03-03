@@ -20,7 +20,7 @@ export default function Footer() {
       <div className="mx-auto max-w-7xl px-5 py-12 md:px-8 md:py-16">
         <div className="grid gap-10 md:grid-cols-3 md:gap-8">
           <div>
-            <p className="font-serif text-xl tracking-widest text-white">OMENA</p>
+            <p className="font-serif text-xl tracking-widest text-white">OMENAA</p>
             <p className="mt-4 text-sm leading-relaxed text-beige/80">{t.footerDescription}</p>
           </div>
 
@@ -42,7 +42,7 @@ export default function Footer() {
             <address className="mt-4 flex flex-col gap-3 text-sm not-italic leading-relaxed text-beige/80">
               <p>ul. Foksal 17<br />00-372 Warszawa</p>
               <a href="tel:+48221234567" className="transition-colors duration-200 hover:text-gold">+48 22 123 45 67</a>
-              <a href="mailto:kontakt@omena.art" className="transition-colors duration-200 hover:text-gold">kontakt@omena.art</a>
+              <a href="mailto:kontakt@omenaa.art" className="transition-colors duration-200 hover:text-gold">kontakt@omenaa.art</a>
             </address>
           </div>
         </div>

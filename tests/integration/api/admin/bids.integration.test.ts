@@ -4,11 +4,11 @@ import { createTestAdmin, createTestUser } from '@/tests/helpers/auth';
 
 const mockAuth = vi.hoisted(() => {
   const _g = globalThis as Record<string, unknown>;
-  if (!_g._omenaMockAuth) {
-    _g._omenaMockSession = null;
-    _g._omenaMockAuth = vi.fn().mockImplementation(async () => _g._omenaMockSession);
+  if (!_g._omenaaMockAuth) {
+    _g._omenaaMockSession = null;
+    _g._omenaaMockAuth = vi.fn().mockImplementation(async () => _g._omenaaMockSession);
   }
-  return _g._omenaMockAuth as ReturnType<typeof vi.fn>;
+  return _g._omenaaMockAuth as ReturnType<typeof vi.fn>;
 });
 
 vi.mock('@/lib/auth', () => ({
@@ -40,7 +40,7 @@ describe('Admin Bids API', () => {
     const { auctions, lots, bids } = await import('@/db/schema');
 
     admin = await createTestAdmin({ email: `admin-bids-test-${Date.now()}@example.com` });
-    (globalThis as any)._omenaMockSession = { user: { id: admin.id, email: admin.email, role: admin.role, name: admin.name, userType: 'admin', visibilityLevel: 2 } };
+    (globalThis as any)._omenaaMockSession = { user: { id: admin.id, email: admin.email, role: admin.role, name: admin.name, userType: 'admin', visibilityLevel: 2 } };
 
     auctionId = randomUUID();
     await db.insert(auctions).values({

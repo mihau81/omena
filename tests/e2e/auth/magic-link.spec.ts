@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test.use({ storageState: { cookies: [], origins: [] } });
 
-const BASE = '/omena';
+const BASE = '/omenaa';
 const LOCALE = 'en';
 
 test.describe('Magic link verification page', () => {
@@ -27,10 +27,10 @@ test.describe('Magic link verification page', () => {
     await expect(page.getByText(/invalid|expired/i)).toBeVisible();
   });
 
-  test('renders OMENA branding', async ({ page }) => {
+  test('renders OMENAA branding', async ({ page }) => {
     await page.goto(`${BASE}/${LOCALE}/auth/magic-link`);
     await page.waitForLoadState('networkidle');
 
-    await expect(page.getByText('OMENA').first()).toBeVisible();
+    await expect(page.getByText('OMENAA').first()).toBeVisible();
   });
 });

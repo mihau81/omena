@@ -3,7 +3,7 @@ import { withSentryConfig } from "@sentry/nextjs";
 
 const nextConfig: NextConfig = {
   output: "standalone",
-  basePath: "/omena",
+  basePath: "/omenaa",
   images: {
     remotePatterns: [
       { protocol: 'http', hostname: 'localhost', port: '9000' },  // MinIO dev

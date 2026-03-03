@@ -43,7 +43,7 @@ export async function POST(
       .where(eq(users.id, id));
 
     // Send email
-    await sendEmail(user.email, 'Wniosek o konto — Omena', accountRejected(user.name, reason, 'pl'));
+    await sendEmail(user.email, 'Wniosek o konto — Omenaa', accountRejected(user.name, reason, 'pl'));
 
     return NextResponse.json({ message: 'User rejected' });
   } catch (error) {

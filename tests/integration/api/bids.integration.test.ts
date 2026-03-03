@@ -5,11 +5,11 @@ import { createTestUser } from '@/tests/helpers/auth';
 
 const mockAuth = vi.hoisted(() => {
   const _g = globalThis as Record<string, unknown>;
-  if (!_g._omenaMockAuth) {
-    _g._omenaMockSession = null;
-    _g._omenaMockAuth = vi.fn().mockImplementation(async () => _g._omenaMockSession);
+  if (!_g._omenaaMockAuth) {
+    _g._omenaaMockSession = null;
+    _g._omenaaMockAuth = vi.fn().mockImplementation(async () => _g._omenaaMockSession);
   }
-  return _g._omenaMockAuth as ReturnType<typeof vi.fn>;
+  return _g._omenaaMockAuth as ReturnType<typeof vi.fn>;
 });
 
 // Mock auth
@@ -116,7 +116,7 @@ describe('POST /api/lots/[id]/bids', () => {
 
   it('returns 401 when unauthenticated', async () => {
     const { POST } = await import('@/app/api/lots/[id]/bids/route');
-    (globalThis as any)._omenaMockSession = null;
+    (globalThis as any)._omenaaMockSession = null;
 
     const request = createRequest('POST', `/api/lots/${lotId}/bids`, { amount: 5000 });
     const { status, data } = await callRouteHandler(POST, request, { params: Promise.resolve({ id: lotId }) });
@@ -127,7 +127,7 @@ describe('POST /api/lots/[id]/bids', () => {
 
   it('places a bid successfully', async () => {
     const { POST } = await import('@/app/api/lots/[id]/bids/route');
-    (globalThis as any)._omenaMockSession = { user: { id: user.id, email: user.email, name: user.name, userType: 'user', visibilityLevel: 0, role: null } };
+    (globalThis as any)._omenaaMockSession = { user: { id: user.id, email: user.email, name: user.name, userType: 'user', visibilityLevel: 0, role: null } };
 
     const request = createRequest('POST', `/api/lots/${lotId}/bids`, { amount: 6000 });
     const { status, data } = await callRouteHandler(POST, request, { params: Promise.resolve({ id: lotId }) });
@@ -142,7 +142,7 @@ describe('POST /api/lots/[id]/bids', () => {
 
   it('returns 409 when user tries to self-outbid', async () => {
     const { POST } = await import('@/app/api/lots/[id]/bids/route');
-    (globalThis as any)._omenaMockSession = { user: { id: user.id, email: user.email, name: user.name, userType: 'user', visibilityLevel: 0, role: null } };
+    (globalThis as any)._omenaaMockSession = { user: { id: user.id, email: user.email, name: user.name, userType: 'user', visibilityLevel: 0, role: null } };
 
     // User is already the highest bidder from previous test
     const request = createRequest('POST', `/api/lots/${lotId}/bids`, { amount: 8000 });
@@ -154,7 +154,7 @@ describe('POST /api/lots/[id]/bids', () => {
 
   it('returns 429 when rate limited', async () => {
     const { POST } = await import('@/app/api/lots/[id]/bids/route');
-    (globalThis as any)._omenaMockSession = { user: { id: user.id, email: user.email, name: user.name, userType: 'user', visibilityLevel: 0, role: null } };
+    (globalThis as any)._omenaaMockSession = { user: { id: user.id, email: user.email, name: user.name, userType: 'user', visibilityLevel: 0, role: null } };
 
     mockBidLimiter.check.mockReturnValueOnce({ success: false, resetMs: 3000 });
 
@@ -181,7 +181,7 @@ describe('POST /api/lots/[id]/bids', () => {
       approvedAt: new Date(),
     });
 
-    (globalThis as any)._omenaMockSession = { user: { id: user2.id, email: user2.email, name: user2.name, userType: 'user', visibilityLevel: 0, role: null } };
+    (globalThis as any)._omenaaMockSession = { user: { id: user2.id, email: user2.email, name: user2.name, userType: 'user', visibilityLevel: 0, role: null } };
 
     // Bid too low (minimum should be at least the increment above 6000)
     const request = createRequest('POST', `/api/lots/${lotId}/bids`, { amount: 100 });
@@ -208,7 +208,7 @@ describe('POST /api/lots/[id]/bids', () => {
     const { POST } = await import('@/app/api/lots/[id]/bids/route');
 
     const unregisteredUser = await createTestUser({ email: `bids-unreg-${Date.now()}@example.com` });
-    (globalThis as any)._omenaMockSession = { user: { id: unregisteredUser.id, email: unregisteredUser.email, name: unregisteredUser.name, userType: 'user', visibilityLevel: 0, role: null } };
+    (globalThis as any)._omenaaMockSession = { user: { id: unregisteredUser.id, email: unregisteredUser.email, name: unregisteredUser.name, userType: 'user', visibilityLevel: 0, role: null } };
 
     const request = createRequest('POST', `/api/lots/${lotId}/bids`, { amount: 7000 });
     const { status, data } = await callRouteHandler(POST, request, { params: Promise.resolve({ id: lotId }) });

@@ -2,8 +2,8 @@ import type { Dictionary } from './index';
 
 export const es: Dictionary = {
   // Meta
-  metaTitle: 'Omena — Subastas de Arte',
-  metaDescription: 'Omena — prestigiosa casa de subastas de arte. Descubra pinturas, esculturas y objetos de colección excepcionales de los artistas más destacados.',
+  metaTitle: 'Omenaa — Subastas de Arte',
+  metaDescription: 'Omenaa — prestigiosa casa de subastas de arte. Descubra pinturas, esculturas y objetos de colección excepcionales de los artistas más destacados.',
 
   // Navigation
   navHome: 'Inicio',
@@ -56,7 +56,7 @@ export const es: Dictionary = {
   countdownSeconds: 'Seg',
 
   // Home page
-  heroTitle: 'OMENA',
+  heroTitle: 'OMENAA',
   heroSubtitle: 'Casa de Subastas de Arte',
   heroDescription: 'Descubra obras excepcionales de artistas polacos y europeos. Puje en línea o presencialmente en nuestra casa de subastas en Varsovia.',
   heroCTA: 'Explorar subastas',
@@ -75,7 +75,7 @@ export const es: Dictionary = {
 
   // About page
   aboutTitle: 'Nosotros',
-  aboutMission1: 'Omena es una prestigiosa casa de subastas con sede en Varsovia, especializada en arte polaco y europeo de los siglos XX y XXI. Desde nuestra fundación, nuestra misión ha sido tender puentes entre artistas, coleccionistas y amantes del arte — creando un espacio donde las obras excepcionales encuentran a sus nuevos custodios.',
+  aboutMission1: 'Omenaa es una prestigiosa casa de subastas con sede en Varsovia, especializada en arte polaco y europeo de los siglos XX y XXI. Desde nuestra fundación, nuestra misión ha sido tender puentes entre artistas, coleccionistas y amantes del arte — creando un espacio donde las obras excepcionales encuentran a sus nuevos custodios.',
   aboutMission2: 'Creemos que el arte tiene el poder de inspirar, educar y unir a las personas. Por eso, cada una de nuestras subastas no es solo un evento comercial, sino también cultural — cuidadosamente curado, basado en una profunda experiencia y realizado con el mayor respeto hacia los artistas y sus obras.',
   aboutTeamTitle: 'Nuestro equipo',
   aboutValuesTitle: 'Nuestros valores',
@@ -173,10 +173,10 @@ export const es: Dictionary = {
   currencyDisclaimer: 'Precios en PLN. Las conversiones a otras divisas son orientativas (tipo medio NBP).',
 
   // Footer
-  footerDescription: 'Omena es una prestigiosa casa de subastas especializada en arte contemporáneo y clásico. Desde hace años conectamos a coleccionistas con obras excepcionales de los artistas más destacados de Polonia y del mundo.',
+  footerDescription: 'Omenaa es una prestigiosa casa de subastas especializada en arte contemporáneo y clásico. Desde hace años conectamos a coleccionistas con obras excepcionales de los artistas más destacados de Polonia y del mundo.',
   footerNav: 'Navegación',
   footerContact: 'Contacto',
-  footerRights: '© 2026 Omena. Todos los derechos reservados.',
+  footerRights: '© 2026 Omenaa. Todos los derechos reservados.',
 
   // Auctions page
   auctionsTitle: 'Subastas',
@@ -238,7 +238,7 @@ export const es: Dictionary = {
 
   // Results page
   resultsTitle: 'Resultados de subasta',
-  resultsSubtitle: 'Base de precios de subastas Omena',
+  resultsSubtitle: 'Base de precios de subastas Omenaa',
   resultsSoldFor: 'Vendido por',
   resultsNoResults: 'Sin resultados que coincidan con sus criterios',
   resultsFilterAuction: 'Subasta',

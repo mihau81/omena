@@ -17,7 +17,7 @@ export function generateTOTPSecret(email: string): {
 } {
   const secret = new OTPAuth.Secret({ size: 20 });
   const totp = new OTPAuth.TOTP({
-    issuer: 'Omena CMS',
+    issuer: 'Omenaa CMS',
     label: email,
     algorithm: 'SHA1',
     digits: 6,
@@ -35,7 +35,7 @@ export function generateTOTPSecret(email: string): {
 export function verifyTOTP(secret: string, token: string): boolean {
   try {
     const totp = new OTPAuth.TOTP({
-      issuer: 'Omena CMS',
+      issuer: 'Omenaa CMS',
       algorithm: 'SHA1',
       digits: 6,
       period: 30,

@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-const BASE = '/omena';
+const BASE = '/omenaa';
 const LOCALE = 'en';
 
 test.describe('Homepage', () => {
@@ -9,8 +9,8 @@ test.describe('Homepage', () => {
     await page.waitForLoadState('networkidle');
   });
 
-  test('shows the OMENA brand name as hero heading', async ({ page }) => {
-    await expect(page.getByRole('heading', { name: 'Omena', level: 1 })).toBeVisible();
+  test('shows the OMENAA brand name as hero heading', async ({ page }) => {
+    await expect(page.getByRole('heading', { name: 'Omenaa', level: 1 })).toBeVisible();
   });
 
   test('displays featured auctions section', async ({ page }) => {

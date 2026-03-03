@@ -7,7 +7,7 @@ import { pushSubscriptions } from '@/db/schema';
 
 const VAPID_PUBLIC  = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY  ?? '';
 const VAPID_PRIVATE = process.env.VAPID_PRIVATE_KEY ?? '';
-const VAPID_EMAIL   = process.env.VAPID_EMAIL ?? 'mailto:info@omena.pl';
+const VAPID_EMAIL   = process.env.VAPID_EMAIL ?? 'mailto:info@omenaa.pl';
 
 let _configured = false;
 

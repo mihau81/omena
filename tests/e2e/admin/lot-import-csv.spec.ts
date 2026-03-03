@@ -4,7 +4,7 @@ import fs from 'fs';
 
 test.use({ storageState: 'tests/e2e/.auth/admin.json' });
 
-const BASE = '/omena';
+const BASE = '/omenaa';
 
 // Create a test CSV file
 const CSV_CONTENT = `lotNumber,title,artist,medium,year,estimateMin,estimateMax,description

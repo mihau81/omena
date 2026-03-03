@@ -16,33 +16,33 @@ type MockSessionUser = {
 // This happens when vi.mock() async factories load this module in a separate
 // module registry from the test file's top-level imports.
 const _g = globalThis as {
-  _omenaMockAuth?: ReturnType<typeof vi.fn>;
-  _omenaMockSession?: { user: MockSessionUser } | null;
+  _omenaaMockAuth?: ReturnType<typeof vi.fn>;
+  _omenaaMockSession?: { user: MockSessionUser } | null;
 };
 
-if (!_g._omenaMockAuth) {
-  _g._omenaMockSession = null;
-  _g._omenaMockAuth = vi.fn().mockImplementation(async () => _g._omenaMockSession);
+if (!_g._omenaaMockAuth) {
+  _g._omenaaMockSession = null;
+  _g._omenaaMockAuth = vi.fn().mockImplementation(async () => _g._omenaaMockSession);
 }
 
-export const mockAuth = _g._omenaMockAuth;
+export const mockAuth = _g._omenaaMockAuth;
 
 // ─── Session helpers ──────────────────────────────────────────────────────────
 
 export function setMockSession(user: MockSessionUser) {
-  _g._omenaMockSession = { user };
-  _g._omenaMockAuth!.mockResolvedValue(_g._omenaMockSession);
+  _g._omenaaMockSession = { user };
+  _g._omenaaMockAuth!.mockResolvedValue(_g._omenaaMockSession);
 }
 
 export function clearMockSession() {
-  _g._omenaMockSession = null;
-  _g._omenaMockAuth!.mockResolvedValue(null);
+  _g._omenaaMockSession = null;
+  _g._omenaaMockAuth!.mockResolvedValue(null);
 }
 
 export function setMockAdminSession(overrides: Partial<MockSessionUser> = {}) {
   setMockSession({
     id: 'test-admin-id',
-    email: 'admin@omena.pl',
+    email: 'admin@omenaa.pl',
     name: 'Test Admin',
     userType: 'admin',
     visibilityLevel: 2,
@@ -64,16 +64,16 @@ export function setMockUserSession(overrides: Partial<MockSessionUser> = {}) {
 }
 
 export function resetAuthMock() {
-  _g._omenaMockSession = null;
-  _g._omenaMockAuth!.mockReset();
-  _g._omenaMockAuth!.mockResolvedValue(null);
+  _g._omenaaMockSession = null;
+  _g._omenaaMockAuth!.mockReset();
+  _g._omenaaMockAuth!.mockResolvedValue(null);
 }
 
 // ─── Module mock factory ──────────────────────────────────────────────────────
 
 export function authMockFactory() {
   return {
-    auth: _g._omenaMockAuth!,
+    auth: _g._omenaaMockAuth!,
     signIn: vi.fn(),
     signOut: vi.fn(),
     handlers: {

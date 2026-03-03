@@ -10,7 +10,7 @@ const HTML = `<!DOCTYPE html>
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Omena Auction API v1 — Documentation</title>
+  <title>Omenaa Auction API v1 — Documentation</title>
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
     body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#faf9f7;color:#2d2417;line-height:1.6}
@@ -44,7 +44,7 @@ const HTML = `<!DOCTYPE html>
 </head>
 <body>
 <div class="container">
-  <h1>Omena Auction — Public API v1</h1>
+  <h1>Omenaa Auction — Public API v1</h1>
   <p class="subtitle">Read-only API for third-party auction aggregators (Invaluable, Artnet, Barnebys, etc.)</p>
 
   <div class="toc">
@@ -253,7 +253,7 @@ Authorization: Bearer YOUR_API_KEY</code></pre>
   </div>
 
   <footer>
-    Omena Auction CMS &mdash; API v1 &mdash; All data is read-only and represents public catalog information.
+    Omenaa Auction CMS &mdash; API v1 &mdash; All data is read-only and represents public catalog information.
   </footer>
 </div>
 </body>

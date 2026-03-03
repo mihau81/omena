@@ -44,7 +44,7 @@ export async function POST(request: Request) {
     // Create magic link token (15 min)
     const token = await createVerificationToken(email, 'magic_link', 15 * 60 * 1000);
     const magicUrl = `${getBaseUrl()}/${locale}/auth/magic-link?token=${token}`;
-    const subject = locale === 'pl' ? 'Zaloguj się do Omena' : 'Sign in to Omena';
+    const subject = locale === 'pl' ? 'Zaloguj się do Omenaa' : 'Sign in to Omenaa';
     await sendEmail(email, subject, magicLinkLogin(email, magicUrl, locale));
 
     return NextResponse.json({ message: 'If an account exists, a sign-in link has been sent.' });

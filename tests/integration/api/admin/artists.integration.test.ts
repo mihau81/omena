@@ -5,11 +5,11 @@ import { createTestAdmin } from '@/tests/helpers/auth';
 
 const mockAuth = vi.hoisted(() => {
   const _g = globalThis as Record<string, unknown>;
-  if (!_g._omenaMockAuth) {
-    _g._omenaMockSession = null;
-    _g._omenaMockAuth = vi.fn().mockImplementation(async () => _g._omenaMockSession);
+  if (!_g._omenaaMockAuth) {
+    _g._omenaaMockSession = null;
+    _g._omenaaMockAuth = vi.fn().mockImplementation(async () => _g._omenaaMockSession);
   }
-  return _g._omenaMockAuth as ReturnType<typeof vi.fn>;
+  return _g._omenaaMockAuth as ReturnType<typeof vi.fn>;
 });
 
 vi.mock('@/lib/auth', () => ({
@@ -42,7 +42,7 @@ describe('Admin Artists API', () => {
 
   beforeAll(async () => {
     admin = await createTestAdmin({ email: `admin-artists-test-${Date.now()}@example.com` });
-    (globalThis as any)._omenaMockSession = {
+    (globalThis as any)._omenaaMockSession = {
       user: {
         id: admin.id,
         email: admin.email,
@@ -120,14 +120,14 @@ describe('Admin Artists API', () => {
 
     it('returns 401 when unauthenticated', async () => {
       const { GET } = await import('@/app/api/admin/artists/route');
-      (globalThis as any)._omenaMockSession = null;
+      (globalThis as any)._omenaaMockSession = null;
 
       const request = createRequest('GET', '/api/admin/artists');
       const { status } = await callRouteHandler(GET, request);
 
       expect(status).toBe(401);
 
-      (globalThis as any)._omenaMockSession = {
+      (globalThis as any)._omenaaMockSession = {
         user: { id: admin.id, email: admin.email, role: admin.role, name: admin.name, userType: 'admin', visibilityLevel: 2 },
       };
     });
@@ -200,14 +200,14 @@ describe('Admin Artists API', () => {
 
     it('returns 401 without admin auth', async () => {
       const { POST } = await import('@/app/api/admin/artists/route');
-      (globalThis as any)._omenaMockSession = null;
+      (globalThis as any)._omenaaMockSession = null;
 
       const request = createRequest('POST', '/api/admin/artists', validArtistData());
       const { status } = await callRouteHandler(POST, request);
 
       expect(status).toBe(401);
 
-      (globalThis as any)._omenaMockSession = {
+      (globalThis as any)._omenaaMockSession = {
         user: { id: admin.id, email: admin.email, role: admin.role, name: admin.name, userType: 'admin', visibilityLevel: 2 },
       };
     });

@@ -42,7 +42,7 @@ export default function AdminHeader({ userName, userRole, onMenuToggle }: AdminH
         </button>
         {/* Mobile title */}
         <span className="lg:hidden text-base font-serif font-bold text-dark-brown tracking-wide">
-          Omena Admin
+          Omenaa Admin
         </span>
       </div>
 

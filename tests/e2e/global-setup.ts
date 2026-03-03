@@ -9,7 +9,7 @@ async function globalSetup(_config: FullConfig) {
   const page = await browser.newPage();
 
   // Wait for the dev server to be ready
-  const baseUrl = 'http://localhost:3002/omena';
+  const baseUrl = 'http://localhost:3002/omenaa';
   let attempts = 0;
   while (attempts < 30) {
     try {

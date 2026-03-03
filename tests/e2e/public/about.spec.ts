@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-const BASE = '/omena';
+const BASE = '/omenaa';
 const LOCALE = 'en';
 
 test.describe('About page', () => {
@@ -23,7 +23,7 @@ test.describe('About page', () => {
 
   test('navigation header is visible', async ({ page }) => {
     await expect(page.locator('header')).toBeVisible();
-    await expect(page.locator('header a').filter({ hasText: 'OMENA' })).toBeVisible();
+    await expect(page.locator('header a').filter({ hasText: 'OMENAA' })).toBeVisible();
   });
 
   test('about content sections are present', async ({ page }) => {

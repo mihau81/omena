@@ -6,7 +6,7 @@ export default async function PendingApprovalPage({ params }: { params: Promise<
     <div className="min-h-screen flex items-center justify-center bg-cream px-4">
       <div className="w-full max-w-sm text-center">
         <div className="mb-6">
-          <h1 className="text-3xl font-serif font-bold text-dark-brown tracking-wide">OMENA</h1>
+          <h1 className="text-3xl font-serif font-bold text-dark-brown tracking-wide">OMENAA</h1>
         </div>
         <div className="bg-white rounded-xl border border-beige shadow-sm p-6">
           <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-amber-100 flex items-center justify-center">

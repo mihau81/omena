@@ -17,7 +17,7 @@ import {
 // Storage keys
 // ---------------------------------------------------------------------------
 
-const STORAGE_PREFIX = 'omena_';
+const STORAGE_PREFIX = 'omenaa_';
 const KEY_REGISTRATION = STORAGE_PREFIX + 'registration';
 const KEY_BIDS = STORAGE_PREFIX + 'bids';
 const KEY_WATCHED = STORAGE_PREFIX + 'watched';

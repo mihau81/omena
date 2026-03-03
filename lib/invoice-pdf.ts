@@ -84,7 +84,7 @@ export function generateInvoicePdf(
     const W = 495; // usable width (595 - 2*50)
 
     // ── Header ──────────────────────────────────────────────────────────────
-    doc.fontSize(28).font('Helvetica-Bold').fillColor(DARK).text('OMENA', 50, 50);
+    doc.fontSize(28).font('Helvetica-Bold').fillColor(DARK).text('OMENAA', 50, 50);
     doc.fontSize(9).font('Helvetica').fillColor(TAUPE).text('DOM AUKCYJNY', 50, 83);
 
     // Right side: invoice label + number
@@ -115,7 +115,7 @@ export function generateInvoicePdf(
     doc.moveTo(sellerX, partyY + 12).lineTo(260, partyY + 12).lineWidth(0.5).strokeColor('#e8e0d0').stroke();
     doc.moveTo(buyerX, partyY + 12).lineTo(545, partyY + 12).lineWidth(0.5).strokeColor('#e8e0d0').stroke();
 
-    const sellerName = settings.company_name || 'Omena Dom Aukcyjny';
+    const sellerName = settings.company_name || 'Omenaa Dom Aukcyjny';
     const sellerAddr = [
       settings.company_address,
       [settings.company_postal_code, settings.company_city].filter(Boolean).join(' '),
@@ -503,7 +503,7 @@ export function generateInvoiceHTML(invoice: InvoiceWithDetails): string {
   <!-- Header -->
   <div class="header">
     <div class="brand">
-      <div class="brand-name">OMENA</div>
+      <div class="brand-name">OMENAA</div>
       <div class="brand-tagline">Dom Aukcyjny</div>
     </div>
     <div class="invoice-meta">
@@ -521,7 +521,7 @@ export function generateInvoiceHTML(invoice: InvoiceWithDetails): string {
     <div class="party-block">
       <h3>Sprzedawca</h3>
       <p>
-        <span class="party-name">Omena Dom Aukcyjny Sp. z o.o.</span><br>
+        <span class="party-name">Omenaa Dom Aukcyjny Sp. z o.o.</span><br>
         ul. Przykładowa 1<br>
         00-001 Warszawa<br>
         NIP: 000-000-00-00
@@ -601,7 +601,7 @@ export function generateInvoiceHTML(invoice: InvoiceWithDetails): string {
 
   <!-- Footer -->
   <div class="footer">
-    Omena Dom Aukcyjny · ul. Przykładowa 1, 00-001 Warszawa<br>
+    Omenaa Dom Aukcyjny · ul. Przykładowa 1, 00-001 Warszawa<br>
     NIP: 000-000-00-00 · KRS: 0000000000<br>
     Płatność przelewem na rachunek: 00 0000 0000 0000 0000 0000 0000
   </div>

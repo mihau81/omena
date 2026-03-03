@@ -6,7 +6,7 @@ import Link from 'next/link';
 const STATUS_CONTENT: Record<string, { icon: string; title: string; message: string; color: string }> = {
   approved: {
     icon: 'check',
-    title: 'Welcome to Omena!',
+    title: 'Welcome to Omenaa!',
     message: 'Your email has been verified and your account has been approved. You can now sign in.',
     color: 'green',
   },
@@ -52,7 +52,7 @@ export default function VerifyEmailPage() {
     <div className="min-h-screen flex items-center justify-center bg-cream px-4">
       <div className="w-full max-w-sm text-center">
         <div className="mb-6">
-          <h1 className="text-3xl font-serif font-bold text-dark-brown tracking-wide">OMENA</h1>
+          <h1 className="text-3xl font-serif font-bold text-dark-brown tracking-wide">OMENAA</h1>
         </div>
         <div className="bg-white rounded-xl border border-beige shadow-sm p-6">
           <div className={`w-12 h-12 mx-auto mb-4 rounded-full flex items-center justify-center ${

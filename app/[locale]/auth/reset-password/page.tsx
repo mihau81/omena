@@ -41,7 +41,7 @@ function RequestForm() {
       <div className="min-h-screen flex items-center justify-center bg-cream px-4">
         <div className="w-full max-w-sm text-center">
           <div className="mb-6">
-            <h1 className="text-3xl font-serif font-bold text-dark-brown tracking-wide">OMENA</h1>
+            <h1 className="text-3xl font-serif font-bold text-dark-brown tracking-wide">OMENAA</h1>
           </div>
           <div className="bg-white rounded-xl border border-beige shadow-sm p-6">
             <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-green-100 flex items-center justify-center">
@@ -61,7 +61,7 @@ function RequestForm() {
     <div className="min-h-screen flex items-center justify-center bg-cream px-4">
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-serif font-bold text-dark-brown tracking-wide">OMENA</h1>
+          <h1 className="text-3xl font-serif font-bold text-dark-brown tracking-wide">OMENAA</h1>
           <p className="text-sm text-taupe mt-1">Reset your password</p>
         </div>
 
@@ -144,7 +144,7 @@ function ResetForm({ token }: { token: string }) {
       <div className="min-h-screen flex items-center justify-center bg-cream px-4">
         <div className="w-full max-w-sm text-center">
           <div className="mb-6">
-            <h1 className="text-3xl font-serif font-bold text-dark-brown tracking-wide">OMENA</h1>
+            <h1 className="text-3xl font-serif font-bold text-dark-brown tracking-wide">OMENAA</h1>
           </div>
           <div className="bg-white rounded-xl border border-beige shadow-sm p-6">
             <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-green-100 flex items-center justify-center">
@@ -167,7 +167,7 @@ function ResetForm({ token }: { token: string }) {
     <div className="min-h-screen flex items-center justify-center bg-cream px-4">
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-serif font-bold text-dark-brown tracking-wide">OMENA</h1>
+          <h1 className="text-3xl font-serif font-bold text-dark-brown tracking-wide">OMENAA</h1>
           <p className="text-sm text-taupe mt-1">Set your new password</p>
         </div>
 

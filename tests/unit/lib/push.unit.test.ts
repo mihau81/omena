@@ -17,7 +17,7 @@ const {
   // Set env vars so the push module picks them up at load time
   process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY = 'BNtest-public-key-for-vapid-testing-purposes-1234567890';
   process.env.VAPID_PRIVATE_KEY = 'test-private-key-for-vapid-1234567890abcdef';
-  process.env.VAPID_EMAIL = 'mailto:test@omena.pl';
+  process.env.VAPID_EMAIL = 'mailto:test@omenaa.pl';
 
   const result: Array<{
     id: string;
@@ -153,7 +153,7 @@ describe('lib/push', () => {
       await sendPushToUser('user-1', { title: 'Test', body: 'Body' });
 
       expect(mockSetVapidDetails).toHaveBeenCalledWith(
-        'mailto:test@omena.pl',
+        'mailto:test@omenaa.pl',
         'BNtest-public-key-for-vapid-testing-purposes-1234567890',
         'test-private-key-for-vapid-1234567890abcdef',
       );

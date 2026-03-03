@@ -60,7 +60,7 @@ export async function POST(request: Request) {
     });
 
     const inviteUrl = `${getBaseUrl()}/pl/register?invitation=${token}`;
-    await sendEmail(email, `${user.name} zaprasza Cię do Omena`, invitationTemplate(user.name, inviteUrl, 'pl'));
+    await sendEmail(email, `${user.name} zaprasza Cię do Omenaa`, invitationTemplate(user.name, inviteUrl, 'pl'));
 
     return NextResponse.json(
       { message: 'Invitation sent successfully' },

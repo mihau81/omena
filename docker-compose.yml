@@ -12,12 +12,12 @@ services:
     environment:
       - WATCHPACK_POLLING=true
       - CHOKIDAR_USEPOLLING=true
-      - DATABASE_URL=postgresql://omena:omena_dev@db:5432/omena
+      - DATABASE_URL=postgresql://omenaa:omenaa_dev@db:5432/omenaa
       - MINIO_ENDPOINT=http://minio:9000
-      - MINIO_ACCESS_KEY=omena
-      - MINIO_SECRET_KEY=omena_dev
+      - MINIO_ACCESS_KEY=omenaa
+      - MINIO_SECRET_KEY=omenaa_dev
       - NEXTAUTH_SECRET=dev-secret-change-in-production
-      - NEXTAUTH_URL=http://localhost:3002/omena
+      - NEXTAUTH_URL=http://localhost:3002/omenaa
     depends_on:
       - db
       - minio
@@ -33,10 +33,10 @@ services:
       - .env
     environment:
       - NODE_ENV=production
-      - DATABASE_URL=postgresql://omena:${POSTGRES_PASSWORD:-omena_dev}@db:5432/omena
+      - DATABASE_URL=postgresql://omenaa:${POSTGRES_PASSWORD:-omenaa_dev}@db:5432/omenaa
       - MINIO_ENDPOINT=http://minio:9000
-      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY:-omena}
-      - MINIO_SECRET_KEY=${MINIO_SECRET_KEY:-omena_dev}
+      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY:-omenaa}
+      - MINIO_SECRET_KEY=${MINIO_SECRET_KEY:-omenaa_dev}
       - AUTH_TRUST_HOST=true
     depends_on:
       - db
@@ -45,9 +45,9 @@ services:
   db:
     image: postgres:16-alpine
     environment:
-      POSTGRES_DB: omena
-      POSTGRES_USER: omena
-      POSTGRES_PASSWORD: omena_dev
+      POSTGRES_DB: omenaa
+      POSTGRES_USER: omenaa
+      POSTGRES_PASSWORD: omenaa_dev
     ports:
       - "5432:5432"
     volumes:
@@ -57,8 +57,8 @@ services:
     image: minio/minio
     command: server /data --console-address ":9001"
     environment:
-      MINIO_ROOT_USER: omena
-      MINIO_ROOT_PASSWORD: omena_dev
+      MINIO_ROOT_USER: omenaa
+      MINIO_ROOT_PASSWORD: omenaa_dev
     ports:
       - "9000:9000"
       - "9001:9001"

@@ -56,12 +56,12 @@ export async function GET(request: Request) {
 
     if (autoApprove) {
       // Send welcome email
-      await sendEmail(email, 'Witamy w Omena', accountApproved(user.name, 'pl'));
+      await sendEmail(email, 'Witamy w Omenaa', accountApproved(user.name, 'pl'));
       return redirectToStatus('approved');
     }
 
     // Send "pending approval" email to user
-    await sendEmail(email, 'Email zweryfikowany — Omena', pendingApproval(user.name, 'pl'));
+    await sendEmail(email, 'Email zweryfikowany — Omenaa', pendingApproval(user.name, 'pl'));
 
     // Notify admin(s) about new pending user
     const adminList = await db
@@ -72,7 +72,7 @@ export async function GET(request: Request) {
 
     await Promise.all(
       adminList.map((admin) =>
-        sendEmail(admin.email, 'New user awaiting approval — Omena', adminNewUserPending(user.name, email)),
+        sendEmail(admin.email, 'New user awaiting approval — Omenaa', adminNewUserPending(user.name, email)),
       ),
     );
 

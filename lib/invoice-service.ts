@@ -42,7 +42,7 @@ export interface InvoiceWithDetails {
 
 async function generateInvoiceNumber(): Promise<string> {
   const year = new Date().getFullYear();
-  const prefix = `OMENA/${year}/`;
+  const prefix = `OMENAA/${year}/`;
 
   // Count invoices created this year to determine the next sequence number
   const result = await db
@@ -195,7 +195,7 @@ async function sendInvoiceEmail(
     invoiceUrl,
   );
 
-  await sendEmail(user.email, `Faktura ${invoiceNumber} — Omena`, html);
+  await sendEmail(user.email, `Faktura ${invoiceNumber} — Omenaa`, html);
 }
 
 // ─── Fetch single invoice with details ─────────────────────────────────────

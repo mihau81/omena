@@ -1,4 +1,4 @@
-# Omena CMS — Master Architecture Plan
+# Omenaa CMS — Master Architecture Plan
 
 > **Version**: 1.0
 > **Date**: 2026-02-27
@@ -1126,7 +1126,7 @@ For YouTube:
 
 ### 6.1 Overview
 
-The migration transforms Omena from a statically-exported site with data in TypeScript files to a database-backed application with ISR rendering. This must be done with **zero data loss** and **zero downtime**.
+The migration transforms Omenaa from a statically-exported site with data in TypeScript files to a database-backed application with ISR rendering. This must be done with **zero data loss** and **zero downtime**.
 
 ### 6.2 Step-by-Step Plan
 
@@ -1138,8 +1138,8 @@ services:
   db:
     image: postgres:16-alpine
     environment:
-      POSTGRES_DB: omena
-      POSTGRES_USER: omena
+      POSTGRES_DB: omenaa
+      POSTGRES_USER: omenaa
       POSTGRES_PASSWORD: ${DB_PASSWORD}
     ports:
       - "5432:5432"
@@ -1150,7 +1150,7 @@ services:
     image: minio/minio
     command: server /data --console-address ":9001"
     environment:
-      MINIO_ROOT_USER: omena
+      MINIO_ROOT_USER: omenaa
       MINIO_ROOT_PASSWORD: ${MINIO_PASSWORD}
     ports:
       - "9000:9000"
@@ -1265,7 +1265,7 @@ export async function getLotsByAuction(auctionId: string, userVisibility: number
 ```typescript
 // next.config.ts
 const nextConfig: NextConfig = {
-  basePath: "/omena",
+  basePath: "/omenaa",
   images: {
     remotePatterns: [
       { protocol: 'https', hostname: 'localhost', port: '9000' },  // MinIO dev
@@ -1389,7 +1389,7 @@ If anything goes wrong:
     Sliding scale premium (e.g., 25% on first 100k, 20% on 100k-500k, 12% above 500k).
 
 15. **API for third-party lot aggregators**:
-    Read-only API for platforms like Invaluable, Artnet, or Barnebys to list Omena lots.
+    Read-only API for platforms like Invaluable, Artnet, or Barnebys to list Omenaa lots.
 
 ---
 
@@ -1473,12 +1473,12 @@ services:
       - /app/.next
     environment:
       - WATCHPACK_POLLING=true
-      - DATABASE_URL=postgresql://omena:omena_dev@db:5432/omena
+      - DATABASE_URL=postgresql://omenaa:omenaa_dev@db:5432/omenaa
       - MINIO_ENDPOINT=http://minio:9000
-      - MINIO_ACCESS_KEY=omena
-      - MINIO_SECRET_KEY=omena_dev
+      - MINIO_ACCESS_KEY=omenaa
+      - MINIO_SECRET_KEY=omenaa_dev
       - NEXTAUTH_SECRET=dev-secret-change-in-production
-      - NEXTAUTH_URL=http://localhost:3002/omena
+      - NEXTAUTH_URL=http://localhost:3002/omenaa
     depends_on:
       - db
       - minio
@@ -1486,9 +1486,9 @@ services:
   db:
     image: postgres:16-alpine
     environment:
-      POSTGRES_DB: omena
-      POSTGRES_USER: omena
-      POSTGRES_PASSWORD: omena_dev
+      POSTGRES_DB: omenaa
+      POSTGRES_USER: omenaa
+      POSTGRES_PASSWORD: omenaa_dev
     ports:
       - "5432:5432"
     volumes:
@@ -1498,8 +1498,8 @@ services:
     image: minio/minio
     command: server /data --console-address ":9001"
     environment:
-      MINIO_ROOT_USER: omena
-      MINIO_ROOT_PASSWORD: omena_dev
+      MINIO_ROOT_USER: omenaa
+      MINIO_ROOT_PASSWORD: omenaa_dev
     ports:
       - "9000:9000"
       - "9001:9001"
@@ -1541,31 +1541,31 @@ volumes:
 
 ```bash
 # .env.local (development)
-DATABASE_URL=postgresql://omena:omena_dev@localhost:5432/omena
+DATABASE_URL=postgresql://omenaa:omenaa_dev@localhost:5432/omenaa
 
 # MinIO / S3
 MINIO_ENDPOINT=http://localhost:9000
-MINIO_ACCESS_KEY=omena
-MINIO_SECRET_KEY=omena_dev
-S3_BUCKET=omena-media
-S3_PUBLIC_URL=http://localhost:9000/omena-media
+MINIO_ACCESS_KEY=omenaa
+MINIO_SECRET_KEY=omenaa_dev
+S3_BUCKET=omenaa-media
+S3_PUBLIC_URL=http://localhost:9000/omenaa-media
 
 # Auth
 NEXTAUTH_SECRET=dev-secret-32-chars-minimum-here
-NEXTAUTH_URL=http://localhost:3002/omena
+NEXTAUTH_URL=http://localhost:3002/omenaa
 
 # Email (Phase 2)
 SMTP_HOST=
 SMTP_PORT=
 SMTP_USER=
 SMTP_PASS=
-EMAIL_FROM=noreply@omena.pl
+EMAIL_FROM=noreply@omenaa.pl
 ```
 
 ## Appendix D: File Structure (New Additions)
 
 ```
-omena/
+omenaa/
 ├── app/
 │   ├── admin/                    # Admin panel (new)
 │   │   ├── layout.tsx            # Admin layout with sidebar

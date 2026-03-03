@@ -59,10 +59,10 @@ export default async function ContactPage({
                 {t.contactEmail}
               </h2>
               <a
-                href="mailto:kontakt@omena.art"
+                href="mailto:kontakt@omenaa.art"
                 className="mt-3 block text-sm text-taupe transition-colors duration-200 hover:text-gold"
               >
-                kontakt@omena.art
+                kontakt@omenaa.art
               </a>
             </div>
 

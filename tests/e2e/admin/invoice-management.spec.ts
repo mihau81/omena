@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test.use({ storageState: 'tests/e2e/.auth/admin.json' });
 
-const BASE = '/omena';
+const BASE = '/omenaa';
 
 test.describe('Admin - Invoice Management', () => {
   test.beforeEach(async ({ page }) => {

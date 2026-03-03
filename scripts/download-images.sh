@@ -1,5 +1,5 @@
 #!/bin/bash
-# Download real images from Unsplash for Omena art auction site
+# Download real images from Unsplash for Omenaa art auction site
 # Using Unsplash Source URLs (direct image links, free to use)
 
 set -e

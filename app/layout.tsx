@@ -22,17 +22,17 @@ const lato = Lato({
 
 export const metadata: Metadata = {
   title: {
-    default: "Omena — Aukcje Dzieł Sztuki",
-    template: "%s | Omena",
+    default: "Omenaa — Aukcje Dzieł Sztuki",
+    template: "%s | Omenaa",
   },
   description:
-    "Omena — profesjonalny dom aukcyjny dzieł sztuki. Odkryj wyjątkowe obrazy, rzeźby i obiekty kolekcjonerskie od najwybitniejszych artystów.",
-  keywords: ["aukcje", "sztuka", "dzieła sztuki", "galeria", "kolekcje", "omena"],
+    "Omenaa — profesjonalny dom aukcyjny dzieł sztuki. Odkryj wyjątkowe obrazy, rzeźby i obiekty kolekcjonerskie od najwybitniejszych artystów.",
+  keywords: ["aukcje", "sztuka", "dzieła sztuki", "galeria", "kolekcje", "omenaa"],
   openGraph: {
-    title: "Omena — Aukcje Dzieł Sztuki",
+    title: "Omenaa — Aukcje Dzieł Sztuki",
     description:
-      "Odkryj wyjątkowe dzieła sztuki na aukcjach domu aukcyjnego Omena. Obrazy, rzeźby i obiekty kolekcjonerskie od najwybitniejszych artystów.",
-    siteName: "Omena",
+      "Odkryj wyjątkowe dzieła sztuki na aukcjach domu aukcyjnego Omenaa. Obrazy, rzeźby i obiekty kolekcjonerskie od najwybitniejszych artystów.",
+    siteName: "Omenaa",
     locale: "pl_PL",
     type: "website",
   },

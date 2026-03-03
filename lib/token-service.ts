@@ -56,5 +56,5 @@ export async function consumeToken(
  * Get the base URL for constructing auth links.
  */
 export function getBaseUrl(): string {
-  return process.env.NEXTAUTH_URL || 'http://localhost:3002/omena';
+  return process.env.NEXTAUTH_URL || 'http://localhost:3002/omenaa';
 }

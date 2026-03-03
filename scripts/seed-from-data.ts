@@ -232,15 +232,15 @@ async function main() {
 
     // ── 4. Create admin account ───────────────────────────────────────────
     console.log('\nCreating admin account…');
-    const passwordHash = await hash('Omena2026!', 12);
+    const passwordHash = await hash('Omenaa2026!', 12);
     await tx.insert(schema.admins).values({
-      email: 'admin@omena.pl',
+      email: 'admin@omenaa.pl',
       passwordHash,
       name: 'Administrator',
       role: 'super_admin',
       isActive: true,
     });
-    console.log('  ✓ admin@omena.pl (super_admin)\n');
+    console.log('  ✓ admin@omenaa.pl (super_admin)\n');
   });
 
   // ── Summary ─────────────────────────────────────────────────────────────

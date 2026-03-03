@@ -39,9 +39,9 @@ function makeAuction(overrides: Partial<ConditionReportAuction> = {}): Condition
 
 function makeMedia(overrides: Partial<ConditionReportMedia> = {}): ConditionReportMedia {
   return {
-    url: 'https://cdn.omena.pl/lot-001.jpg',
-    largeUrl: 'https://cdn.omena.pl/lot-001-large.jpg',
-    mediumUrl: 'https://cdn.omena.pl/lot-001-medium.jpg',
+    url: 'https://cdn.omenaa.pl/lot-001.jpg',
+    largeUrl: 'https://cdn.omenaa.pl/lot-001-large.jpg',
+    mediumUrl: 'https://cdn.omenaa.pl/lot-001-medium.jpg',
     altText: 'Pejzaz nadmorski',
     ...overrides,
   };
@@ -62,8 +62,8 @@ describe('generateConditionReportHTML', () => {
       expect(html).toContain('</html>');
     });
 
-    it('contains OMENA branding', () => {
-      expect(html).toContain('OMENA');
+    it('contains OMENAA branding', () => {
+      expect(html).toContain('OMENAA');
       expect(html).toContain('Dom Aukcyjny');
     });
 
@@ -117,12 +117,12 @@ describe('generateConditionReportHTML', () => {
     });
 
     it('contains primary image', () => {
-      expect(html).toContain('https://cdn.omena.pl/lot-001-large.jpg');
+      expect(html).toContain('https://cdn.omenaa.pl/lot-001-large.jpg');
       expect(html).toContain('<img');
     });
 
     it('contains footer with disclaimer', () => {
-      expect(html).toContain('Omena Dom Aukcyjny');
+      expect(html).toContain('Omenaa Dom Aukcyjny');
       expect(html).toContain('charakter wy\u0142\u0105cznie informacyjny');
     });
 
@@ -174,21 +174,21 @@ describe('generateConditionReportHTML', () => {
 
   describe('image URL fallback', () => {
     it('prefers largeUrl', () => {
-      const media = makeMedia({ largeUrl: 'https://cdn.omena.pl/large.jpg' });
+      const media = makeMedia({ largeUrl: 'https://cdn.omenaa.pl/large.jpg' });
       const html = generateConditionReportHTML(makeLot(), makeAuction(), media);
-      expect(html).toContain('https://cdn.omena.pl/large.jpg');
+      expect(html).toContain('https://cdn.omenaa.pl/large.jpg');
     });
 
     it('falls back to mediumUrl when largeUrl is null', () => {
-      const media = makeMedia({ largeUrl: null, mediumUrl: 'https://cdn.omena.pl/medium.jpg' });
+      const media = makeMedia({ largeUrl: null, mediumUrl: 'https://cdn.omenaa.pl/medium.jpg' });
       const html = generateConditionReportHTML(makeLot(), makeAuction(), media);
-      expect(html).toContain('https://cdn.omena.pl/medium.jpg');
+      expect(html).toContain('https://cdn.omenaa.pl/medium.jpg');
     });
 
     it('falls back to url when both largeUrl and mediumUrl are null', () => {
-      const media = makeMedia({ largeUrl: null, mediumUrl: null, url: 'https://cdn.omena.pl/original.jpg' });
+      const media = makeMedia({ largeUrl: null, mediumUrl: null, url: 'https://cdn.omenaa.pl/original.jpg' });
       const html = generateConditionReportHTML(makeLot(), makeAuction(), media);
-      expect(html).toContain('https://cdn.omena.pl/original.jpg');
+      expect(html).toContain('https://cdn.omenaa.pl/original.jpg');
     });
   });
 
@@ -228,7 +228,7 @@ describe('generateConditionReportHTML', () => {
     });
 
     it('escapes quotes in image URL', () => {
-      const media = makeMedia({ largeUrl: 'https://cdn.omena.pl/img?id="1"' });
+      const media = makeMedia({ largeUrl: 'https://cdn.omenaa.pl/img?id="1"' });
       const html = generateConditionReportHTML(makeLot(), makeAuction(), media);
       expect(html).toContain('&quot;1&quot;');
     });
@@ -290,8 +290,8 @@ describe('generateBatchConditionReportHTML', () => {
       expect(html).toContain('Aukcja Sztuki Polskiej');
     });
 
-    it('contains OMENA branding', () => {
-      expect(html).toContain('OMENA');
+    it('contains OMENAA branding', () => {
+      expect(html).toContain('OMENAA');
     });
   });
 
@@ -362,10 +362,10 @@ describe('generateBatchConditionReportHTML', () => {
     });
 
     it('each item has its own header', () => {
-      // Each report-page should have OMENA branding
-      const omenaCount = (html.match(/class="brand-name">OMENA/g) || []).length;
-      // Cover page (1) + 3 items = 4 OMENA headers
-      expect(omenaCount).toBe(4);
+      // Each report-page should have OMENAA branding
+      const omenaaCount = (html.match(/class="brand-name">OMENAA/g) || []).length;
+      // Cover page (1) + 3 items = 4 OMENAA headers
+      expect(omenaaCount).toBe(4);
     });
 
     it('contains footer for each item', () => {

@@ -27,11 +27,11 @@ function expectValidEmailHTML(html: string) {
   expect(html).toContain('<body');
   expect(html).toContain('</body>');
   expect(html).toContain('</html>');
-  expect(html).toContain('OMENA');
+  expect(html).toContain('OMENAA');
 }
 
 describe('outbidNotification', () => {
-  const html = outbidNotification('Jan Kowalski', 'Obraz olejny, Krajobraz', 15000, 'https://omena.pl/lot/123');
+  const html = outbidNotification('Jan Kowalski', 'Obraz olejny, Krajobraz', 15000, 'https://omenaa.pl/lot/123');
 
   it('returns valid HTML email', () => {
     expectValidEmailHTML(html);
@@ -53,7 +53,7 @@ describe('outbidNotification', () => {
   });
 
   it('contains bid button with lot URL', () => {
-    expect(html).toContain('https://omena.pl/lot/123');
+    expect(html).toContain('https://omenaa.pl/lot/123');
     expect(html).toContain('Bid Now');
   });
 
@@ -64,7 +64,7 @@ describe('outbidNotification', () => {
 
 describe('auctionStarting', () => {
   const startDate = new Date('2026-03-15T14:00:00Z');
-  const html = auctionStarting('Anna Nowak', 'Spring Art Auction 2026', startDate, 'https://omena.pl/auction/456');
+  const html = auctionStarting('Anna Nowak', 'Spring Art Auction 2026', startDate, 'https://omenaa.pl/auction/456');
 
   it('returns valid HTML email', () => {
     expectValidEmailHTML(html);
@@ -85,7 +85,7 @@ describe('auctionStarting', () => {
   });
 
   it('contains auction URL', () => {
-    expect(html).toContain('https://omena.pl/auction/456');
+    expect(html).toContain('https://omenaa.pl/auction/456');
   });
 
   it('contains "View Auction" button', () => {
@@ -143,7 +143,7 @@ describe('registrationRejected', () => {
 
   it('contains contact information', () => {
     const html = registrationRejected('Jan Nowak', 'Fine Art Auction');
-    expect(html).toContain('info@omena.pl');
+    expect(html).toContain('info@omenaa.pl');
   });
 });
 
@@ -190,7 +190,7 @@ describe('lotWon', () => {
 });
 
 describe('emailVerification', () => {
-  const html = emailVerification('Tomek', 'https://omena.pl/verify?token=abc123');
+  const html = emailVerification('Tomek', 'https://omenaa.pl/verify?token=abc123');
 
   it('returns valid HTML email', () => {
     expectValidEmailHTML(html);
@@ -201,7 +201,7 @@ describe('emailVerification', () => {
   });
 
   it('contains verify URL', () => {
-    expect(html).toContain('https://omena.pl/verify?token=abc123');
+    expect(html).toContain('https://omenaa.pl/verify?token=abc123');
   });
 
   it('contains verify button', () => {
@@ -214,7 +214,7 @@ describe('emailVerification', () => {
 });
 
 describe('magicLinkLogin', () => {
-  const html = magicLinkLogin('user@example.com', 'https://omena.pl/magic?token=xyz');
+  const html = magicLinkLogin('user@example.com', 'https://omenaa.pl/magic?token=xyz');
 
   it('returns valid HTML email', () => {
     expectValidEmailHTML(html);
@@ -225,7 +225,7 @@ describe('magicLinkLogin', () => {
   });
 
   it('contains magic link URL', () => {
-    expect(html).toContain('https://omena.pl/magic?token=xyz');
+    expect(html).toContain('https://omenaa.pl/magic?token=xyz');
   });
 
   it('contains sign in button', () => {
@@ -257,7 +257,7 @@ describe('accountApproved', () => {
   });
 
   it('contains contact info', () => {
-    expect(html).toContain('info@omena.pl');
+    expect(html).toContain('info@omenaa.pl');
   });
 });
 
@@ -306,7 +306,7 @@ describe('pendingApproval', () => {
 });
 
 describe('invitationTemplate', () => {
-  const html = invitationTemplate('Adam Lewandowski', 'https://omena.pl/invite?code=inv123');
+  const html = invitationTemplate('Adam Lewandowski', 'https://omenaa.pl/invite?code=inv123');
 
   it('returns valid HTML email', () => {
     expectValidEmailHTML(html);
@@ -317,7 +317,7 @@ describe('invitationTemplate', () => {
   });
 
   it('contains invitation URL', () => {
-    expect(html).toContain('https://omena.pl/invite?code=inv123');
+    expect(html).toContain('https://omenaa.pl/invite?code=inv123');
   });
 
   it('contains accept button', () => {
@@ -334,7 +334,7 @@ describe('invitationTemplate', () => {
 });
 
 describe('passwordReset', () => {
-  const html = passwordReset('Zofia Krol', 'https://omena.pl/reset?token=reset456');
+  const html = passwordReset('Zofia Krol', 'https://omenaa.pl/reset?token=reset456');
 
   it('returns valid HTML email', () => {
     expectValidEmailHTML(html);
@@ -345,7 +345,7 @@ describe('passwordReset', () => {
   });
 
   it('contains reset URL', () => {
-    expect(html).toContain('https://omena.pl/reset?token=reset456');
+    expect(html).toContain('https://omenaa.pl/reset?token=reset456');
   });
 
   it('contains reset button', () => {
@@ -392,7 +392,7 @@ describe('invoiceReady', () => {
     7000,
     42000,
     dueDate,
-    'https://omena.pl/invoice/42',
+    'https://omenaa.pl/invoice/42',
   );
 
   it('returns valid HTML email', () => {
@@ -433,7 +433,7 @@ describe('invoiceReady', () => {
   });
 
   it('contains invoice URL', () => {
-    expect(html).toContain('https://omena.pl/invoice/42');
+    expect(html).toContain('https://omenaa.pl/invoice/42');
   });
 
   it('is in Polish language', () => {
@@ -456,7 +456,7 @@ describe('paymentReminder', () => {
     'INV-2026-0099',
     18000,
     dueDate,
-    'https://omena.pl/invoice/99',
+    'https://omenaa.pl/invoice/99',
   );
 
   it('returns valid HTML email', () => {
@@ -486,7 +486,7 @@ describe('paymentReminder', () => {
   });
 
   it('contains invoice URL', () => {
-    expect(html).toContain('https://omena.pl/invoice/99');
+    expect(html).toContain('https://omenaa.pl/invoice/99');
   });
 
   it('is in Polish language', () => {
@@ -526,8 +526,8 @@ describe('all templates share common structure', () => {
     expect(fn()).toContain('<!DOCTYPE html>');
   });
 
-  it.each(templates)('$name contains Omena branding', ({ fn }) => {
-    expect(fn()).toContain('OMENA');
+  it.each(templates)('$name contains Omenaa branding', ({ fn }) => {
+    expect(fn()).toContain('OMENAA');
   });
 
   it.each(templates)('$name contains Auction House tagline', ({ fn }) => {
@@ -536,7 +536,7 @@ describe('all templates share common structure', () => {
 
   it.each(templates)('$name contains footer with copyright', ({ fn }) => {
     const html = fn();
-    expect(html).toContain('Omena');
+    expect(html).toContain('Omenaa');
     expect(html).toContain('All rights reserved');
   });
 

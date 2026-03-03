@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test.use({ storageState: 'tests/e2e/.auth/admin.json' });
 
-const BASE = '/omena';
+const BASE = '/omenaa';
 
 test.describe('Admin - Admin Account Management', () => {
   test.beforeEach(async ({ page }) => {
@@ -47,7 +47,7 @@ test.describe('Admin - Admin Account Management', () => {
     if (!await emailInput.isVisible({ timeout: 5000 }).catch(() => false)) test.skip();
 
     const timestamp = Date.now();
-    await emailInput.fill(`testadmin_${timestamp}@omena.pl`);
+    await emailInput.fill(`testadmin_${timestamp}@omenaa.pl`);
 
     const nameInput = page.locator('input[name="name"]').first();
     if (await nameInput.isVisible({ timeout: 2000 }).catch(() => false)) {

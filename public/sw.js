@@ -1,4 +1,4 @@
-// ─── Omena Service Worker ────────────────────────────────────────────────────
+// ─── Omenaa Service Worker ────────────────────────────────────────────────────
 // Handles Web Push notifications
 
 self.addEventListener('install', () => {
@@ -18,15 +18,15 @@ self.addEventListener('push', (event) => {
   try {
     payload = event.data.json();
   } catch {
-    payload = { title: 'Omena', body: event.data.text() };
+    payload = { title: 'Omenaa', body: event.data.text() };
   }
 
-  const title = payload.title || 'Omena Auction House';
+  const title = payload.title || 'Omenaa Auction House';
   const options = {
     body: payload.body || '',
     icon: payload.icon || '/images/icon-192.png',
     badge: payload.badge || '/images/badge-72.png',
-    tag: payload.tag || 'omena-notification',
+    tag: payload.tag || 'omenaa-notification',
     data: { url: payload.url || '/' },
     requireInteraction: false,
   };

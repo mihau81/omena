@@ -5,7 +5,7 @@ import { NextRequest, NextResponse } from 'next/server';
 // ─── Helper: create a mock NextRequest ──────────────────────────────────────
 
 function createMockRequest(
-  url = 'https://omena.pl/api/test',
+  url = 'https://omenaa.pl/api/test',
   headers: Record<string, string> = {},
 ): NextRequest {
   const req = new NextRequest(url, {
@@ -194,40 +194,40 @@ describe('withRateLimit', () => {
 
 describe('getClientIp', () => {
   it('extracts IP from x-forwarded-for header', () => {
-    const req = createMockRequest('https://omena.pl/api/test', {
+    const req = createMockRequest('https://omenaa.pl/api/test', {
       'x-forwarded-for': '203.0.113.50',
     });
     expect(getClientIp(req)).toBe('203.0.113.50');
   });
 
   it('returns the first IP from a comma-separated x-forwarded-for list', () => {
-    const req = createMockRequest('https://omena.pl/api/test', {
+    const req = createMockRequest('https://omenaa.pl/api/test', {
       'x-forwarded-for': '203.0.113.50, 70.41.3.18, 150.172.238.178',
     });
     expect(getClientIp(req)).toBe('203.0.113.50');
   });
 
   it('trims whitespace from forwarded IP', () => {
-    const req = createMockRequest('https://omena.pl/api/test', {
+    const req = createMockRequest('https://omenaa.pl/api/test', {
       'x-forwarded-for': '  10.0.0.1  , 10.0.0.2',
     });
     expect(getClientIp(req)).toBe('10.0.0.1');
   });
 
   it('falls back to x-real-ip when x-forwarded-for is absent', () => {
-    const req = createMockRequest('https://omena.pl/api/test', {
+    const req = createMockRequest('https://omenaa.pl/api/test', {
       'x-real-ip': '198.51.100.42',
     });
     expect(getClientIp(req)).toBe('198.51.100.42');
   });
 
   it('returns "unknown" when neither x-forwarded-for nor x-real-ip is present', () => {
-    const req = createMockRequest('https://omena.pl/api/test', {});
+    const req = createMockRequest('https://omenaa.pl/api/test', {});
     expect(getClientIp(req)).toBe('unknown');
   });
 
   it('prefers x-forwarded-for over x-real-ip when both are present', () => {
-    const req = createMockRequest('https://omena.pl/api/test', {
+    const req = createMockRequest('https://omenaa.pl/api/test', {
       'x-forwarded-for': '192.168.1.100',
       'x-real-ip': '10.0.0.1',
     });
@@ -239,19 +239,19 @@ describe('getClientIp', () => {
 
 describe('getUserId', () => {
   it('extracts user ID from x-user-id header', () => {
-    const req = createMockRequest('https://omena.pl/api/test', {
+    const req = createMockRequest('https://omenaa.pl/api/test', {
       'x-user-id': 'usr_abc123',
     });
     expect(getUserId(req)).toBe('usr_abc123');
   });
 
   it('returns "anonymous" when x-user-id header is absent', () => {
-    const req = createMockRequest('https://omena.pl/api/test', {});
+    const req = createMockRequest('https://omenaa.pl/api/test', {});
     expect(getUserId(req)).toBe('anonymous');
   });
 
   it('returns "anonymous" when x-user-id header is empty string', () => {
-    const req = createMockRequest('https://omena.pl/api/test', {
+    const req = createMockRequest('https://omenaa.pl/api/test', {
       'x-user-id': '',
     });
     // Empty string is falsy, so falls back to 'anonymous'

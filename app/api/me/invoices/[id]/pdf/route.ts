@@ -28,7 +28,7 @@ async function loadCompanySettings(): Promise<CompanySettings> {
   }
 
   return {
-    company_name: map['company_name'] ?? 'Omena Dom Aukcyjny',
+    company_name: map['company_name'] ?? 'Omenaa Dom Aukcyjny',
     company_address: map['company_address'] ?? '',
     company_city: map['company_city'] ?? '',
     company_postal_code: map['company_postal_code'] ?? '',

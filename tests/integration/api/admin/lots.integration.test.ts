@@ -4,11 +4,11 @@ import { createTestAdmin } from '@/tests/helpers/auth';
 
 const mockAuth = vi.hoisted(() => {
   const _g = globalThis as Record<string, unknown>;
-  if (!_g._omenaMockAuth) {
-    _g._omenaMockSession = null;
-    _g._omenaMockAuth = vi.fn().mockImplementation(async () => _g._omenaMockSession);
+  if (!_g._omenaaMockAuth) {
+    _g._omenaaMockSession = null;
+    _g._omenaaMockAuth = vi.fn().mockImplementation(async () => _g._omenaaMockSession);
   }
-  return _g._omenaMockAuth as ReturnType<typeof vi.fn>;
+  return _g._omenaaMockAuth as ReturnType<typeof vi.fn>;
 });
 
 vi.mock('@/lib/auth', () => ({
@@ -35,7 +35,7 @@ describe('Admin Lots API', () => {
     const { auctions } = await import('@/db/schema');
 
     admin = await createTestAdmin({ email: `admin-lots-test-${Date.now()}@example.com` });
-    (globalThis as any)._omenaMockSession = { user: { id: admin.id, email: admin.email, role: admin.role, name: admin.name, userType: 'admin', visibilityLevel: 2 } };
+    (globalThis as any)._omenaaMockSession = { user: { id: admin.id, email: admin.email, role: admin.role, name: admin.name, userType: 'admin', visibilityLevel: 2 } };
 
     // Create a test auction
     auctionId = randomUUID();
@@ -96,13 +96,13 @@ describe('Admin Lots API', () => {
       const { GET } = await import('@/app/api/admin/auctions/[id]/lots/route');
       const { NextRequest } = await import('next/server');
 
-      (globalThis as any)._omenaMockSession = null;
+      (globalThis as any)._omenaaMockSession = null;
 
       const request = new NextRequest(`http://localhost:3002/api/admin/auctions/${auctionId}/lots`);
       const response = await GET(request, { params: Promise.resolve({ id: auctionId }) });
 
       expect(response.status).toBe(401);
-      (globalThis as any)._omenaMockSession = { user: { id: admin.id, email: admin.email, role: admin.role, name: admin.name, userType: 'admin', visibilityLevel: 2 } };
+      (globalThis as any)._omenaaMockSession = { user: { id: admin.id, email: admin.email, role: admin.role, name: admin.name, userType: 'admin', visibilityLevel: 2 } };
     });
   });
 

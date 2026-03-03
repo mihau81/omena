@@ -31,9 +31,9 @@ const FALLBACK_RATES: Record<CurrencyCode, number> = {
   CHF: 1 / 4.6245,   // ~0.2162
 };
 
-const STORAGE_KEY = 'omena_currency';
-const RATES_STORAGE_KEY = 'omena_nbp_rates';
-const RATES_TIMESTAMP_KEY = 'omena_nbp_rates_ts';
+const STORAGE_KEY = 'omenaa_currency';
+const RATES_STORAGE_KEY = 'omenaa_nbp_rates';
+const RATES_TIMESTAMP_KEY = 'omenaa_nbp_rates_ts';
 const SIX_HOURS_MS = 6 * 60 * 60 * 1000;
 
 // ---------------------------------------------------------------------------

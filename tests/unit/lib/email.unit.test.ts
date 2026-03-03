@@ -182,7 +182,7 @@ describe('email', () => {
       await sendEmail('recipient@test.com', 'Important', '<p>Content</p>');
 
       expect(mockSendMail).toHaveBeenCalledWith({
-        from: 'noreply@omena.pl',
+        from: 'noreply@omenaa.pl',
         to: 'recipient@test.com',
         subject: 'Important',
         html: '<p>Content</p>',
@@ -202,7 +202,7 @@ describe('email', () => {
       );
     });
 
-    it('uses default noreply@omena.pl when EMAIL_FROM is not set', async () => {
+    it('uses default noreply@omenaa.pl when EMAIL_FROM is not set', async () => {
       delete process.env.EMAIL_FROM;
       const { sendEmail } = await import('@/lib/email');
 
@@ -210,7 +210,7 @@ describe('email', () => {
 
       expect(mockSendMail).toHaveBeenCalledWith(
         expect.objectContaining({
-          from: 'noreply@omena.pl',
+          from: 'noreply@omenaa.pl',
         }),
       );
     });

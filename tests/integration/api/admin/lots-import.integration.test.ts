@@ -4,11 +4,11 @@ import { createTestAdmin } from '@/tests/helpers/auth';
 
 const mockAuth = vi.hoisted(() => {
   const _g = globalThis as Record<string, unknown>;
-  if (!_g._omenaMockAuth) {
-    _g._omenaMockSession = null;
-    _g._omenaMockAuth = vi.fn().mockImplementation(async () => _g._omenaMockSession);
+  if (!_g._omenaaMockAuth) {
+    _g._omenaaMockSession = null;
+    _g._omenaaMockAuth = vi.fn().mockImplementation(async () => _g._omenaaMockSession);
   }
-  return _g._omenaMockAuth as ReturnType<typeof vi.fn>;
+  return _g._omenaaMockAuth as ReturnType<typeof vi.fn>;
 });
 
 vi.mock('@/lib/auth', () => ({
@@ -45,7 +45,7 @@ describe('Admin Lots Import API', () => {
     const { auctions } = await import('@/db/schema');
 
     admin = await createTestAdmin({ email: `admin-lots-import-test-${Date.now()}@example.com` });
-    (globalThis as any)._omenaMockSession = { user: { id: admin.id, email: admin.email, role: admin.role, name: admin.name, userType: 'admin', visibilityLevel: 2 } };
+    (globalThis as any)._omenaaMockSession = { user: { id: admin.id, email: admin.email, role: admin.role, name: admin.name, userType: 'admin', visibilityLevel: 2 } };
 
     auctionId = randomUUID();
     await db.insert(auctions).values({
@@ -228,7 +228,7 @@ abc,
     it('returns 401 without admin auth', async () => {
       const { POST } = await import('@/app/api/admin/auctions/[id]/lots/import/route');
 
-      (globalThis as any)._omenaMockSession = null;
+      (globalThis as any)._omenaaMockSession = null;
 
       const formData = createCsvFormData(VALID_CSV);
       const request = new Request(`http://localhost:3002/api/admin/auctions/${auctionId}/lots/import`, {
@@ -240,7 +240,7 @@ abc,
       expect(response.status).toBe(401);
 
       // Restore session for other tests
-      (globalThis as any)._omenaMockSession = { user: { id: admin.id, email: admin.email, role: admin.role, name: admin.name, userType: 'admin', visibilityLevel: 2 } };
+      (globalThis as any)._omenaaMockSession = { user: { id: admin.id, email: admin.email, role: admin.role, name: admin.name, userType: 'admin', visibilityLevel: 2 } };
     });
   });
 
@@ -263,13 +263,13 @@ abc,
     it('returns 401 without admin auth', async () => {
       const { GET } = await import('@/app/api/admin/lots/import-template/route');
 
-      (globalThis as any)._omenaMockSession = null;
+      (globalThis as any)._omenaaMockSession = null;
 
       const response = await GET();
       expect(response.status).toBe(401);
 
       // Restore session
-      (globalThis as any)._omenaMockSession = { user: { id: admin.id, email: admin.email, role: admin.role, name: admin.name, userType: 'admin', visibilityLevel: 2 } };
+      (globalThis as any)._omenaaMockSession = { user: { id: admin.id, email: admin.email, role: admin.role, name: admin.name, userType: 'admin', visibilityLevel: 2 } };
     });
   });
 });

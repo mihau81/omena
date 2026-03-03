@@ -14,15 +14,15 @@ export const s3Client = new S3Client(
         endpoint: process.env.MINIO_ENDPOINT ?? 'http://localhost:9000',
         region: 'us-east-1', // MinIO requires a region but ignores the value
         credentials: {
-          accessKeyId: process.env.MINIO_ACCESS_KEY ?? 'omena',
-          secretAccessKey: process.env.MINIO_SECRET_KEY ?? 'omena_dev',
+          accessKeyId: process.env.MINIO_ACCESS_KEY ?? 'omenaa',
+          secretAccessKey: process.env.MINIO_SECRET_KEY ?? 'omenaa_dev',
         },
         forcePathStyle: true, // Required for MinIO
       }
 );
 
-export const S3_BUCKET = process.env.S3_BUCKET ?? 'omena-media';
-export const S3_PUBLIC_URL = process.env.S3_PUBLIC_URL ?? 'http://localhost:9000/omena-media';
+export const S3_BUCKET = process.env.S3_BUCKET ?? 'omenaa-media';
+export const S3_PUBLIC_URL = process.env.S3_PUBLIC_URL ?? 'http://localhost:9000/omenaa-media';
 
 export function getPublicUrl(key: string): string {
   return `${S3_PUBLIC_URL}/${key}`;

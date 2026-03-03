@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-const BASE = '/omena';
+const BASE = '/omenaa';
 const LOCALE = 'en';
 
 test.describe('Auctions listing page', () => {
@@ -43,7 +43,7 @@ test.describe('Auctions listing page', () => {
 
   test('page title includes Auctions text', async ({ page }) => {
     const title = await page.title();
-    // Title should contain auction-related text or OMENA
-    expect(title.toLowerCase()).toMatch(/auction|omena/);
+    // Title should contain auction-related text or OMENAA
+    expect(title.toLowerCase()).toMatch(/auction|omenaa/);
   });
 });

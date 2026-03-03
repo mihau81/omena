@@ -4,13 +4,13 @@ import path from 'path';
 const ADMIN_FILE = path.join(__dirname, '.auth/admin.json');
 const USER_FILE = path.join(__dirname, '.auth/user.json');
 
-const BASE = '/omena';
+const BASE = '/omenaa';
 
 // ─── Admin auth ────────────────────────────────────────────────────────────
 setup('authenticate as admin', async ({ page }) => {
   await page.goto(`${BASE}/admin/login`);
 
-  await page.locator('#email').fill('admin@omena.pl');
+  await page.locator('#email').fill('admin@omenaa.pl');
   await page.locator('#password').fill('admin123');
   await page.getByRole('button', { name: 'Sign In' }).click();
 
@@ -26,7 +26,7 @@ setup('authenticate as user', async ({ page }) => {
   // Try to register a test user via the correct API endpoint
   const registerResponse = await page.request.post(`${BASE}/api/auth/register`, {
     data: {
-      email: 'testuser@omena-e2e.test',
+      email: 'testuser@omenaa-e2e.test',
       password: 'TestPassword123!',
       name: 'E2E Test User',
     },
@@ -54,7 +54,7 @@ setup('authenticate as user', async ({ page }) => {
       await page.goto(`${BASE}/admin/login`);
       const emailInput = page.locator('#email');
       if (await emailInput.isVisible({ timeout: 3000 }).catch(() => false)) {
-        await emailInput.fill('admin@omena.pl');
+        await emailInput.fill('admin@omenaa.pl');
         await page.locator('#password').fill('admin123');
         await page.getByRole('button', { name: 'Sign In' }).click();
         await page.waitForTimeout(2000);
@@ -77,7 +77,7 @@ setup('authenticate as user', async ({ page }) => {
 
   const emailInput = page.locator('input[type="email"]').first();
   if (await emailInput.isVisible({ timeout: 5000 }).catch(() => false)) {
-    await emailInput.fill('testuser@omena-e2e.test');
+    await emailInput.fill('testuser@omenaa-e2e.test');
 
     const passwordInput = page.locator('input[type="password"]').first();
     if (await passwordInput.isVisible({ timeout: 3000 }).catch(() => false)) {

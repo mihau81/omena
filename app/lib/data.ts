@@ -15,9 +15,9 @@ export const auctions: Auction[] = [
     endDate: '2026-01-15',
     status: 'ended',
     category: 'malarstwo',
-    coverImage: '/omena/images/auctions/lot-1.jpg',
+    coverImage: '/omenaa/images/auctions/lot-1.jpg',
     totalLots: 12,
-    location: 'Dom Aukcyjny Omena, Warszawa',
+    location: 'Dom Aukcyjny Omenaa, Warszawa',
     curator: 'dr Katarzyna Nowak',
   },
   {
@@ -30,9 +30,9 @@ export const auctions: Auction[] = [
     endDate: '2026-02-28T18:00:00',
     status: 'live',
     category: 'rzezba',
-    coverImage: '/omena/images/auctions/lot-13.jpg',
+    coverImage: '/omenaa/images/auctions/lot-13.jpg',
     totalLots: 8,
-    location: 'Dom Aukcyjny Omena, Warszawa',
+    location: 'Dom Aukcyjny Omenaa, Warszawa',
     curator: 'prof. Andrzej Kowalski',
   },
   {
@@ -45,7 +45,7 @@ export const auctions: Auction[] = [
     endDate: '2026-04-10',
     status: 'upcoming',
     category: 'fotografia',
-    coverImage: '/omena/images/auctions/lot-21.jpg',
+    coverImage: '/omenaa/images/auctions/lot-21.jpg',
     totalLots: 10,
     location: 'Centrum Sztuki Współczesnej, Kraków',
     curator: 'dr Magdalena Zielińska',
@@ -60,9 +60,9 @@ export const auctions: Auction[] = [
     endDate: '2026-05-20',
     status: 'upcoming',
     category: 'mixed',
-    coverImage: '/omena/images/auctions/lot-29.jpg',
+    coverImage: '/omenaa/images/auctions/lot-29.jpg',
     totalLots: 8,
-    location: 'Dom Aukcyjny Omena, Warszawa',
+    location: 'Dom Aukcyjny Omenaa, Warszawa',
     curator: 'dr Katarzyna Nowak',
   },
 ];
@@ -86,9 +86,9 @@ const lotsMistrzowie: Lot[] = [
     estimateMax: 500000,
     currentBid: null,
     images: [
-      '/omena/images/auctions/lot-1.jpg',
-      '/omena/images/auctions/lot-2.jpg',
-      '/omena/images/auctions/lot-3.jpg',
+      '/omenaa/images/auctions/lot-1.jpg',
+      '/omenaa/images/auctions/lot-2.jpg',
+      '/omenaa/images/auctions/lot-3.jpg',
       'https://www.youtube.com/watch?v=rKhbUjVyKIc',
     ],
     provenance: [
@@ -111,7 +111,7 @@ const lotsMistrzowie: Lot[] = [
     estimateMin: 180000,
     estimateMax: 260000,
     currentBid: null,
-    images: ['/omena/images/auctions/lot-2.jpg'],
+    images: ['/omenaa/images/auctions/lot-2.jpg'],
     provenance: [
       'Kolekcja artysty',
       'Galeria Starmach, Kraków',
@@ -134,8 +134,8 @@ const lotsMistrzowie: Lot[] = [
     estimateMax: 320000,
     currentBid: null,
     images: [
-      '/omena/images/auctions/lot-3.jpg',
-      '/omena/images/auctions/lot-4.jpg',
+      '/omenaa/images/auctions/lot-3.jpg',
+      '/omenaa/images/auctions/lot-4.jpg',
       'https://www.youtube.com/watch?v=0pXYp72dwl0',
     ],
     provenance: [
@@ -159,7 +159,7 @@ const lotsMistrzowie: Lot[] = [
     estimateMin: 80000,
     estimateMax: 140000,
     currentBid: null,
-    images: ['/omena/images/auctions/lot-4.jpg'],
+    images: ['/omenaa/images/auctions/lot-4.jpg'],
     provenance: [
       'Pracownia artysty, Warszawa',
       'Kolekcja prywatna, Łódź',
@@ -181,10 +181,10 @@ const lotsMistrzowie: Lot[] = [
     estimateMax: 180000,
     currentBid: null,
     images: [
-      '/omena/images/auctions/lot-5.jpg',
-      '/omena/images/auctions/lot-6.jpg',
-      '/omena/images/auctions/lot-7.jpg',
-      '/omena/images/auctions/lot-8.jpg',
+      '/omenaa/images/auctions/lot-5.jpg',
+      '/omenaa/images/auctions/lot-6.jpg',
+      '/omenaa/images/auctions/lot-7.jpg',
+      '/omenaa/images/auctions/lot-8.jpg',
     ],
     provenance: [
       'Galeria Foksal, Warszawa',
@@ -208,7 +208,7 @@ const lotsMistrzowie: Lot[] = [
     estimateMin: 400000,
     estimateMax: 600000,
     currentBid: null,
-    images: ['/omena/images/auctions/lot-6.jpg'],
+    images: ['/omenaa/images/auctions/lot-6.jpg'],
     provenance: [
       'Spadek po artyście',
       'Fundacja Andrzeja Wróblewskiego, Kraków',
@@ -231,7 +231,7 @@ const lotsMistrzowie: Lot[] = [
     estimateMin: 150000,
     estimateMax: 220000,
     currentBid: null,
-    images: ['/omena/images/auctions/lot-7.jpg'],
+    images: ['/omenaa/images/auctions/lot-7.jpg'],
     provenance: [
       'Galerie Lambert, Paryż',
       'Kolekcja prywatna, Paryż',
@@ -253,7 +253,7 @@ const lotsMistrzowie: Lot[] = [
     estimateMin: 90000,
     estimateMax: 150000,
     currentBid: null,
-    images: ['/omena/images/auctions/lot-8.jpg'],
+    images: ['/omenaa/images/auctions/lot-8.jpg'],
     provenance: [
       'Spadek po artystce',
       'Kolekcja prywatna, Warszawa',
@@ -275,9 +275,9 @@ const lotsMistrzowie: Lot[] = [
     estimateMax: 95000,
     currentBid: null,
     images: [
-      '/omena/images/auctions/lot-9.jpg',
+      '/omenaa/images/auctions/lot-9.jpg',
       'https://www.youtube.com/watch?v=FpGOAJuoSGA',
-      '/omena/images/auctions/lot-10.jpg',
+      '/omenaa/images/auctions/lot-10.jpg',
     ],
     provenance: [
       'Kolekcja rodziny artysty',
@@ -299,7 +299,7 @@ const lotsMistrzowie: Lot[] = [
     estimateMin: 110000,
     estimateMax: 170000,
     currentBid: null,
-    images: ['/omena/images/auctions/lot-10.jpg'],
+    images: ['/omenaa/images/auctions/lot-10.jpg'],
     provenance: [
       'Galeria Krzysztofory, Kraków',
       'Kolekcja prywatna, Kraków',
@@ -320,7 +320,7 @@ const lotsMistrzowie: Lot[] = [
     estimateMin: 250000,
     estimateMax: 380000,
     currentBid: null,
-    images: ['/omena/images/auctions/lot-11.jpg'],
+    images: ['/omenaa/images/auctions/lot-11.jpg'],
     provenance: [
       'Kolekcja rodziny artysty',
       'Kolekcja prywatna, Kraków',
@@ -341,10 +341,10 @@ const lotsMistrzowie: Lot[] = [
     estimateMin: 35000,
     estimateMax: 55000,
     currentBid: null,
-    images: ['/omena/images/auctions/lot-12.jpg'],
+    images: ['/omenaa/images/auctions/lot-12.jpg'],
     provenance: [
       'Kolekcja prywatna, Kraków',
-      'Dom Aukcyjny Omena, 2024',
+      'Dom Aukcyjny Omenaa, 2024',
     ],
     exhibited: ['Polska szkoła pejzażu, BWA Kraków, 2019'],
     lotNumber: 12,
@@ -370,7 +370,7 @@ const lotsRzezba: Lot[] = [
     estimateMax: 650000,
     currentBid: 510000,
     images: [
-      '/omena/images/auctions/lot-13.jpg',
+      '/omenaa/images/auctions/lot-13.jpg',
       'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
     ],
     provenance: [
@@ -395,9 +395,9 @@ const lotsRzezba: Lot[] = [
     estimateMax: 520000,
     currentBid: 395000,
     images: [
-      '/omena/images/auctions/lot-14.jpg',
-      '/omena/images/auctions/lot-15.jpg',
-      '/omena/images/auctions/lot-16.jpg',
+      '/omenaa/images/auctions/lot-14.jpg',
+      '/omenaa/images/auctions/lot-15.jpg',
+      '/omenaa/images/auctions/lot-16.jpg',
       'https://www.youtube.com/watch?v=wk7FUBhV3hU',
     ],
     provenance: [
@@ -420,7 +420,7 @@ const lotsRzezba: Lot[] = [
     estimateMin: 500000,
     estimateMax: 750000,
     currentBid: 580000,
-    images: ['/omena/images/auctions/lot-15.jpg'],
+    images: ['/omenaa/images/auctions/lot-15.jpg'],
     provenance: [
       'Fondation Giacometti, Paryż',
       'Kolekcja prywatna, Genewa',
@@ -441,7 +441,7 @@ const lotsRzezba: Lot[] = [
     estimateMin: 280000,
     estimateMax: 420000,
     currentBid: 310000,
-    images: ['/omena/images/auctions/lot-16.jpg'],
+    images: ['/omenaa/images/auctions/lot-16.jpg'],
     provenance: [
       'Muzeum Sztuki, Łódź (depozyt)',
       'Kolekcja prywatna, Łódź',
@@ -462,7 +462,7 @@ const lotsRzezba: Lot[] = [
     estimateMin: 95000,
     estimateMax: 150000,
     currentBid: 105000,
-    images: ['/omena/images/auctions/lot-17.jpg'],
+    images: ['/omenaa/images/auctions/lot-17.jpg'],
     provenance: [
       'Galeria Władysława Hasiora, Zakopane',
       'Kolekcja prywatna, Warszawa',
@@ -484,10 +484,10 @@ const lotsRzezba: Lot[] = [
     estimateMax: 240000,
     currentBid: 175000,
     images: [
-      '/omena/images/auctions/lot-18.jpg',
-      '/omena/images/auctions/lot-19.jpg',
+      '/omenaa/images/auctions/lot-18.jpg',
+      '/omenaa/images/auctions/lot-19.jpg',
       'https://www.youtube.com/watch?v=v2Docl1LP_I',
-      '/omena/images/auctions/lot-17.jpg',
+      '/omenaa/images/auctions/lot-17.jpg',
     ],
     provenance: [
       'Atelier Mitoraj, Pietrasanta',
@@ -509,7 +509,7 @@ const lotsRzezba: Lot[] = [
     estimateMin: 220000,
     estimateMax: 340000,
     currentBid: 245000,
-    images: ['/omena/images/auctions/lot-19.jpg'],
+    images: ['/omenaa/images/auctions/lot-19.jpg'],
     provenance: [
       'Hepworth Estate, St Ives',
       'Kolekcja prywatna, Londyn',
@@ -531,7 +531,7 @@ const lotsRzezba: Lot[] = [
     estimateMax: 450000,
     currentBid: 340000,
     images: [
-      '/omena/images/auctions/lot-20.jpg',
+      '/omenaa/images/auctions/lot-20.jpg',
       'https://www.youtube.com/watch?v=9bZkp7q19f0',
     ],
     provenance: [
@@ -562,9 +562,9 @@ const lotsFotografia: Lot[] = [
     estimateMax: 25000,
     currentBid: null,
     images: [
-      '/omena/images/auctions/lot-21.jpg',
-      '/omena/images/auctions/lot-22.jpg',
-      '/omena/images/auctions/lot-23.jpg',
+      '/omenaa/images/auctions/lot-21.jpg',
+      '/omenaa/images/auctions/lot-22.jpg',
+      '/omenaa/images/auctions/lot-23.jpg',
     ],
     provenance: [
       'Archiwum artysty, Warszawa',
@@ -586,7 +586,7 @@ const lotsFotografia: Lot[] = [
     estimateMin: 18000,
     estimateMax: 28000,
     currentBid: null,
-    images: ['/omena/images/auctions/lot-22.jpg'],
+    images: ['/omenaa/images/auctions/lot-22.jpg'],
     provenance: [
       'Archiwum Chomętowskiej, Warszawa',
       'Fundacja Archeologia Fotografii, Warszawa',
@@ -607,7 +607,7 @@ const lotsFotografia: Lot[] = [
     estimateMin: 12000,
     estimateMax: 20000,
     currentBid: null,
-    images: ['/omena/images/auctions/lot-23.jpg'],
+    images: ['/omenaa/images/auctions/lot-23.jpg'],
     provenance: [
       'Kolekcja artysty',
       'Galeria Asymetria, Warszawa',
@@ -628,7 +628,7 @@ const lotsFotografia: Lot[] = [
     estimateMin: 22000,
     estimateMax: 35000,
     currentBid: null,
-    images: ['/omena/images/auctions/lot-24.jpg'],
+    images: ['/omenaa/images/auctions/lot-24.jpg'],
     provenance: [
       'Archiwum Jana Bułhaka, Wilno/Warszawa',
       'Kolekcja prywatna, Kraków',
@@ -650,10 +650,10 @@ const lotsFotografia: Lot[] = [
     estimateMax: 14000,
     currentBid: null,
     images: [
-      '/omena/images/auctions/lot-25.jpg',
+      '/omenaa/images/auctions/lot-25.jpg',
       'https://www.youtube.com/watch?v=MgsarJGx0GI',
-      '/omena/images/auctions/lot-26.jpg',
-      '/omena/images/auctions/lot-24.jpg',
+      '/omenaa/images/auctions/lot-26.jpg',
+      '/omenaa/images/auctions/lot-24.jpg',
     ],
     provenance: [
       'Kolekcja artysty, Gliwice',
@@ -675,7 +675,7 @@ const lotsFotografia: Lot[] = [
     estimateMin: 10000,
     estimateMax: 18000,
     currentBid: null,
-    images: ['/omena/images/auctions/lot-26.jpg'],
+    images: ['/omenaa/images/auctions/lot-26.jpg'],
     provenance: [
       'Archiwum Adama Bujaka, Kraków',
     ],
@@ -695,7 +695,7 @@ const lotsFotografia: Lot[] = [
     estimateMin: 20000,
     estimateMax: 32000,
     currentBid: null,
-    images: ['/omena/images/auctions/lot-27.jpg'],
+    images: ['/omenaa/images/auctions/lot-27.jpg'],
     provenance: [
       'Fundacja Zofia Rydet, Gliwice',
       'Kolekcja prywatna, Warszawa',
@@ -716,7 +716,7 @@ const lotsFotografia: Lot[] = [
     estimateMin: 14000,
     estimateMax: 22000,
     currentBid: null,
-    images: ['/omena/images/auctions/lot-28.jpg'],
+    images: ['/omenaa/images/auctions/lot-28.jpg'],
     provenance: [
       'Archiwum Tadeusza Rolke, Warszawa',
       'Galeria Asymetria, Warszawa',
@@ -737,7 +737,7 @@ const lotsFotografia: Lot[] = [
     estimateMin: 16000,
     estimateMax: 26000,
     currentBid: null,
-    images: ['/omena/images/auctions/lot-29.jpg'],
+    images: ['/omenaa/images/auctions/lot-29.jpg'],
     provenance: [
       'Archiwum Chris Niedenthal, Warszawa',
     ],
@@ -757,7 +757,7 @@ const lotsFotografia: Lot[] = [
     estimateMin: 25000,
     estimateMax: 40000,
     currentBid: null,
-    images: ['/omena/images/auctions/lot-30.jpg'],
+    images: ['/omenaa/images/auctions/lot-30.jpg'],
     provenance: [
       'Kolekcja artystki, Wrocław',
       'Galeria Awangarda, Wrocław',
@@ -786,11 +786,11 @@ const lotsPrzelom: Lot[] = [
     estimateMax: 180000,
     currentBid: null,
     images: [
-      '/omena/images/auctions/lot-31.jpg',
-      '/omena/images/auctions/lot-32.jpg',
+      '/omenaa/images/auctions/lot-31.jpg',
+      '/omenaa/images/auctions/lot-32.jpg',
       'https://www.youtube.com/watch?v=36HTpVDMpPw',
-      '/omena/images/auctions/lot-33.jpg',
-      '/omena/images/auctions/lot-34.jpg',
+      '/omenaa/images/auctions/lot-33.jpg',
+      '/omenaa/images/auctions/lot-34.jpg',
     ],
     provenance: [
       'Galeria Foksal, Warszawa',
@@ -812,7 +812,7 @@ const lotsPrzelom: Lot[] = [
     estimateMin: 95000,
     estimateMax: 145000,
     currentBid: null,
-    images: ['/omena/images/auctions/lot-32.jpg'],
+    images: ['/omenaa/images/auctions/lot-32.jpg'],
     provenance: [
       'Galeria Foksal, Warszawa',
       'Kolekcja prywatna, Berlin',
@@ -833,7 +833,7 @@ const lotsPrzelom: Lot[] = [
     estimateMin: 180000,
     estimateMax: 270000,
     currentBid: null,
-    images: ['/omena/images/auctions/lot-33.jpg'],
+    images: ['/omenaa/images/auctions/lot-33.jpg'],
     provenance: [
       'Zeno X Gallery, Antwerpia',
       'Kolekcja prywatna, Amsterdam',
@@ -854,7 +854,7 @@ const lotsPrzelom: Lot[] = [
     estimateMin: 150000,
     estimateMax: 230000,
     currentBid: null,
-    images: ['/omena/images/auctions/lot-34.jpg'],
+    images: ['/omenaa/images/auctions/lot-34.jpg'],
     provenance: [
       'Galeria Foksal, Warszawa',
       'Saatchi Gallery, Londyn',
@@ -876,7 +876,7 @@ const lotsPrzelom: Lot[] = [
     estimateMin: 110000,
     estimateMax: 170000,
     currentBid: null,
-    images: ['/omena/images/auctions/lot-35.jpg'],
+    images: ['/omenaa/images/auctions/lot-35.jpg'],
     provenance: [
       'Galeria Foksal, Warszawa',
       'Kolekcja prywatna, Berlin',
@@ -898,9 +898,9 @@ const lotsPrzelom: Lot[] = [
     estimateMax: 100000,
     currentBid: null,
     images: [
-      '/omena/images/auctions/lot-36.jpg',
-      '/omena/images/auctions/lot-37.jpg',
-      '/omena/images/auctions/lot-38.jpg',
+      '/omenaa/images/auctions/lot-36.jpg',
+      '/omenaa/images/auctions/lot-37.jpg',
+      '/omenaa/images/auctions/lot-38.jpg',
       'https://www.youtube.com/watch?v=JdLFsKfnIRk',
     ],
     provenance: [
@@ -923,7 +923,7 @@ const lotsPrzelom: Lot[] = [
     estimateMin: 200000,
     estimateMax: 300000,
     currentBid: null,
-    images: ['/omena/images/auctions/lot-37.jpg'],
+    images: ['/omenaa/images/auctions/lot-37.jpg'],
     provenance: [
       'Studio Olafur Eliasson, Berlin',
       'Kolekcja prywatna, Kopenhaga',
@@ -944,7 +944,7 @@ const lotsPrzelom: Lot[] = [
     estimateMin: 15000,
     estimateMax: 25000,
     currentBid: null,
-    images: ['/omena/images/auctions/lot-38.jpg'],
+    images: ['/omenaa/images/auctions/lot-38.jpg'],
     provenance: [
       'Galeria AT, Poznań',
       'Kolekcja prywatna, Poznań',
@@ -973,32 +973,32 @@ export const teamMembers: TeamMember[] = [
   {
     name: 'Aleksandra Wiśniewska',
     role: 'Dyrektor Generalna',
-    bio: 'Absolwentka historii sztuki na Uniwersytecie Jagiellońskim oraz MBA na INSEAD. Przez 15 lat kierowała działem sztuki współczesnej w jednym z największych domów aukcyjnych w Europie Środkowej. Pod jej kierownictwem Omena stała się wiodącą platformą aukcyjną w Polsce.',
-    image: '/omena/images/team/aleksandra-wisniewska.jpg',
+    bio: 'Absolwentka historii sztuki na Uniwersytecie Jagiellońskim oraz MBA na INSEAD. Przez 15 lat kierowała działem sztuki współczesnej w jednym z największych domów aukcyjnych w Europie Środkowej. Pod jej kierownictwem Omenaa stała się wiodącą platformą aukcyjną w Polsce.',
+    image: '/omenaa/images/team/aleksandra-wisniewska.jpg',
   },
   {
     name: 'Prof. Andrzej Kowalski',
     role: 'Dyrektor Artystyczny',
     bio: 'Historyk sztuki, kurator i krytyk z ponad 25-letnim doświadczeniem. Profesor Akademii Sztuk Pięknych w Warszawie, autor licznych publikacji o polskiej sztuce współczesnej. Odpowiada za program kuratorski i strategię artystyczną Omeny.',
-    image: '/omena/images/team/andrzej-kowalski.jpg',
+    image: '/omenaa/images/team/andrzej-kowalski.jpg',
   },
   {
     name: 'Dr Katarzyna Nowak',
     role: 'Główna Kuratorka',
     bio: 'Doktor nauk o sztuce, specjalistka w zakresie malarstwa polskiego XX wieku. Kuratorka ponad 40 wystaw w Polsce i za granicą. W Omenie odpowiada za selekcję dzieł, wyceny oraz relacje z kolekcjonerami i galeriami.',
-    image: '/omena/images/team/katarzyna-nowak.jpg',
+    image: '/omenaa/images/team/katarzyna-nowak.jpg',
   },
   {
     name: 'Marek Zieliński',
     role: 'Dyrektor ds. Aukcji',
     bio: 'Licencjonowany rzeczoznawca z 18-letnim stażem w branży aukcyjnej. Prowadził ponad 200 aukcji sztuki w Polsce i Europie. Specjalizuje się w logistyce aukcji, procedurach licytacyjnych oraz obsłudze klientów VIP.',
-    image: '/omena/images/team/marek-zielinski.jpg',
+    image: '/omenaa/images/team/marek-zielinski.jpg',
   },
   {
     name: 'Joanna Kamińska',
     role: 'Dyrektor ds. Komunikacji',
     bio: 'Absolwentka dziennikarstwa i komunikacji społecznej na Uniwersytecie Warszawskim. Przez 10 lat pracowała w mediach kulturalnych, w tym jako redaktor naczelna magazynu o sztuce. Odpowiada za strategię komunikacji, relacje z mediami i obecność Omeny w przestrzeni cyfrowej.',
-    image: '/omena/images/team/joanna-kaminska.jpg',
+    image: '/omenaa/images/team/joanna-kaminska.jpg',
   },
 ];
 
@@ -1011,10 +1011,10 @@ export const events: Event[] = [
     id: 'evt-1',
     title: 'Aukcja: Współczesna Rzeźba Europejska',
     date: '2026-02-27',
-    location: 'Dom Aukcyjny Omena, Warszawa',
+    location: 'Dom Aukcyjny Omenaa, Warszawa',
     description:
       'Licytacja 8 wybitnych dzieł rzeźbiarskich artystów z Polski i Europy. Transmisja na żywo online z możliwością licytacji zdalnej.',
-    image: '/omena/images/events/rzezba-aukcja.jpg',
+    image: '/omenaa/images/events/rzezba-aukcja.jpg',
     type: 'auction',
   },
   {
@@ -1024,17 +1024,17 @@ export const events: Event[] = [
     location: 'Centrum Sztuki Współczesnej, Kraków',
     description:
       'Wyjątkowa aukcja poświęcona fotografii artystycznej. W ofercie prace mistrzów polskiej fotografii od lat 30. po współczesność.',
-    image: '/omena/images/events/fotografia-aukcja.jpg',
+    image: '/omenaa/images/events/fotografia-aukcja.jpg',
     type: 'auction',
   },
   {
     id: 'evt-3',
     title: 'Wystawa: Nowe Oblicza Malarstwa Polskiego',
     date: '2026-03-15',
-    location: 'Galeria Omena, Warszawa',
+    location: 'Galeria Omenaa, Warszawa',
     description:
       'Wystawa prezentująca prace młodych polskich malarzy. Wernisaż z udziałem artystów i kuratorów, wstęp wolny.',
-    image: '/omena/images/events/wystawa-malarstwo.jpg',
+    image: '/omenaa/images/events/wystawa-malarstwo.jpg',
     type: 'exhibition',
   },
   {
@@ -1044,17 +1044,17 @@ export const events: Event[] = [
     location: 'Centrum Sztuki Współczesnej, Kraków',
     description:
       'Interaktywna wystawa instalacji świetlnych artystów z Polski, Niemiec i Danii. Ekspozycja czynna do końca sierpnia 2026.',
-    image: '/omena/images/events/wystawa-swiatlo.jpg',
+    image: '/omenaa/images/events/wystawa-swiatlo.jpg',
     type: 'exhibition',
   },
   {
     id: 'evt-5',
-    title: 'Gala Omena — Wieczór Kolekcjonerów',
+    title: 'Gala Omenaa — Wieczór Kolekcjonerów',
     date: '2026-05-08',
     location: 'Hotel Bristol, Warszawa',
     description:
       'Coroczna gala Omeny łącząca świat sztuki i biznesu. Kolacja, pokaz wybranych dzieł z nadchodzących aukcji oraz panel dyskusyjny o rynku sztuki w Polsce.',
-    image: '/omena/images/events/gala-kolekcjonerow.jpg',
+    image: '/omenaa/images/events/gala-kolekcjonerow.jpg',
     type: 'gala',
   },
   {
@@ -1064,7 +1064,7 @@ export const events: Event[] = [
     location: 'Zamek Królewski, Warszawa',
     description:
       'Charytatywna gala aukcyjna, z której dochód zostanie przeznaczony na programy edukacji artystycznej dla dzieci z mniejszych miejscowości.',
-    image: '/omena/images/events/gala-charytatywna.jpg',
+    image: '/omenaa/images/events/gala-charytatywna.jpg',
     type: 'gala',
   },
 ];
@@ -1080,19 +1080,19 @@ export const pressItems: PressItem[] = [
     source: 'Gazeta Artystyczna',
     date: '2026-01-16',
     excerpt:
-      'Dom Aukcyjny Omena zakończył aukcję „Mistrzowie Polskiego Malarstwa" z łącznym wynikiem przekraczającym 2,5 miliona złotych. Najdroższym dziełem okazał się obraz Zdzisława Beksińskiego.',
+      'Dom Aukcyjny Omenaa zakończył aukcję „Mistrzowie Polskiego Malarstwa" z łącznym wynikiem przekraczającym 2,5 miliona złotych. Najdroższym dziełem okazał się obraz Zdzisława Beksińskiego.',
     url: '/prasa/rekordowa-aukcja-beksinski',
-    image: '/omena/images/press/beksinski-rekord.jpg',
+    image: '/omenaa/images/press/beksinski-rekord.jpg',
   },
   {
     id: 'press-2',
-    title: 'Omena otwiera sezon aukcji rzeźby',
+    title: 'Omenaa otwiera sezon aukcji rzeźby',
     source: 'Sztuka.pl',
     date: '2026-02-20',
     excerpt:
-      'Warszawski dom aukcyjny Omena zapowiada pierwszą w tym roku aukcję poświęconą wyłącznie rzeźbie europejskiej. W katalogu prace Brâncușiego, Moore\'a i Giacomettiego.',
+      'Warszawski dom aukcyjny Omenaa zapowiada pierwszą w tym roku aukcję poświęconą wyłącznie rzeźbie europejskiej. W katalogu prace Brâncușiego, Moore\'a i Giacomettiego.',
     url: '/prasa/sezon-rzezby',
-    image: '/omena/images/press/rzezba-sezon.jpg',
+    image: '/omenaa/images/press/rzezba-sezon.jpg',
   },
   {
     id: 'press-3',
@@ -1100,9 +1100,9 @@ export const pressItems: PressItem[] = [
     source: 'Rzeczpospolita Kultura',
     date: '2025-12-10',
     excerpt:
-      'Według najnowszego raportu rynek aukcyjny w Polsce odnotował 18% wzrost w porównaniu z rokiem poprzednim. Omena zajmuje czołową pozycję wśród polskich domów aukcyjnych.',
+      'Według najnowszego raportu rynek aukcyjny w Polsce odnotował 18% wzrost w porównaniu z rokiem poprzednim. Omenaa zajmuje czołową pozycję wśród polskich domów aukcyjnych.',
     url: '/prasa/raport-rynek-sztuki-2025',
-    image: '/omena/images/press/raport-rynek.jpg',
+    image: '/omenaa/images/press/raport-rynek.jpg',
   },
   {
     id: 'press-4',
@@ -1112,17 +1112,17 @@ export const pressItems: PressItem[] = [
     excerpt:
       'Główna kuratorka Omeny mówi o zmieniającym się profilu kolekcjonera, rosnącym zainteresowaniu fotografią artystyczną i wyzwaniach autentyfikacji dzieł w erze AI.',
     url: '/prasa/wywiad-nowak',
-    image: '/omena/images/press/wywiad-nowak.jpg',
+    image: '/omenaa/images/press/wywiad-nowak.jpg',
   },
   {
     id: 'press-5',
-    title: 'Młode talenty w Galerii Omena',
+    title: 'Młode talenty w Galerii Omenaa',
     source: 'Obieg',
     date: '2026-03-01',
     excerpt:
-      'Galeria Omena prezentuje nowy cykl wystaw poświęconych młodym polskim artystom. Pierwsza ekspozycja skupia się na nowych tendencjach w malarstwie figuratywnym.',
+      'Galeria Omenaa prezentuje nowy cykl wystaw poświęconych młodym polskim artystom. Pierwsza ekspozycja skupia się na nowych tendencjach w malarstwie figuratywnym.',
     url: '/prasa/mlode-talenty',
-    image: '/omena/images/press/mlode-talenty.jpg',
+    image: '/omenaa/images/press/mlode-talenty.jpg',
   },
   {
     id: 'press-6',
@@ -1130,19 +1130,19 @@ export const pressItems: PressItem[] = [
     source: 'Magazyn Sztuki',
     date: '2026-02-15',
     excerpt:
-      'Dom Aukcyjny Omena zapowiada wiosenną aukcję fotografii artystycznej XX wieku. Eksperci przewidują rosnące zainteresowanie kolekcjonerów odbitkami vintage.',
+      'Dom Aukcyjny Omenaa zapowiada wiosenną aukcję fotografii artystycznej XX wieku. Eksperci przewidują rosnące zainteresowanie kolekcjonerów odbitkami vintage.',
     url: '/prasa/fotografia-rynek',
-    image: '/omena/images/press/fotografia-rynek.jpg',
+    image: '/omenaa/images/press/fotografia-rynek.jpg',
   },
   {
     id: 'press-7',
-    title: 'Omena partnerem Biennale Sztuki Współczesnej w Wenecji',
+    title: 'Omenaa partnerem Biennale Sztuki Współczesnej w Wenecji',
     source: 'Dziennik Kulturalny',
     date: '2026-02-01',
     excerpt:
-      'Warszawski dom aukcyjny Omena został oficjalnym partnerem polskiego pawilonu na Biennale w Wenecji 2026. Współpraca obejmuje wsparcie logistyczne i promocyjne.',
+      'Warszawski dom aukcyjny Omenaa został oficjalnym partnerem polskiego pawilonu na Biennale w Wenecji 2026. Współpraca obejmuje wsparcie logistyczne i promocyjne.',
     url: '/prasa/biennale-wenecja',
-    image: '/omena/images/press/biennale-wenecja.jpg',
+    image: '/omenaa/images/press/biennale-wenecja.jpg',
   },
   {
     id: 'press-8',
@@ -1150,9 +1150,9 @@ export const pressItems: PressItem[] = [
     source: 'Forbes Polska',
     date: '2025-11-20',
     excerpt:
-      'W rankingu Forbes Polska dom aukcyjny Omena zajął drugie miejsce pod względem obrotów i pierwsze w kategorii innowacyjności. Wyróżniono platformę licytacji online.',
+      'W rankingu Forbes Polska dom aukcyjny Omenaa zajął drugie miejsce pod względem obrotów i pierwsze w kategorii innowacyjności. Wyróżniono platformę licytacji online.',
     url: '/prasa/ranking-forbes',
-    image: '/omena/images/press/ranking-forbes.jpg',
+    image: '/omenaa/images/press/ranking-forbes.jpg',
   },
 ];
 

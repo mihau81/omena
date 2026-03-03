@@ -10,7 +10,7 @@ interface ToastItem {
   message: string;
 }
 
-const TOAST_EVENT = 'omena-toast';
+const TOAST_EVENT = 'omenaa-toast';
 const DISMISS_MS = 4000;
 
 export function showBidToast(type: ToastType, message: string) {

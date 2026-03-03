@@ -9,7 +9,7 @@ export default defineConfig({
   reporter: 'html',
   globalSetup: './tests/e2e/global-setup.ts',
   use: {
-    baseURL: 'http://localhost:3002/omena',
+    baseURL: 'http://localhost:3002/omenaa',
     trace: 'on-first-retry',
   },
   projects: [
@@ -46,7 +46,7 @@ export default defineConfig({
   ],
   webServer: {
     command: 'npm run dev',
-    url: 'http://localhost:3002/omena',
+    url: 'http://localhost:3002/omenaa',
     reuseExistingServer: !process.env.CI,
     timeout: 120000,
   },

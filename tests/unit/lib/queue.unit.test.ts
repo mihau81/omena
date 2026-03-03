@@ -90,10 +90,10 @@ describe('queue', () => {
     it('has correct queue name constants', async () => {
       const { QUEUE_NAMES } = await import('@/lib/queue');
 
-      expect(QUEUE_NAMES.EMAIL).toBe('omena-email');
-      expect(QUEUE_NAMES.PDF).toBe('omena-pdf');
-      expect(QUEUE_NAMES.IMAGE).toBe('omena-image');
-      expect(QUEUE_NAMES.PUSH).toBe('omena-push');
+      expect(QUEUE_NAMES.EMAIL).toBe('omenaa-email');
+      expect(QUEUE_NAMES.PDF).toBe('omenaa-pdf');
+      expect(QUEUE_NAMES.IMAGE).toBe('omenaa-image');
+      expect(QUEUE_NAMES.PUSH).toBe('omenaa-push');
     });
 
     it('has exactly 4 queue names', async () => {

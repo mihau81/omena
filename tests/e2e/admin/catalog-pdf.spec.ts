@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test.use({ storageState: 'tests/e2e/.auth/admin.json' });
 
-const BASE = '/omena';
+const BASE = '/omenaa';
 
 test.describe('Admin - Catalog PDF Generation', () => {
   test('auction detail page shows catalog button', async ({ page }) => {

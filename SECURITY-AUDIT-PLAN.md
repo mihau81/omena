@@ -1,8 +1,8 @@
-# Plan audytu bezpieczeństwa — Omena
+# Plan audytu bezpieczeństwa — Omenaa
 
 ## Streszczenie
 
-Omena to platforma aukcyjna (Next.js 16, TypeScript, Drizzle ORM, PostgreSQL, Stripe, S3/MinIO, SSE).
+Omenaa to platforma aukcyjna (Next.js 16, TypeScript, Drizzle ORM, PostgreSQL, Stripe, S3/MinIO, SSE).
 Audyt obejmuje pełny stos: autentykację, autoryzację, API, bazę danych, upload plików, płatności, kryptografię, nagłówki HTTP i zależności.
 
 ---
@@ -237,7 +237,7 @@ return NextResponse.json({ error: error.message }, { status: 400 });
 
 **Plik:** `app/lib/useRealtimeBids.ts`
 
-**Problem:** `new EventSource('/api/sse/auction/${auctionId}')` nie używa `apiUrl()` — pomija prefix `/omena`. Przy deploy pod basePath SSE nie połączy się (404).
+**Problem:** `new EventSource('/api/sse/auction/${auctionId}')` nie używa `apiUrl()` — pomija prefix `/omenaa`. Przy deploy pod basePath SSE nie połączy się (404).
 
 **Fix:** Użyć `apiUrl(`/api/sse/auction/${auctionId}`)`.
 

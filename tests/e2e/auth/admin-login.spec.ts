@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test.use({ storageState: { cookies: [], origins: [] } });
 
-const BASE = '/omena';
+const BASE = '/omenaa';
 
 test.describe('Admin login', () => {
   test.beforeEach(async ({ page }) => {
@@ -16,8 +16,8 @@ test.describe('Admin login', () => {
     await expect(page.getByRole('button', { name: 'Sign In' })).toBeVisible();
   });
 
-  test('shows OMENA brand on login page', async ({ page }) => {
-    await expect(page.getByText('OMENA').first()).toBeVisible();
+  test('shows OMENAA brand on login page', async ({ page }) => {
+    await expect(page.getByText('OMENAA').first()).toBeVisible();
     await expect(page.getByText('Administration Panel')).toBeVisible();
   });
 
@@ -39,7 +39,7 @@ test.describe('Admin login', () => {
   });
 
   test('valid admin credentials redirect to dashboard', async ({ page }) => {
-    await page.locator('#email').fill('admin@omena.pl');
+    await page.locator('#email').fill('admin@omenaa.pl');
     await page.locator('#password').fill('admin123');
     await page.getByRole('button', { name: 'Sign In' }).click();
 
@@ -48,7 +48,7 @@ test.describe('Admin login', () => {
   });
 
   test('shows loading state while signing in', async ({ page }) => {
-    await page.locator('#email').fill('admin@omena.pl');
+    await page.locator('#email').fill('admin@omenaa.pl');
     await page.locator('#password').fill('admin123');
 
     // Click and immediately check for loading state
@@ -63,7 +63,7 @@ test.describe('Admin login', () => {
 
   test('admin is redirected if already logged in', async ({ page }) => {
     // First log in
-    await page.locator('#email').fill('admin@omena.pl');
+    await page.locator('#email').fill('admin@omenaa.pl');
     await page.locator('#password').fill('admin123');
     await page.getByRole('button', { name: 'Sign In' }).click();
     await page.waitForURL(`${BASE}/admin`, { timeout: 10000 });

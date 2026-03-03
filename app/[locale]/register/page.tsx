@@ -67,7 +67,7 @@ export default function RegisterPage() {
       <div className="min-h-screen flex items-center justify-center bg-cream px-4">
         <div className="w-full max-w-sm text-center">
           <div className="mb-6">
-            <h1 className="text-3xl font-serif font-bold text-dark-brown tracking-wide">OMENA</h1>
+            <h1 className="text-3xl font-serif font-bold text-dark-brown tracking-wide">OMENAA</h1>
           </div>
           <div className="bg-white rounded-xl border border-beige shadow-sm p-6">
             <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-green-100 flex items-center justify-center">
@@ -90,7 +90,7 @@ export default function RegisterPage() {
       <div className="w-full max-w-sm">
         {/* Brand */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-serif font-bold text-dark-brown tracking-wide">OMENA</h1>
+          <h1 className="text-3xl font-serif font-bold text-dark-brown tracking-wide">OMENAA</h1>
           <p className="text-sm text-taupe mt-1">Create your account</p>
         </div>
 
@@ -102,12 +102,12 @@ export default function RegisterPage() {
         )}
         {context === 'invitation' && (
           <div className="mb-4 p-3 rounded-lg bg-gold/10 border border-gold/30 text-sm text-dark-brown">
-            You&apos;ve been invited to Omena
+            You&apos;ve been invited to Omenaa
           </div>
         )}
         {context === 'referral' && (
           <div className="mb-4 p-3 rounded-lg bg-gold/10 border border-gold/30 text-sm text-dark-brown">
-            You were referred by a member of Omena
+            You were referred by a member of Omenaa
           </div>
         )}
 

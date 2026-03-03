@@ -6,7 +6,7 @@ export default function HeroSection() {
     <section className="relative flex min-h-screen items-center justify-center px-5 md:min-h-[80vh] md:px-8">
       {/* Background image */}
       <Image
-        src="/omena/images/hero/hero-bg.jpg"
+        src="/omenaa/images/hero/hero-bg.jpg"
         alt=""
         fill
         className="object-cover"
@@ -17,7 +17,7 @@ export default function HeroSection() {
 
       <div className="relative z-10 text-center">
         <h1 className="font-serif text-5xl font-bold text-gold md:text-7xl lg:text-8xl drop-shadow-lg">
-          Omena
+          Omenaa
         </h1>
 
         <div className="mx-auto my-6 h-px w-16 bg-gold" />

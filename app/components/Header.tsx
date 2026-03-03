@@ -105,7 +105,7 @@ export default function Header() {
         <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 md:px-8 md:py-5">
           {/* Logo */}
           <Link href={`/${locale}`} className="font-serif text-xl tracking-widest text-dark-brown md:text-2xl">
-            OMENA
+            OMENAA
           </Link>
 
           {/* Desktop nav */}
@@ -233,7 +233,7 @@ export default function Header() {
                       </Link>
                       <div className="border-t border-beige mt-1 pt-1">
                         <button
-                          onClick={() => signOut({ callbackUrl: `/omena/${locale}` })}
+                          onClick={() => signOut({ callbackUrl: `/omenaa/${locale}` })}
                           className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
                         >
                           {t.userMenuSignOut}
@@ -301,7 +301,7 @@ export default function Header() {
                   {t.userMenuMyAccount}
                 </Link>
                 <button
-                  onClick={() => { setMenuOpen(false); signOut({ callbackUrl: `/omena/${locale}` }); }}
+                  onClick={() => { setMenuOpen(false); signOut({ callbackUrl: `/omenaa/${locale}` }); }}
                   className="font-serif text-2xl tracking-wide text-red-600 hover:text-red-700 transition-colors"
                 >
                   {t.userMenuSignOut}

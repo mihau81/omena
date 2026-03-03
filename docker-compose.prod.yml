@@ -3,7 +3,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: omena_app
+    container_name: omenaa_app
     restart: unless-stopped
     ports:
       - "3080:3000"
@@ -20,31 +20,31 @@ services:
       redis:
         condition: service_healthy
     networks:
-      - omena_network
+      - omenaa_network
 
   db:
     image: postgres:16-alpine
-    container_name: omena_db
+    container_name: omenaa_db
     restart: unless-stopped
     env_file:
       - .env
     environment:
-      POSTGRES_DB: omena
-      POSTGRES_USER: omena
+      POSTGRES_DB: omenaa
+      POSTGRES_USER: omenaa
       POSTGRES_PASSWORD: ${DB_PASSWORD}
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U omena"]
+      test: ["CMD-SHELL", "pg_isready -U omenaa"]
       interval: 5s
       timeout: 5s
       retries: 5
     networks:
-      - omena_network
+      - omenaa_network
 
   minio:
     image: minio/minio
-    container_name: omena_minio
+    container_name: omenaa_minio
     restart: unless-stopped
     command: server /data --console-address ":9001"
     environment:
@@ -55,11 +55,11 @@ services:
     volumes:
       - minio_data:/data
     networks:
-      - omena_network
+      - omenaa_network
 
   redis:
     image: redis:7-alpine
-    container_name: omena_redis
+    container_name: omenaa_redis
     restart: unless-stopped
     command: redis-server --save "" --appendonly no
     healthcheck:
@@ -68,12 +68,12 @@ services:
       timeout: 5s
       retries: 5
     networks:
-      - omena_network
+      - omenaa_network
 
 volumes:
   pgdata:
   minio_data:
 
 networks:
-  omena_network:
+  omenaa_network:
     driver: bridge

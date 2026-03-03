@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 // Use no stored auth state for auth tests
 test.use({ storageState: { cookies: [], origins: [] } });
 
-const BASE = '/omena';
+const BASE = '/omenaa';
 const LOCALE = 'en';
 
 test.describe('User login', () => {

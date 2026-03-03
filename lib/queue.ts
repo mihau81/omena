@@ -82,10 +82,10 @@ export type JobData =
 // ─── Queue names ─────────────────────────────────────────────────────────────
 
 export const QUEUE_NAMES = {
-  EMAIL: 'omena-email',
-  PDF: 'omena-pdf',
-  IMAGE: 'omena-image',
-  PUSH: 'omena-push',
+  EMAIL: 'omenaa-email',
+  PDF: 'omenaa-pdf',
+  IMAGE: 'omenaa-image',
+  PUSH: 'omenaa-push',
 } as const;
 
 // ─── Queue singletons ─────────────────────────────────────────────────────────

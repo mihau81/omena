@@ -32,16 +32,16 @@ jobs:
       postgres:
         image: postgres:16-alpine
         env:
-          POSTGRES_DB: omena_test
-          POSTGRES_USER: omena
-          POSTGRES_PASSWORD: omena_test
+          POSTGRES_DB: omenaa_test
+          POSTGRES_USER: omenaa
+          POSTGRES_PASSWORD: omenaa_test
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
     env:
-      DATABASE_URL: postgresql://omena:omena_test@postgres:5432/omena_test
+      DATABASE_URL: postgresql://omenaa:omenaa_test@postgres:5432/omenaa_test
       CI: true
     steps:
       - uses: actions/checkout@v4
@@ -93,16 +93,16 @@ jobs:
       postgres:
         image: postgres:16-alpine
         env:
-          POSTGRES_DB: omena_test
-          POSTGRES_USER: omena
-          POSTGRES_PASSWORD: omena_test
+          POSTGRES_DB: omenaa_test
+          POSTGRES_USER: omenaa
+          POSTGRES_PASSWORD: omenaa_test
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
     env:
-      DATABASE_URL: postgresql://omena:omena_test@postgres:5432/omena_test
+      DATABASE_URL: postgresql://omenaa:omenaa_test@postgres:5432/omenaa_test
       CI: true
     steps:
       - uses: actions/checkout@v4

@@ -204,7 +204,7 @@ export default function AdminSidebar({ role, isOpen, onClose, pendingUsersCount 
         <div className="flex items-center justify-between h-16 px-6 border-b border-white/10">
           <Link href="/admin" className="flex items-center gap-2" onClick={onClose}>
             <span className="text-gold font-serif text-xl font-bold tracking-wide">
-              OMENA
+              OMENAA
             </span>
             <span className="text-xs text-white/50 uppercase tracking-widest">
               Admin

@@ -1,6 +1,6 @@
 import { test, expect, chromium } from '@playwright/test';
 
-const BASE = '/omena';
+const BASE = '/omenaa';
 const LOCALE = 'en';
 
 /**

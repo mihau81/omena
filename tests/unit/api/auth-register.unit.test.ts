@@ -231,7 +231,7 @@ describe('POST /api/auth/register', () => {
     expect(body.userId).toBe('new-user-1');
     expect(mockSendEmail).toHaveBeenCalledWith(
       'john@example.com',
-      expect.stringContaining('Verify'),
+      expect.stringContaining('Omenaa'),
       expect.any(String),
     );
     expect(mockCreateVerificationToken).toHaveBeenCalledWith(

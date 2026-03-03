@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * Generate SVG placeholder images for the Omena art auction site.
+ * Generate SVG placeholder images for the Omenaa art auction site.
  *
  * Usage:  node scripts/generate-placeholders.js
  *
@@ -18,7 +18,7 @@ const path = require("path");
 const PUBLIC = path.resolve(__dirname, "..", "public", "images");
 
 // ---------------------------------------------------------------------------
-// Omena colour palette
+// Omenaa colour palette
 // ---------------------------------------------------------------------------
 const C = {
   cream: "#faf8f4",
@@ -584,7 +584,7 @@ function generatePressSvg(name, index) {
 // ===========================================================================
 // MAIN
 // ===========================================================================
-console.log("Generating SVG placeholders for Omena...\n");
+console.log("Generating SVG placeholders for Omenaa...\n");
 
 // --- Lots ---
 console.log("Auction lot images:");

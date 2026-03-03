@@ -95,7 +95,7 @@ export default async function AuctionDetailPage({
   let auctionLots = result.lots.map((lotRow) =>
     mapDBLotToFrontend(lotRow, {
       auctionSlug: slug,
-      images: [lotRow.primaryImageUrl ?? lotRow.primaryThumbnailUrl ?? '/omena/images/auctions/lot-1.jpg'].filter(Boolean) as string[],
+      images: [lotRow.primaryImageUrl ?? lotRow.primaryThumbnailUrl ?? '/omenaa/images/auctions/lot-1.jpg'].filter(Boolean) as string[],
       currentBid: null,
     }),
   );

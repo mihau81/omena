@@ -439,7 +439,7 @@ export function generateConditionReportHTML(
   <!-- Header -->
   <div class="header">
     <div class="brand">
-      <div class="brand-name">OMENA</div>
+      <div class="brand-name">OMENAA</div>
       <div class="brand-tagline">Dom Aukcyjny</div>
     </div>
     <div class="doc-meta">
@@ -453,11 +453,11 @@ export function generateConditionReportHTML(
 
   <!-- Footer -->
   <div class="footer">
-    Omena Dom Aukcyjny &middot; ul. Przykładowa 1, 00-001 Warszawa<br>
+    Omenaa Dom Aukcyjny &middot; ul. Przykładowa 1, 00-001 Warszawa<br>
     NIP: 000-000-00-00 &middot; KRS: 0000000000<br>
-    Raport przygotowany przez Omena Dom Aukcyjny na podstawie bezpośredniej analizy obiektu.
+    Raport przygotowany przez Omenaa Dom Aukcyjny na podstawie bezpośredniej analizy obiektu.
     <div class="footer-disclaimer">
-      Niniejszy raport ma charakter wyłącznie informacyjny. Omena Dom Aukcyjny nie ponosi odpowiedzialności
+      Niniejszy raport ma charakter wyłącznie informacyjny. Omenaa Dom Aukcyjny nie ponosi odpowiedzialności
       za rozbieżności pomiędzy opisem a stanem faktycznym obiektu ustalanym po jego odbiorze przez nabywcę.
       Wszelkie uwagi dotyczące stanu zachowania należy zgłosić przed przystąpieniem do licytacji.
     </div>
@@ -492,7 +492,7 @@ export function generateBatchConditionReportHTML(
 <body>
   <div class="header">
     <div class="brand">
-      <div class="brand-name">OMENA</div>
+      <div class="brand-name">OMENAA</div>
       <div class="brand-tagline">Dom Aukcyjny</div>
     </div>
     <div class="doc-meta">
@@ -516,7 +516,7 @@ export function generateBatchConditionReportHTML(
     <!-- Per-page header -->
     <div class="header">
       <div class="brand">
-        <div class="brand-name">OMENA</div>
+        <div class="brand-name">OMENAA</div>
         <div class="brand-tagline">Dom Aukcyjny</div>
       </div>
       <div class="doc-meta">
@@ -530,11 +530,11 @@ export function generateBatchConditionReportHTML(
 
     <!-- Footer -->
     <div class="footer">
-      Omena Dom Aukcyjny &middot; ul. Przykładowa 1, 00-001 Warszawa<br>
+      Omenaa Dom Aukcyjny &middot; ul. Przykładowa 1, 00-001 Warszawa<br>
       NIP: 000-000-00-00 &middot; KRS: 0000000000<br>
-      Raport przygotowany przez Omena Dom Aukcyjny na podstawie bezpośredniej analizy obiektu.
+      Raport przygotowany przez Omenaa Dom Aukcyjny na podstawie bezpośredniej analizy obiektu.
       <div class="footer-disclaimer">
-        Niniejszy raport ma charakter wyłącznie informacyjny. Omena Dom Aukcyjny nie ponosi
+        Niniejszy raport ma charakter wyłącznie informacyjny. Omenaa Dom Aukcyjny nie ponosi
         odpowiedzialności za rozbieżności pomiędzy opisem a stanem faktycznym obiektu. Wszelkie
         uwagi dotyczące stanu zachowania należy zgłosić przed przystąpieniem do licytacji.
       </div>
@@ -561,7 +561,7 @@ export function generateBatchConditionReportHTML(
   <!-- Cover page -->
   <div class="header">
     <div class="brand">
-      <div class="brand-name">OMENA</div>
+      <div class="brand-name">OMENAA</div>
       <div class="brand-tagline">Dom Aukcyjny</div>
     </div>
     <div class="doc-meta">

@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test.use({ storageState: { cookies: [], origins: [] } });
 
-const BASE = '/omena';
+const BASE = '/omenaa';
 const LOCALE = 'en';
 
 test.describe('User registration', () => {
@@ -35,7 +35,7 @@ test.describe('User registration', () => {
     await page.waitForLoadState('networkidle');
 
     const timestamp = Date.now();
-    const testEmail = `newuser_${timestamp}@omena-e2e.test`;
+    const testEmail = `newuser_${timestamp}@omenaa-e2e.test`;
 
     await page.locator('#name').fill('New E2E User');
     await page.locator('#reg-email').fill(testEmail);
@@ -53,7 +53,7 @@ test.describe('User registration', () => {
     await page.waitForLoadState('networkidle');
 
     const timestamp = Date.now();
-    const testEmail = `newuser_pwd_${timestamp}@omena-e2e.test`;
+    const testEmail = `newuser_pwd_${timestamp}@omenaa-e2e.test`;
 
     await page.locator('#name').fill('User With Password');
     await page.locator('#reg-email').fill(testEmail);
@@ -69,7 +69,7 @@ test.describe('User registration', () => {
     await page.waitForLoadState('networkidle');
 
     // First registration
-    const email = `dup_${Date.now()}@omena-e2e.test`;
+    const email = `dup_${Date.now()}@omenaa-e2e.test`;
     await page.locator('#name').fill('First User');
     await page.locator('#reg-email').fill(email);
     await page.getByRole('button', { name: /create account/i }).click();
@@ -100,7 +100,7 @@ test.describe('User registration', () => {
     await page.goto(`${BASE}/${LOCALE}/register?invitation=TEST_TOKEN`);
     await page.waitForLoadState('networkidle');
 
-    await expect(page.getByText("You've been invited to Omena")).toBeVisible();
+    await expect(page.getByText("You've been invited to Omenaa")).toBeVisible();
   });
 
   test('sign in link navigates to login page', async ({ page }) => {

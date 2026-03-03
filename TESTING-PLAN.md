@@ -1,7 +1,7 @@
-# Plan: Kompleksowe testy E2E, integracyjne i jednostkowe dla Omena
+# Plan: Kompleksowe testy E2E, integracyjne i jednostkowe dla Omenaa
 
 ## Kontekst
-Projekt Omena (dom aukcyjny) przeszedł wiele zmian (CMS, basePath, auth, BidPanel, DB queries). Brak jakichkolwiek testów — zero plików testowych, zero frameworków. Potrzebujemy pełnego pokrycia testami, żeby wykrywać regresje po każdej zmianie.
+Projekt Omenaa (dom aukcyjny) przeszedł wiele zmian (CMS, basePath, auth, BidPanel, DB queries). Brak jakichkolwiek testów — zero plików testowych, zero frameworków. Potrzebujemy pełnego pokrycia testami, żeby wykrywać regresje po każdej zmianie.
 
 **Cel**: Zmapować wszystkie ścieżki użytkownika i admina, zbudować testy E2E (Playwright), integracyjne i jednostkowe (Vitest), zintegrować z CI.
 
@@ -18,8 +18,8 @@ vitest @vitest/coverage-v8 @testing-library/react @testing-library/jest-dom @tes
 | Plik | Opis |
 |------|------|
 | `vitest.config.ts` | Konfiguracja Vitest (jsdom dla komponentów, node dla API) |
-| `playwright.config.ts` | baseURL: `http://localhost:3002/omena`, chromium + mobile |
-| `.env.test` | DATABASE_URL z `omena_test`, mock Stripe keys, NEXTAUTH_SECRET |
+| `playwright.config.ts` | baseURL: `http://localhost:3002/omenaa`, chromium + mobile |
+| `.env.test` | DATABASE_URL z `omenaa_test`, mock Stripe keys, NEXTAUTH_SECRET |
 | `tests/setup.ts` | Global setup: `@testing-library/jest-dom`, mock next/navigation |
 | `tests/e2e/global-setup.ts` | Seed test DB, create test users |
 | `tests/e2e/auth.setup.ts` | Login admin + user, store auth state |
@@ -35,7 +35,7 @@ vitest @vitest/coverage-v8 @testing-library/react @testing-library/jest-dom @tes
 ```
 
 ### Test DB
-- Osobna baza `omena_test` na tym samym PostgreSQL
+- Osobna baza `omenaa_test` na tym samym PostgreSQL
 - Schema via `drizzle-kit push`, seed via `db/seed.ts`
 - Testy integracyjne w transakcjach z rollback
 
@@ -216,7 +216,7 @@ e2e-tests (after build) ┘
 
 ---
 
-## 7. Agent Team (`omena-testing`)
+## 7. Agent Team (`omenaa-testing`)
 
 | Agent | Model | Zadania | Zależy od |
 |-------|-------|---------|-----------|
@@ -256,7 +256,7 @@ e2e-tests (after build) ┘
 ## 9. Test Helpers — szczegóły
 
 ### `tests/helpers/db.ts`
-- `setupTestDb()` — weryfikacja połączenia z omena_test, migracje
+- `setupTestDb()` — weryfikacja połączenia z omenaa_test, migracje
 - `teardownTestDb()` — zamknięcie puli
 - `withTransaction(fn)` — BEGIN/ROLLBACK wrapper per test
 - `cleanTable(tableName)` — truncate między testami

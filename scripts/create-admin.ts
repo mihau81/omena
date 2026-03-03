@@ -3,7 +3,7 @@
  *
  * Usage:
  *   npx tsx scripts/create-admin.ts                          # interactive defaults
- *   npx tsx scripts/create-admin.ts --email admin@omena.pl --password Secret123 --role super_admin --name "Admin"
+ *   npx tsx scripts/create-admin.ts --email admin@omenaa.pl --password Secret123 --role super_admin --name "Admin"
  *
  * Requires DATABASE_URL in .env (or exported).
  */
@@ -31,8 +31,8 @@ async function main() {
     process.exit(1);
   }
 
-  const email = getArg('email', 'admin@omena.pl');
-  const password = getArg('password', 'Omena2026!');
+  const email = getArg('email', 'admin@omenaa.pl');
+  const password = getArg('password', 'Omenaa2026!');
   const role = getArg('role', 'super_admin') as AdminRole;
   const name = getArg('name', 'Administrator');
 

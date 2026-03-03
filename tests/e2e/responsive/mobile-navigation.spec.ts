@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-const BASE = '/omena';
+const BASE = '/omenaa';
 const LOCALE = 'en';
 
 // Force mobile viewport for these tests
@@ -81,8 +81,8 @@ test.describe('Mobile navigation', () => {
     expect(langBtnCount).toBeGreaterThan(0);
   });
 
-  test('OMENA logo is visible and clickable on mobile', async ({ page }) => {
-    const logo = page.locator('header a').filter({ hasText: 'OMENA' });
+  test('OMENAA logo is visible and clickable on mobile', async ({ page }) => {
+    const logo = page.locator('header a').filter({ hasText: 'OMENAA' });
     await expect(logo).toBeVisible();
     await logo.click();
     await page.waitForURL(`${BASE}/${LOCALE}`);

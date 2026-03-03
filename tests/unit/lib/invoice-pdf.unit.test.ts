@@ -44,7 +44,7 @@ import type { InvoiceWithDetails } from '@/lib/invoice-service';
 function makeInvoice(overrides: Partial<InvoiceWithDetails> = {}): InvoiceWithDetails {
   return {
     id: 'inv-001',
-    invoiceNumber: 'OMENA/2024/001',
+    invoiceNumber: 'OMENAA/2024/001',
     userId: 'user-1',
     auctionId: 'auction-1',
     lotId: 'lot-1',
@@ -74,7 +74,7 @@ function makeInvoice(overrides: Partial<InvoiceWithDetails> = {}): InvoiceWithDe
 
 function makeSettings(overrides: Partial<CompanySettings> = {}): CompanySettings {
   return {
-    company_name: 'Omena Dom Aukcyjny Sp. z o.o.',
+    company_name: 'Omenaa Dom Aukcyjny Sp. z o.o.',
     company_address: 'ul. Przykładowa 1',
     company_city: 'Warszawa',
     company_postal_code: '00-001',
@@ -520,18 +520,18 @@ describe('generateInvoiceHTML', () => {
     });
 
     it('includes the invoice number in the title', () => {
-      const html = generateInvoiceHTML(makeInvoice({ invoiceNumber: 'OMENA/2024/007' }));
-      expect(html).toContain('<title>Faktura OMENA/2024/007</title>');
+      const html = generateInvoiceHTML(makeInvoice({ invoiceNumber: 'OMENAA/2024/007' }));
+      expect(html).toContain('<title>Faktura OMENAA/2024/007</title>');
     });
 
     it('includes the invoice number in the meta block', () => {
-      const html = generateInvoiceHTML(makeInvoice({ invoiceNumber: 'OMENA/2024/042' }));
-      expect(html).toContain('OMENA/2024/042');
+      const html = generateInvoiceHTML(makeInvoice({ invoiceNumber: 'OMENAA/2024/042' }));
+      expect(html).toContain('OMENAA/2024/042');
     });
 
-    it('contains the brand name OMENA', () => {
+    it('contains the brand name OMENAA', () => {
       const html = generateInvoiceHTML(makeInvoice());
-      expect(html).toContain('OMENA');
+      expect(html).toContain('OMENAA');
       expect(html).toContain('Dom Aukcyjny');
     });
 
@@ -544,7 +544,7 @@ describe('generateInvoiceHTML', () => {
 
     it('includes the footer with company info', () => {
       const html = generateInvoiceHTML(makeInvoice());
-      expect(html).toContain('Omena Dom Aukcyjny');
+      expect(html).toContain('Omenaa Dom Aukcyjny');
       expect(html).toContain('NIP: 000-000-00-00');
       expect(html).toContain('KRS: 0000000000');
     });
@@ -816,7 +816,7 @@ describe('generateInvoiceHTML', () => {
 
     it('renders seller company name', () => {
       const html = generateInvoiceHTML(makeInvoice());
-      expect(html).toContain('Omena Dom Aukcyjny Sp. z o.o.');
+      expect(html).toContain('Omenaa Dom Aukcyjny Sp. z o.o.');
     });
   });
 
@@ -856,13 +856,13 @@ describe('generateInvoicePdf', () => {
   });
 
   it('includes invoice number in text calls', async () => {
-    await generateInvoicePdf(makeInvoice({ invoiceNumber: 'OMENA/2024/099' }), makeSettings());
-    expect(mockTextCalls).toContain('OMENA/2024/099');
+    await generateInvoicePdf(makeInvoice({ invoiceNumber: 'OMENAA/2024/099' }), makeSettings());
+    expect(mockTextCalls).toContain('OMENAA/2024/099');
   });
 
-  it('includes OMENA brand text', async () => {
+  it('includes OMENAA brand text', async () => {
     await generateInvoicePdf(makeInvoice(), makeSettings());
-    expect(mockTextCalls).toContain('OMENA');
+    expect(mockTextCalls).toContain('OMENAA');
   });
 
   it('includes FAKTURA VAT label', async () => {
@@ -994,15 +994,15 @@ describe('generateInvoicePdf', () => {
     expect(mockTextCalls).toContain('Opłata aukcyjna');
   });
 
-  it('defaults seller name to "Omena Dom Aukcyjny" when company_name is empty', async () => {
+  it('defaults seller name to "Omenaa Dom Aukcyjny" when company_name is empty', async () => {
     await generateInvoicePdf(makeInvoice(), makeSettings({ company_name: '' }));
-    expect(mockTextCalls).toContain('Omena Dom Aukcyjny');
+    expect(mockTextCalls).toContain('Omenaa Dom Aukcyjny');
   });
 
   it('uses provided company_name when set', async () => {
     await generateInvoicePdf(makeInvoice(), makeSettings({ company_name: 'Custom Company' }));
     expect(mockTextCalls).toContain('Custom Company');
-    expect(mockTextCalls).not.toContain('Omena Dom Aukcyjny');
+    expect(mockTextCalls).not.toContain('Omenaa Dom Aukcyjny');
   });
 
   it('includes dueDate when present', async () => {
@@ -1055,7 +1055,7 @@ describe('generateInvoicePdf', () => {
   it('footer omits NIP when company_nip is empty', async () => {
     await generateInvoicePdf(makeInvoice(), makeSettings({ company_nip: '' }));
     // Footer should only contain company name, no NIP
-    const footerText = mockTextCalls.find((t) => t.includes('Omena Dom Aukcyjny Sp. z o.o.') && !t.includes('NIP'));
+    const footerText = mockTextCalls.find((t) => t.includes('Omenaa Dom Aukcyjny Sp. z o.o.') && !t.includes('NIP'));
     expect(footerText).toBeDefined();
   });
 });

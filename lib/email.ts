@@ -41,7 +41,7 @@ export async function sendEmail(
     return false;
   }
 
-  const from = process.env.EMAIL_FROM || 'noreply@omena.pl';
+  const from = process.env.EMAIL_FROM || 'noreply@omenaa.pl';
 
   try {
     await transporter.sendMail({ from, to, subject, html });

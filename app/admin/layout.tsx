@@ -6,7 +6,7 @@ import AdminShell from './components/AdminShell';
 export const metadata: Metadata = {
   title: {
     default: 'Admin Panel',
-    template: '%s | Omena Admin',
+    template: '%s | Omenaa Admin',
   },
   robots: 'noindex, nofollow',
 };

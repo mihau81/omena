@@ -75,7 +75,7 @@ export default function AdminLoginPage() {
         {/* Brand */}
         <div className="text-center mb-8">
           <h1 className="text-3xl font-serif font-bold text-dark-brown tracking-wide">
-            OMENA
+            OMENAA
           </h1>
           <p className="text-sm text-taupe mt-1">Administration Panel</p>
         </div>
@@ -97,7 +97,7 @@ export default function AdminLoginPage() {
                 required
                 autoComplete="email"
                 className="w-full px-3 py-2.5 rounded-lg border border-beige bg-cream/30 text-dark-brown placeholder-taupe/50 focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold transition-colors"
-                placeholder="admin@omena.art"
+                placeholder="admin@omenaa.art"
               />
             </div>
 

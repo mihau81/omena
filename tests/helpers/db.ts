@@ -5,7 +5,7 @@ import * as schema from '@/db/schema';
 // Load test env
 import 'dotenv/config';
 
-const TEST_DATABASE_URL = process.env.DATABASE_URL ?? 'postgresql://omena:omena_dev@localhost:5432/omena_test';
+const TEST_DATABASE_URL = process.env.DATABASE_URL ?? 'postgresql://omenaa:omenaa_dev@localhost:5432/omenaa_test';
 
 let testPool: Pool | null = null;
 let testDb: ReturnType<typeof drizzle<typeof schema>> | null = null;

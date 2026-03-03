@@ -6,11 +6,11 @@ import { getTestDb } from '@/tests/helpers/db';
 
 const mockAuth = vi.hoisted(() => {
   const _g = globalThis as Record<string, unknown>;
-  if (!_g._omenaMockAuth) {
-    _g._omenaMockSession = null;
-    _g._omenaMockAuth = vi.fn().mockImplementation(async () => _g._omenaMockSession);
+  if (!_g._omenaaMockAuth) {
+    _g._omenaaMockSession = null;
+    _g._omenaaMockAuth = vi.fn().mockImplementation(async () => _g._omenaaMockSession);
   }
-  return _g._omenaMockAuth as ReturnType<typeof vi.fn>;
+  return _g._omenaaMockAuth as ReturnType<typeof vi.fn>;
 });
 
 vi.mock('@/lib/auth', () => ({
@@ -39,7 +39,7 @@ describe('GET /api/admin/users/pending-count', () => {
       role: 'super_admin',
     });
 
-    _g._omenaMockSession = {
+    _g._omenaaMockSession = {
       user: {
         id: admin.id,
         email: admin.email,
@@ -54,7 +54,7 @@ describe('GET /api/admin/users/pending-count', () => {
   afterAll(async () => {
     await db.execute(`DELETE FROM users WHERE email LIKE '${prefix}%@example.com'`);
     await db.execute(`DELETE FROM admins WHERE email LIKE '${prefix}%@example.com'`);
-    _g._omenaMockSession = null;
+    _g._omenaaMockSession = null;
   });
 
   it('returns count of pending_approval users', async () => {
@@ -84,7 +84,7 @@ describe('GET /api/admin/users/pending-count', () => {
   });
 
   it('returns 401 for unauthenticated request', async () => {
-    _g._omenaMockSession = null;
+    _g._omenaaMockSession = null;
     const { GET } = await import('@/app/api/admin/users/pending-count/route');
     const request = createRequest('GET', '/api/admin/users/pending-count');
     const { status } = await callRouteHandler(GET, request);

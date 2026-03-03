@@ -201,7 +201,7 @@ function ResultCard({
   estimateLabel: string;
   lotLabel: string;
 }) {
-  const imageUrl = lot.primaryImageUrl ?? lot.primaryThumbnailUrl ?? '/omena/images/auctions/lot-1.jpg';
+  const imageUrl = lot.primaryImageUrl ?? lot.primaryThumbnailUrl ?? '/omenaa/images/auctions/lot-1.jpg';
   const saleDate = new Date(lot.auctionEndDate).toLocaleDateString(locale === 'pl' ? 'pl-PL' : 'en-GB', {
     year: 'numeric',
     month: 'short',

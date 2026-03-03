@@ -15,7 +15,7 @@ export default async function PayPage({ params }: Props) {
   // Require authenticated user
   const session = await auth();
   if (!session?.user) {
-    redirect(`/${locale}/login?next=/omena/${locale}/pay/${invoiceId}`);
+    redirect(`/${locale}/login?next=/omenaa/${locale}/pay/${invoiceId}`);
   }
 
   const user = session.user;

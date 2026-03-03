@@ -32,7 +32,7 @@ async function seed() {
   const [admin] = await db
     .insert(admins)
     .values({
-      email: 'admin@omena.pl',
+      email: 'admin@omenaa.pl',
       passwordHash: adminPassword,
       name: 'Admin',
       role: 'super_admin',
@@ -42,9 +42,9 @@ async function seed() {
     .returning();
 
   if (admin) {
-    console.log(`✅ Admin created: admin@omena.pl / admin123`);
+    console.log(`✅ Admin created: admin@omenaa.pl / admin123`);
   } else {
-    console.log(`ℹ️  Admin already exists: admin@omena.pl`);
+    console.log(`ℹ️  Admin already exists: admin@omenaa.pl`);
   }
 
   // 2. Insert auctions
@@ -147,7 +147,7 @@ async function seed() {
   }
 
   console.log(`\n✅ Seeded ${auctionIdMap.size} auctions, ${lotCount} lots`);
-  console.log('\n🔑 Admin login: admin@omena.pl / admin123');
+  console.log('\n🔑 Admin login: admin@omenaa.pl / admin123');
   console.log('   Admin panel: /admin/login\n');
 
   process.exit(0);

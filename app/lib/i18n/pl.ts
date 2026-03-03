@@ -1,7 +1,7 @@
 export const pl = {
   // Meta
-  metaTitle: 'Omena — Aukcje Dzieł Sztuki',
-  metaDescription: 'Omena — profesjonalny dom aukcyjny dzieł sztuki. Odkryj wyjątkowe obrazy, rzeźby i obiekty kolekcjonerskie od najwybitniejszych artystów.',
+  metaTitle: 'Omenaa — Aukcje Dzieł Sztuki',
+  metaDescription: 'Omenaa — profesjonalny dom aukcyjny dzieł sztuki. Odkryj wyjątkowe obrazy, rzeźby i obiekty kolekcjonerskie od najwybitniejszych artystów.',
 
   // Navigation
   navHome: 'Strona główna',
@@ -54,7 +54,7 @@ export const pl = {
   countdownSeconds: 'Sek',
 
   // Home page
-  heroTitle: 'OMENA',
+  heroTitle: 'OMENAA',
   heroSubtitle: 'Dom Aukcyjny Dzieł Sztuki',
   heroDescription: 'Odkryj wyjątkowe dzieła polskich i europejskich artystów. Licytuj online lub na żywo w naszym warszawskim domu aukcyjnym.',
   heroCTA: 'Przeglądaj aukcje',
@@ -73,7 +73,7 @@ export const pl = {
 
   // About page
   aboutTitle: 'O nas',
-  aboutMission1: 'Omena to renomowany dom aukcyjny z siedzibą w Warszawie, specjalizujący się w sztuce polskiej i europejskiej XX oraz XXI wieku. Od momentu założenia naszą misją jest budowanie mostów między artystami, kolekcjonerami i miłośnikami sztuki — tworząc przestrzeń, w której wybitne dzieła znajdują swoich nowych opiekunów.',
+  aboutMission1: 'Omenaa to renomowany dom aukcyjny z siedzibą w Warszawie, specjalizujący się w sztuce polskiej i europejskiej XX oraz XXI wieku. Od momentu założenia naszą misją jest budowanie mostów między artystami, kolekcjonerami i miłośnikami sztuki — tworząc przestrzeń, w której wybitne dzieła znajdują swoich nowych opiekunów.',
   aboutMission2: 'Wierzymy, że sztuka ma moc inspirowania, edukowania i jednoczenia ludzi. Dlatego każda nasza aukcja to nie tylko wydarzenie handlowe, ale również kulturalne — starannie kuratorowane, oparte na głębokiej wiedzy eksperckiej i prowadzone z najwyższym szacunkiem dla artystów i ich dzieł.',
   aboutTeamTitle: 'Nasz zespół',
   aboutValuesTitle: 'Nasze wartości',
@@ -171,10 +171,10 @@ export const pl = {
   currencyDisclaimer: 'Ceny podane w PLN. Przeliczenia na inne waluty mają charakter orientacyjny (kurs średni NBP).',
 
   // Footer
-  footerDescription: 'Omena to renomowany dom aukcyjny specjalizujący się w sztuce współczesnej i klasycznej. Od lat łączymy kolekcjonerów z wyjątkowymi dziełami najwybitniejszych artystów z Polski i świata.',
+  footerDescription: 'Omenaa to renomowany dom aukcyjny specjalizujący się w sztuce współczesnej i klasycznej. Od lat łączymy kolekcjonerów z wyjątkowymi dziełami najwybitniejszych artystów z Polski i świata.',
   footerNav: 'Nawigacja',
   footerContact: 'Kontakt',
-  footerRights: '© 2026 Omena. Wszelkie prawa zastrzeżone.',
+  footerRights: '© 2026 Omenaa. Wszelkie prawa zastrzeżone.',
 
   // Auctions page
   auctionsTitle: 'Aukcje',
@@ -236,7 +236,7 @@ export const pl = {
 
   // Results page
   resultsTitle: 'Wyniki aukcji',
-  resultsSubtitle: 'Baza cen uzyskanych na aukcjach Omena',
+  resultsSubtitle: 'Baza cen uzyskanych na aukcjach Omenaa',
   resultsSoldFor: 'Sprzedano za',
   resultsNoResults: 'Brak wyników spełniających kryteria',
   resultsFilterAuction: 'Aukcja',

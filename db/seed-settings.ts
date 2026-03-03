@@ -10,7 +10,7 @@ const DEFAULT_SETTINGS = [
   // ─── Company ──────────────────────────────────────────────────────────────
   {
     key: 'company_name',
-    value: 'Omena Auctions',
+    value: 'Omenaa Auctions',
     category: 'company',
     label: 'Company Name',
     description: 'The official name of the auction house.',
@@ -112,7 +112,7 @@ const DEFAULT_SETTINGS = [
   },
   {
     key: 'email_from_name',
-    value: 'Omena Auctions',
+    value: 'Omenaa Auctions',
     category: 'email',
     label: 'From Name',
     description: 'The display name used when sending emails.',

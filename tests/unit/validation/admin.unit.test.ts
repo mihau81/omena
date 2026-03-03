@@ -3,7 +3,7 @@ import { createAdminSchema, updateAdminSchema, changePasswordSchema } from '@/li
 
 describe('createAdminSchema', () => {
   const VALID_ADMIN = {
-    email: 'admin@omena.pl',
+    email: 'admin@omenaa.pl',
     name: 'Jan Nowak',
     password: 'securepassword123',
   };

@@ -5,11 +5,11 @@ import { createTestUser } from '@/tests/helpers/auth';
 
 const mockAuth = vi.hoisted(() => {
   const _g = globalThis as Record<string, unknown>;
-  if (!_g._omenaMockAuth) {
-    _g._omenaMockSession = null;
-    _g._omenaMockAuth = vi.fn().mockImplementation(async () => _g._omenaMockSession);
+  if (!_g._omenaaMockAuth) {
+    _g._omenaaMockSession = null;
+    _g._omenaaMockAuth = vi.fn().mockImplementation(async () => _g._omenaaMockSession);
   }
-  return _g._omenaMockAuth as ReturnType<typeof vi.fn>;
+  return _g._omenaaMockAuth as ReturnType<typeof vi.fn>;
 });
 
 vi.mock('@/lib/auth', () => ({
@@ -81,7 +81,7 @@ describe('POST /api/payments/create-intent', () => {
     invoiceId = randomUUID();
     await db.insert(invoices).values({
       id: invoiceId,
-      invoiceNumber: `OMENA/2026/001-${Date.now()}`,
+      invoiceNumber: `OMENAA/2026/001-${Date.now()}`,
       userId: user.id,
       auctionId,
       lotId,
@@ -106,7 +106,7 @@ describe('POST /api/payments/create-intent', () => {
 
   it('creates payment intent for valid invoice', async () => {
     const { POST } = await import('@/app/api/payments/create-intent/route');
-    (globalThis as any)._omenaMockSession = { user: { id: user.id, email: user.email, name: user.name, userType: 'user', visibilityLevel: 0, role: null } };
+    (globalThis as any)._omenaaMockSession = { user: { id: user.id, email: user.email, name: user.name, userType: 'user', visibilityLevel: 0, role: null } };
 
     const request = createRequest('POST', '/api/payments/create-intent', { invoiceId });
     const { status, data } = await callRouteHandler(POST, request);
@@ -119,7 +119,7 @@ describe('POST /api/payments/create-intent', () => {
 
   it('returns 401 when unauthenticated', async () => {
     const { POST } = await import('@/app/api/payments/create-intent/route');
-    (globalThis as any)._omenaMockSession = null;
+    (globalThis as any)._omenaaMockSession = null;
 
     const request = createRequest('POST', '/api/payments/create-intent', { invoiceId });
     const { status } = await callRouteHandler(POST, request);
@@ -130,7 +130,7 @@ describe('POST /api/payments/create-intent', () => {
   it('returns 404 for non-existent invoice', async () => {
     const { POST } = await import('@/app/api/payments/create-intent/route');
     const { randomUUID } = await import('crypto');
-    (globalThis as any)._omenaMockSession = { user: { id: user.id, email: user.email, name: user.name, userType: 'user', visibilityLevel: 0, role: null } };
+    (globalThis as any)._omenaaMockSession = { user: { id: user.id, email: user.email, name: user.name, userType: 'user', visibilityLevel: 0, role: null } };
 
     const request = createRequest('POST', '/api/payments/create-intent', { invoiceId: randomUUID() });
     const { status, data } = await callRouteHandler(POST, request);
@@ -147,7 +147,7 @@ describe('POST /api/payments/create-intent', () => {
     const paidInvoiceId = randomUUID();
     await db.insert(invoices).values({
       id: paidInvoiceId,
-      invoiceNumber: `OMENA/2026/PAID-${Date.now()}`,
+      invoiceNumber: `OMENAA/2026/PAID-${Date.now()}`,
       userId: user.id,
       auctionId,
       lotId,
@@ -159,7 +159,7 @@ describe('POST /api/payments/create-intent', () => {
       dueDate: new Date(Date.now() + 14 * 24 * 3600000),
     });
 
-    (globalThis as any)._omenaMockSession = { user: { id: user.id, email: user.email, name: user.name, userType: 'user', visibilityLevel: 0, role: null } };
+    (globalThis as any)._omenaaMockSession = { user: { id: user.id, email: user.email, name: user.name, userType: 'user', visibilityLevel: 0, role: null } };
 
     const request = createRequest('POST', '/api/payments/create-intent', { invoiceId: paidInvoiceId });
     const { status, data } = await callRouteHandler(POST, request);
@@ -173,7 +173,7 @@ describe('POST /api/payments/create-intent', () => {
 
   it('returns 400 when invoiceId is missing', async () => {
     const { POST } = await import('@/app/api/payments/create-intent/route');
-    (globalThis as any)._omenaMockSession = { user: { id: user.id, email: user.email, name: user.name, userType: 'user', visibilityLevel: 0, role: null } };
+    (globalThis as any)._omenaaMockSession = { user: { id: user.id, email: user.email, name: user.name, userType: 'user', visibilityLevel: 0, role: null } };
 
     const request = createRequest('POST', '/api/payments/create-intent', {});
     const { status, data } = await callRouteHandler(POST, request);

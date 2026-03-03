@@ -36,9 +36,9 @@ describe('generateTOTPSecret', () => {
     expect(uri).toContain(encodeURIComponent(email));
   });
 
-  it('uri contains issuer Omena CMS', () => {
+  it('uri contains issuer Omenaa CMS', () => {
     const { uri } = generateTOTPSecret('user@example.com');
-    expect(uri).toContain('Omena%20CMS');
+    expect(uri).toContain('Omenaa%20CMS');
   });
 
   it('generates unique secrets on each call', () => {
@@ -60,7 +60,7 @@ describe('verifyTOTP', () => {
   it('returns true for a valid current token', () => {
     const { secret } = generateTOTPSecret('user@example.com');
     const totp = new OTPAuth.TOTP({
-      issuer: 'Omena CMS',
+      issuer: 'Omenaa CMS',
       algorithm: 'SHA1',
       digits: 6,
       period: 30,
@@ -98,7 +98,7 @@ describe('verifyTOTP', () => {
     const { secret: secret1 } = generateTOTPSecret('user1@example.com');
     const { secret: secret2 } = generateTOTPSecret('user2@example.com');
     const totp = new OTPAuth.TOTP({
-      issuer: 'Omena CMS',
+      issuer: 'Omenaa CMS',
       algorithm: 'SHA1',
       digits: 6,
       period: 30,

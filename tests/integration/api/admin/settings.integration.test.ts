@@ -5,11 +5,11 @@ import { createTestAdmin } from '@/tests/helpers/auth';
 
 const mockAuth = vi.hoisted(() => {
   const _g = globalThis as Record<string, unknown>;
-  if (!_g._omenaMockAuth) {
-    _g._omenaMockSession = null;
-    _g._omenaMockAuth = vi.fn().mockImplementation(async () => _g._omenaMockSession);
+  if (!_g._omenaaMockAuth) {
+    _g._omenaaMockSession = null;
+    _g._omenaaMockAuth = vi.fn().mockImplementation(async () => _g._omenaaMockSession);
   }
-  return _g._omenaMockAuth as ReturnType<typeof vi.fn>;
+  return _g._omenaaMockAuth as ReturnType<typeof vi.fn>;
 });
 
 vi.mock('@/lib/auth', () => ({
@@ -33,7 +33,7 @@ describe('Admin Settings API', () => {
 
   beforeAll(async () => {
     admin = await createTestAdmin({ email: `admin-settings-test-${Date.now()}@example.com`, role: 'super_admin' });
-    (globalThis as any)._omenaMockSession = {
+    (globalThis as any)._omenaaMockSession = {
       user: {
         id: admin.id,
         email: admin.email,
@@ -90,7 +90,7 @@ describe('Admin Settings API', () => {
 
     it('returns 401 when unauthenticated', async () => {
       const { GET } = await import('@/app/api/admin/settings/route');
-      (globalThis as any)._omenaMockSession = null;
+      (globalThis as any)._omenaaMockSession = null;
 
       const request = createRequest('GET', '/api/admin/settings');
       const { status } = await callRouteHandler(GET, request);
@@ -98,7 +98,7 @@ describe('Admin Settings API', () => {
       expect(status).toBe(401);
 
       // Restore session
-      (globalThis as any)._omenaMockSession = {
+      (globalThis as any)._omenaaMockSession = {
         user: {
           id: admin.id,
           email: admin.email,
@@ -112,7 +112,7 @@ describe('Admin Settings API', () => {
 
     it('returns 403 for non-admin users', async () => {
       const { GET } = await import('@/app/api/admin/settings/route');
-      (globalThis as any)._omenaMockSession = {
+      (globalThis as any)._omenaaMockSession = {
         user: { id: 'user-id', email: 'user@example.com', role: null, name: 'User', userType: 'user', visibilityLevel: 0 },
       };
 
@@ -122,7 +122,7 @@ describe('Admin Settings API', () => {
       expect(status).toBe(403);
 
       // Restore admin session
-      (globalThis as any)._omenaMockSession = {
+      (globalThis as any)._omenaaMockSession = {
         user: {
           id: admin.id,
           email: admin.email,
@@ -195,7 +195,7 @@ describe('Admin Settings API', () => {
 
     it('returns 401 when unauthenticated', async () => {
       const { PATCH } = await import('@/app/api/admin/settings/route');
-      (globalThis as any)._omenaMockSession = null;
+      (globalThis as any)._omenaaMockSession = null;
 
       const request = createRequest('PATCH', '/api/admin/settings', { key: 'value' });
       const { status } = await callRouteHandler(PATCH, request);
@@ -203,7 +203,7 @@ describe('Admin Settings API', () => {
       expect(status).toBe(401);
 
       // Restore session
-      (globalThis as any)._omenaMockSession = {
+      (globalThis as any)._omenaaMockSession = {
         user: {
           id: admin.id,
           email: admin.email,
@@ -217,7 +217,7 @@ describe('Admin Settings API', () => {
 
     it('returns 403 for non-admin users', async () => {
       const { PATCH } = await import('@/app/api/admin/settings/route');
-      (globalThis as any)._omenaMockSession = {
+      (globalThis as any)._omenaaMockSession = {
         user: { id: 'user-id', email: 'user@example.com', role: null, name: 'User', userType: 'user', visibilityLevel: 0 },
       };
 
@@ -227,7 +227,7 @@ describe('Admin Settings API', () => {
       expect(status).toBe(403);
 
       // Restore admin session
-      (globalThis as any)._omenaMockSession = {
+      (globalThis as any)._omenaaMockSession = {
         user: {
           id: admin.id,
           email: admin.email,

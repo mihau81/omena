@@ -102,7 +102,7 @@ export default async function LotDetailPage({
   const conditionMedia = mediaItems.filter((m: { mediaType: string }) => m.mediaType === 'condition');
   const images = mainMedia.length > 0
     ? mainMedia.map((m: { url: string }) => m.url)
-    : ['/omena/images/auctions/lot-1.jpg'];
+    : ['/omenaa/images/auctions/lot-1.jpg'];
 
   const lot = mapDBLotToFrontend(lotRow, {
     auctionSlug: slug,

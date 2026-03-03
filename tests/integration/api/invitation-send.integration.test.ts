@@ -6,11 +6,11 @@ import { getTestDb } from '@/tests/helpers/db';
 
 const mockAuth = vi.hoisted(() => {
   const _g = globalThis as Record<string, unknown>;
-  if (!_g._omenaMockAuth) {
-    _g._omenaMockSession = null;
-    _g._omenaMockAuth = vi.fn().mockImplementation(async () => _g._omenaMockSession);
+  if (!_g._omenaaMockAuth) {
+    _g._omenaaMockSession = null;
+    _g._omenaaMockAuth = vi.fn().mockImplementation(async () => _g._omenaaMockSession);
   }
-  return _g._omenaMockAuth as ReturnType<typeof vi.fn>;
+  return _g._omenaaMockAuth as ReturnType<typeof vi.fn>;
 });
 
 vi.mock('@/lib/auth', () => ({
@@ -49,7 +49,7 @@ describe('POST /api/auth/register/invitation-send', () => {
       accountStatus: 'approved',
     });
 
-    _g._omenaMockSession = {
+    _g._omenaaMockSession = {
       user: {
         id: user.id,
         email: user.email,
@@ -64,7 +64,7 @@ describe('POST /api/auth/register/invitation-send', () => {
   afterAll(async () => {
     await db.execute(`DELETE FROM users WHERE email LIKE '${prefix}%@example.com'`);
     await db.execute(`DELETE FROM user_invitations WHERE invited_email LIKE '${prefix}%@example.com'`);
-    _g._omenaMockSession = null;
+    _g._omenaaMockSession = null;
   });
 
   it('sends invitation successfully', async () => {
@@ -133,7 +133,7 @@ describe('POST /api/auth/register/invitation-send', () => {
   });
 
   it('returns 401 for unauthenticated request', async () => {
-    _g._omenaMockSession = null;
+    _g._omenaaMockSession = null;
     const { POST } = await import('@/app/api/auth/register/invitation-send/route');
 
     const request = createRequest('POST', '/api/auth/register/invitation-send', {

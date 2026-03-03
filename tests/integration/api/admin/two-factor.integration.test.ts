@@ -4,11 +4,11 @@ import { createTestAdmin } from '@/tests/helpers/auth';
 
 const mockAuth = vi.hoisted(() => {
   const _g = globalThis as Record<string, unknown>;
-  if (!_g._omenaMockAuth) {
-    _g._omenaMockSession = null;
-    _g._omenaMockAuth = vi.fn().mockImplementation(async () => _g._omenaMockSession);
+  if (!_g._omenaaMockAuth) {
+    _g._omenaaMockSession = null;
+    _g._omenaaMockAuth = vi.fn().mockImplementation(async () => _g._omenaaMockSession);
   }
-  return _g._omenaMockAuth as ReturnType<typeof vi.fn>;
+  return _g._omenaaMockAuth as ReturnType<typeof vi.fn>;
 });
 
 vi.mock('@/lib/auth', () => ({
@@ -30,7 +30,7 @@ describe('Admin Two-Factor Authentication (TOTP)', () => {
 
   beforeAll(async () => {
     admin = await createTestAdmin({ email: `admin-2fa-test-${Date.now()}@example.com` });
-    (globalThis as any)._omenaMockSession = { user: { id: admin.id, email: admin.email, role: admin.role, name: admin.name, userType: 'admin', visibilityLevel: 2 } };
+    (globalThis as any)._omenaaMockSession = { user: { id: admin.id, email: admin.email, role: admin.role, name: admin.name, userType: 'admin', visibilityLevel: 2 } };
   });
 
   afterAll(async () => {
@@ -69,14 +69,14 @@ describe('Admin Two-Factor Authentication (TOTP)', () => {
     it('returns 401 when unauthenticated', async () => {
       const { POST } = await import('@/app/api/admin/2fa/setup/route');
 
-      (globalThis as any)._omenaMockSession = null;
+      (globalThis as any)._omenaaMockSession = null;
 
       const response = await POST(new Request('http://localhost:3002/api/admin/2fa/setup', {
         method: 'POST',
       }));
 
       expect(response.status).toBe(401);
-      (globalThis as any)._omenaMockSession = { user: { id: admin.id, email: admin.email, role: admin.role, name: admin.name, userType: 'admin', visibilityLevel: 2 } };
+      (globalThis as any)._omenaaMockSession = { user: { id: admin.id, email: admin.email, role: admin.role, name: admin.name, userType: 'admin', visibilityLevel: 2 } };
     });
   });
 
@@ -122,7 +122,7 @@ describe('Admin Two-Factor Authentication (TOTP)', () => {
 
       // Generate a valid current TOTP token
       const totp = new OTPAuth.TOTP({
-        issuer: 'Omena CMS',
+        issuer: 'Omenaa CMS',
         algorithm: 'SHA1',
         digits: 6,
         period: 30,

@@ -2,8 +2,8 @@ import type { Dictionary } from './index';
 
 export const en: Dictionary = {
   // Meta
-  metaTitle: 'Omena — Fine Art Auctions',
-  metaDescription: 'Omena — a distinguished auction house for fine art. Discover exceptional paintings, sculptures and collectibles from the most acclaimed artists.',
+  metaTitle: 'Omenaa — Fine Art Auctions',
+  metaDescription: 'Omenaa — a distinguished auction house for fine art. Discover exceptional paintings, sculptures and collectibles from the most acclaimed artists.',
 
   // Navigation
   navHome: 'Home',
@@ -56,7 +56,7 @@ export const en: Dictionary = {
   countdownSeconds: 'Sec',
 
   // Home page
-  heroTitle: 'OMENA',
+  heroTitle: 'OMENAA',
   heroSubtitle: 'Fine Art Auction House',
   heroDescription: 'Discover exceptional works by Polish and European artists. Bid online or in person at our Warsaw auction house.',
   heroCTA: 'Browse auctions',
@@ -75,7 +75,7 @@ export const en: Dictionary = {
 
   // About page
   aboutTitle: 'About us',
-  aboutMission1: 'Omena is a distinguished auction house based in Warsaw, specialising in 20th and 21st century Polish and European art. Since our founding, our mission has been to build bridges between artists, collectors and art enthusiasts — creating a space where exceptional works find their new custodians.',
+  aboutMission1: 'Omenaa is a distinguished auction house based in Warsaw, specialising in 20th and 21st century Polish and European art. Since our founding, our mission has been to build bridges between artists, collectors and art enthusiasts — creating a space where exceptional works find their new custodians.',
   aboutMission2: 'We believe art has the power to inspire, educate and unite people. That is why every auction we hold is not just a commercial event but a cultural one — carefully curated, grounded in deep expertise and conducted with the utmost respect for artists and their work.',
   aboutTeamTitle: 'Our team',
   aboutValuesTitle: 'Our values',
@@ -173,10 +173,10 @@ export const en: Dictionary = {
   currencyDisclaimer: 'Prices are in PLN. Conversions to other currencies are approximate (NBP mid-rate).',
 
   // Footer
-  footerDescription: 'Omena is a distinguished auction house specialising in contemporary and classical art. For years we have been connecting collectors with exceptional works by the most acclaimed artists from Poland and around the world.',
+  footerDescription: 'Omenaa is a distinguished auction house specialising in contemporary and classical art. For years we have been connecting collectors with exceptional works by the most acclaimed artists from Poland and around the world.',
   footerNav: 'Navigation',
   footerContact: 'Contact',
-  footerRights: '© 2026 Omena. All rights reserved.',
+  footerRights: '© 2026 Omenaa. All rights reserved.',
 
   // Auctions page
   auctionsTitle: 'Auctions',
@@ -238,7 +238,7 @@ export const en: Dictionary = {
 
   // Results page
   resultsTitle: 'Auction Results',
-  resultsSubtitle: 'Price database from Omena auctions',
+  resultsSubtitle: 'Price database from Omenaa auctions',
   resultsSoldFor: 'Sold for',
   resultsNoResults: 'No results matching your criteria',
   resultsFilterAuction: 'Auction',

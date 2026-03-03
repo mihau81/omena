@@ -7,17 +7,17 @@
 // In CI, DATABASE_URL is already set to the postgres service container — don't override it.
 import 'dotenv/config';
 if (!process.env.CI) {
-  process.env.DATABASE_URL = 'postgresql://omena:omena_dev@localhost:5432/omena_test';
+  process.env.DATABASE_URL = 'postgresql://omenaa:omenaa_dev@localhost:5432/omenaa_test';
 }
 
 // Reset global auth mock state between test files to ensure isolation.
-const _g = globalThis as { _omenaMockAuth?: { mockReset: () => void; mockResolvedValue: (v: unknown) => void }; _omenaMockSession?: unknown };
-if (_g._omenaMockAuth) {
-  _g._omenaMockAuth.mockReset();
-  _g._omenaMockAuth.mockResolvedValue(null);
-  _g._omenaMockSession = null;
+const _g = globalThis as { _omenaaMockAuth?: { mockReset: () => void; mockResolvedValue: (v: unknown) => void }; _omenaaMockSession?: unknown };
+if (_g._omenaaMockAuth) {
+  _g._omenaaMockAuth.mockReset();
+  _g._omenaaMockAuth.mockResolvedValue(null);
+  _g._omenaaMockSession = null;
 } else {
   // Clear so a fresh vi.fn() is created when next-auth mock loads
-  _g._omenaMockAuth = undefined;
-  _g._omenaMockSession = null;
+  _g._omenaaMockAuth = undefined;
+  _g._omenaaMockSession = null;
 }

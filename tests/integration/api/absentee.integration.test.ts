@@ -5,11 +5,11 @@ import { createTestUser } from '@/tests/helpers/auth';
 
 const mockAuth = vi.hoisted(() => {
   const _g = globalThis as Record<string, unknown>;
-  if (!_g._omenaMockAuth) {
-    _g._omenaMockSession = null;
-    _g._omenaMockAuth = vi.fn().mockImplementation(async () => _g._omenaMockSession);
+  if (!_g._omenaaMockAuth) {
+    _g._omenaaMockSession = null;
+    _g._omenaaMockAuth = vi.fn().mockImplementation(async () => _g._omenaaMockSession);
   }
-  return _g._omenaMockAuth as ReturnType<typeof vi.fn>;
+  return _g._omenaaMockAuth as ReturnType<typeof vi.fn>;
 });
 
 vi.mock('@/lib/auth', () => ({
@@ -95,7 +95,7 @@ describe('Absentee Bids /api/lots/[id]/absentee', () => {
 
   it('creates an absentee bid successfully', async () => {
     const { POST } = await import('@/app/api/lots/[id]/absentee/route');
-    (globalThis as any)._omenaMockSession = { user: { id: user.id, email: user.email, name: user.name, userType: 'user', visibilityLevel: 0, role: null } };
+    (globalThis as any)._omenaaMockSession = { user: { id: user.id, email: user.email, name: user.name, userType: 'user', visibilityLevel: 0, role: null } };
 
     const request = createRequest('POST', `/api/lots/${lotId}/absentee`, { maxAmount: 5000 });
     const { status, data } = await callRouteHandler(POST, request, { params: Promise.resolve({ id: lotId }) });
@@ -107,7 +107,7 @@ describe('Absentee Bids /api/lots/[id]/absentee', () => {
 
   it('returns hasAbsenteeBid:true when user has an absentee bid', async () => {
     const { GET } = await import('@/app/api/lots/[id]/absentee/route');
-    (globalThis as any)._omenaMockSession = { user: { id: user.id, email: user.email, name: user.name, userType: 'user', visibilityLevel: 0, role: null } };
+    (globalThis as any)._omenaaMockSession = { user: { id: user.id, email: user.email, name: user.name, userType: 'user', visibilityLevel: 0, role: null } };
 
     const request = createRequest('GET', `/api/lots/${lotId}/absentee`);
     const { status, data } = await callRouteHandler(GET, request, { params: Promise.resolve({ id: lotId }) });
@@ -118,7 +118,7 @@ describe('Absentee Bids /api/lots/[id]/absentee', () => {
 
   it('updates absentee bid when called again with new maxAmount', async () => {
     const { POST } = await import('@/app/api/lots/[id]/absentee/route');
-    (globalThis as any)._omenaMockSession = { user: { id: user.id, email: user.email, name: user.name, userType: 'user', visibilityLevel: 0, role: null } };
+    (globalThis as any)._omenaaMockSession = { user: { id: user.id, email: user.email, name: user.name, userType: 'user', visibilityLevel: 0, role: null } };
 
     const request = createRequest('POST', `/api/lots/${lotId}/absentee`, { maxAmount: 8000 });
     const { status, data } = await callRouteHandler(POST, request, { params: Promise.resolve({ id: lotId }) });
@@ -129,7 +129,7 @@ describe('Absentee Bids /api/lots/[id]/absentee', () => {
 
   it('cancels an absentee bid', async () => {
     const { DELETE } = await import('@/app/api/lots/[id]/absentee/route');
-    (globalThis as any)._omenaMockSession = { user: { id: user.id, email: user.email, name: user.name, userType: 'user', visibilityLevel: 0, role: null } };
+    (globalThis as any)._omenaaMockSession = { user: { id: user.id, email: user.email, name: user.name, userType: 'user', visibilityLevel: 0, role: null } };
 
     const request = createRequest('DELETE', `/api/lots/${lotId}/absentee`);
     const { status, data } = await callRouteHandler(DELETE, request, { params: Promise.resolve({ id: lotId }) });
@@ -140,7 +140,7 @@ describe('Absentee Bids /api/lots/[id]/absentee', () => {
 
   it('returns hasAbsenteeBid:false after cancellation', async () => {
     const { GET } = await import('@/app/api/lots/[id]/absentee/route');
-    (globalThis as any)._omenaMockSession = { user: { id: user.id, email: user.email, name: user.name, userType: 'user', visibilityLevel: 0, role: null } };
+    (globalThis as any)._omenaaMockSession = { user: { id: user.id, email: user.email, name: user.name, userType: 'user', visibilityLevel: 0, role: null } };
 
     const request = createRequest('GET', `/api/lots/${lotId}/absentee`);
     const { status, data } = await callRouteHandler(GET, request, { params: Promise.resolve({ id: lotId }) });
@@ -151,7 +151,7 @@ describe('Absentee Bids /api/lots/[id]/absentee', () => {
 
   it('returns 401 for unauthenticated POST', async () => {
     const { POST } = await import('@/app/api/lots/[id]/absentee/route');
-    (globalThis as any)._omenaMockSession = null;
+    (globalThis as any)._omenaaMockSession = null;
 
     const request = createRequest('POST', `/api/lots/${lotId}/absentee`, { maxAmount: 5000 });
     const { status } = await callRouteHandler(POST, request, { params: Promise.resolve({ id: lotId }) });
@@ -161,7 +161,7 @@ describe('Absentee Bids /api/lots/[id]/absentee', () => {
 
   it('returns error for amount below minimum', async () => {
     const { POST } = await import('@/app/api/lots/[id]/absentee/route');
-    (globalThis as any)._omenaMockSession = { user: { id: user.id, email: user.email, name: user.name, userType: 'user', visibilityLevel: 0, role: null } };
+    (globalThis as any)._omenaaMockSession = { user: { id: user.id, email: user.email, name: user.name, userType: 'user', visibilityLevel: 0, role: null } };
 
     const request = createRequest('POST', `/api/lots/${lotId}/absentee`, { maxAmount: 1 });
     const { status } = await callRouteHandler(POST, request, { params: Promise.resolve({ id: lotId }) });

@@ -4,11 +4,11 @@ import { createTestAdmin, createTestUser } from '@/tests/helpers/auth';
 
 const mockAuth = vi.hoisted(() => {
   const _g = globalThis as Record<string, unknown>;
-  if (!_g._omenaMockAuth) {
-    _g._omenaMockSession = null;
-    _g._omenaMockAuth = vi.fn().mockImplementation(async () => _g._omenaMockSession);
+  if (!_g._omenaaMockAuth) {
+    _g._omenaaMockSession = null;
+    _g._omenaaMockAuth = vi.fn().mockImplementation(async () => _g._omenaaMockSession);
   }
-  return _g._omenaMockAuth as ReturnType<typeof vi.fn>;
+  return _g._omenaaMockAuth as ReturnType<typeof vi.fn>;
 });
 
 vi.mock('@/lib/auth', () => ({
@@ -39,7 +39,7 @@ describe('Admin Invoices API', () => {
     admin = await createTestAdmin({ email: `admin-inv-test-${Date.now()}@example.com` });
     user = await createTestUser({ email: `user-inv-test-${Date.now()}@example.com` });
 
-    (globalThis as any)._omenaMockSession = { user: { id: admin.id, email: admin.email, role: admin.role, name: admin.name, userType: 'admin', visibilityLevel: 2 } };
+    (globalThis as any)._omenaaMockSession = { user: { id: admin.id, email: admin.email, role: admin.role, name: admin.name, userType: 'admin', visibilityLevel: 2 } };
 
     auctionId = randomUUID();
     await db.insert(auctions).values({
@@ -74,7 +74,7 @@ describe('Admin Invoices API', () => {
     invoiceId = randomUUID();
     await db.insert(invoices).values({
       id: invoiceId,
-      invoiceNumber: `OMENA/2026/INV-${Date.now()}`,
+      invoiceNumber: `OMENAA/2026/INV-${Date.now()}`,
       userId: user.id,
       auctionId,
       lotId,
@@ -136,11 +136,11 @@ describe('Admin Invoices API', () => {
     it('returns 401 without admin auth', async () => {
       const { GET } = await import('@/app/api/admin/invoices/route');
 
-      (globalThis as any)._omenaMockSession = null;
+      (globalThis as any)._omenaaMockSession = null;
       const response = await GET(new Request('http://localhost:3002/api/admin/invoices'));
       expect(response.status).toBe(401);
 
-      (globalThis as any)._omenaMockSession = { user: { id: admin.id, email: admin.email, role: admin.role, name: admin.name, userType: 'admin', visibilityLevel: 2 } };
+      (globalThis as any)._omenaaMockSession = { user: { id: admin.id, email: admin.email, role: admin.role, name: admin.name, userType: 'admin', visibilityLevel: 2 } };
     });
   });
 
@@ -235,7 +235,7 @@ describe('Admin Invoices API', () => {
       pendingInvoiceId = randomUUID();
       await db.insert(invoices).values({
         id: pendingInvoiceId,
-        invoiceNumber: `OMENA/2026/NOTES-${Date.now()}`,
+        invoiceNumber: `OMENAA/2026/NOTES-${Date.now()}`,
         userId: user.id,
         auctionId,
         lotId,
@@ -339,7 +339,7 @@ describe('Admin Invoices API', () => {
     it('returns 401 without admin auth on lot invoice GET', async () => {
       const { GET } = await import('@/app/api/admin/lots/[id]/invoice/route');
 
-      (globalThis as any)._omenaMockSession = null;
+      (globalThis as any)._omenaaMockSession = null;
 
       const response = await GET(
         new Request(`http://localhost:3002/api/admin/lots/${lotId}/invoice`),
@@ -347,7 +347,7 @@ describe('Admin Invoices API', () => {
       );
 
       expect(response.status).toBe(401);
-      (globalThis as any)._omenaMockSession = { user: { id: admin.id, email: admin.email, role: admin.role, name: admin.name, userType: 'admin', visibilityLevel: 2 } };
+      (globalThis as any)._omenaaMockSession = { user: { id: admin.id, email: admin.email, role: admin.role, name: admin.name, userType: 'admin', visibilityLevel: 2 } };
     });
   });
 

@@ -2,8 +2,8 @@ import type { Dictionary } from './index';
 
 export const fr: Dictionary = {
   // Meta
-  metaTitle: "Omena — Ventes aux enchères d'art",
-  metaDescription: "Omena — maison de ventes aux enchères d'art de renom. Découvrez des tableaux, sculptures et objets de collection exceptionnels des artistes les plus éminents.",
+  metaTitle: "Omenaa — Ventes aux enchères d'art",
+  metaDescription: "Omenaa — maison de ventes aux enchères d'art de renom. Découvrez des tableaux, sculptures et objets de collection exceptionnels des artistes les plus éminents.",
 
   // Navigation
   navHome: 'Accueil',
@@ -56,7 +56,7 @@ export const fr: Dictionary = {
   countdownSeconds: 'Sec',
 
   // Home page
-  heroTitle: 'OMENA',
+  heroTitle: 'OMENAA',
   heroSubtitle: "Maison de Ventes d'Art",
   heroDescription: "Découvrez des œuvres exceptionnelles d'artistes polonais et européens. Enchérissez en ligne ou en salle dans notre maison de ventes à Varsovie.",
   heroCTA: 'Parcourir les ventes',
@@ -75,7 +75,7 @@ export const fr: Dictionary = {
 
   // About page
   aboutTitle: 'À propos',
-  aboutMission1: "Omena est une maison de ventes de renom basée à Varsovie, spécialisée dans l'art polonais et européen des XXe et XXIe siècles. Depuis notre fondation, notre mission est de créer des passerelles entre artistes, collectionneurs et amateurs d'art — en offrant un espace où les œuvres remarquables trouvent leurs nouveaux gardiens.",
+  aboutMission1: "Omenaa est une maison de ventes de renom basée à Varsovie, spécialisée dans l'art polonais et européen des XXe et XXIe siècles. Depuis notre fondation, notre mission est de créer des passerelles entre artistes, collectionneurs et amateurs d'art — en offrant un espace où les œuvres remarquables trouvent leurs nouveaux gardiens.",
   aboutMission2: "Nous croyons que l'art a le pouvoir d'inspirer, d'éduquer et de rassembler. C'est pourquoi chacune de nos ventes n'est pas seulement un événement commercial, mais aussi culturel — soigneusement organisé, fondé sur une expertise approfondie et mené avec le plus grand respect pour les artistes et leurs œuvres.",
   aboutTeamTitle: 'Notre équipe',
   aboutValuesTitle: 'Nos valeurs',
@@ -173,10 +173,10 @@ export const fr: Dictionary = {
   currencyDisclaimer: 'Prix en PLN. Les conversions dans d\'autres devises sont indicatives (cours moyen NBP).',
 
   // Footer
-  footerDescription: "Omena est une maison de ventes de renom spécialisée dans l'art contemporain et classique. Depuis des années, nous mettons en relation collectionneurs et œuvres exceptionnelles des artistes les plus éminents de Pologne et du monde entier.",
+  footerDescription: "Omenaa est une maison de ventes de renom spécialisée dans l'art contemporain et classique. Depuis des années, nous mettons en relation collectionneurs et œuvres exceptionnelles des artistes les plus éminents de Pologne et du monde entier.",
   footerNav: 'Navigation',
   footerContact: 'Contact',
-  footerRights: '© 2026 Omena. Tous droits réservés.',
+  footerRights: '© 2026 Omenaa. Tous droits réservés.',
 
   // Auctions page
   auctionsTitle: 'Ventes',
@@ -238,7 +238,7 @@ export const fr: Dictionary = {
 
   // Results page
   resultsTitle: 'Résultats de ventes',
-  resultsSubtitle: 'Base de prix des ventes Omena',
+  resultsSubtitle: 'Base de prix des ventes Omenaa',
   resultsSoldFor: 'Vendu pour',
   resultsNoResults: 'Aucun résultat correspondant à vos critères',
   resultsFilterAuction: 'Vente',

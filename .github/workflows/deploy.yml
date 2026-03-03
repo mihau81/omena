@@ -16,15 +16,15 @@ jobs:
 
       - name: Create deployment archive
         run: |
-          tar czf /tmp/omena.tar.gz \
+          tar czf /tmp/omenaa.tar.gz \
             --exclude='node_modules' \
             --exclude='.git' \
             --exclude='.next' \
             --exclude='.env*' \
             --exclude='*.tar.gz' \
             .
-          test -s /tmp/omena.tar.gz || exit 1
-          echo "Archive size: $(du -h /tmp/omena.tar.gz | cut -f1)"
+          test -s /tmp/omenaa.tar.gz || exit 1
+          echo "Archive size: $(du -h /tmp/omenaa.tar.gz | cut -f1)"
 
       - name: Setup SSH
         run: |
@@ -36,8 +36,8 @@ jobs:
       - name: Upload archive
         run: |
           scp -i ~/.ssh/deploy_key \
-            /tmp/omena.tar.gz \
-            ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/tmp/omena.tar.gz
+            /tmp/omenaa.tar.gz \
+            ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/tmp/omenaa.tar.gz
 
       - name: Deploy and verify
         env:
@@ -47,19 +47,19 @@ jobs:
           ssh -o ConnectTimeout=15 -o ServerAliveInterval=60 -i $SSH_KEY $SSH_HOST << 'DEPLOY'
           set -e
 
-          APP_DIR=/root/omena
+          APP_DIR=/root/omenaa
           mkdir -p $APP_DIR
           cd $APP_DIR
 
           # Preserve .env
-          cp .env /tmp/.env.omena.backup 2>/dev/null || true
+          cp .env /tmp/.env.omenaa.backup 2>/dev/null || true
 
           # Extract new code
-          tar xzf /tmp/omena.tar.gz -C $APP_DIR
-          rm /tmp/omena.tar.gz
+          tar xzf /tmp/omenaa.tar.gz -C $APP_DIR
+          rm /tmp/omenaa.tar.gz
 
           # Restore .env
-          mv /tmp/.env.omena.backup .env 2>/dev/null || true
+          mv /tmp/.env.omenaa.backup .env 2>/dev/null || true
 
           # Build and deploy
           docker compose -f docker-compose.prod.yml build --no-cache
@@ -71,7 +71,7 @@ jobs:
           # Health check
           echo "Waiting for app to start..."
           for i in $(seq 1 15); do
-            STATUS=$(curl -s -o /dev/null -w '%{http_code}' http://localhost:3080/omena/ 2>/dev/null || echo 000)
+            STATUS=$(curl -s -o /dev/null -w '%{http_code}' http://localhost:3080/omenaa/ 2>/dev/null || echo 000)
             if [ "$STATUS" = "200" ] || [ "$STATUS" = "302" ]; then
               echo "Health check passed (HTTP $STATUS)"
               exit 0

@@ -71,9 +71,9 @@ function drawCoverPage(doc: InstanceType<typeof PDFDocument>, auction: CatalogAu
   // Gold accent bar top
   doc.rect(0, 0, PAGE_W, 6).fill(GOLD);
 
-  // OMENA logotype
+  // OMENAA logotype
   doc.font('Helvetica-Bold').fontSize(48).fillColor(GOLD)
-    .text('OMENA', MARGIN, 120, { width: CONTENT_W, align: 'center' });
+    .text('OMENAA', MARGIN, 120, { width: CONTENT_W, align: 'center' });
 
   doc.font('Helvetica').fontSize(11).fillColor('#aaaaaa');
   doc.text('DOM AUKCYJNY', MARGIN, 180, { width: CONTENT_W, align: 'center', characterSpacing: 4 });
@@ -112,7 +112,7 @@ function drawCoverPage(doc: InstanceType<typeof PDFDocument>, auction: CatalogAu
 
   // Footer text
   doc.font('Helvetica').fontSize(8).fillColor('#666666')
-    .text('www.omena.pl · info@omena.pl', MARGIN, PAGE_H - 30, { width: CONTENT_W, align: 'center' });
+    .text('www.omenaa.pl · info@omenaa.pl', MARGIN, PAGE_H - 30, { width: CONTENT_W, align: 'center' });
 }
 
 // ─── Table of Contents ────────────────────────────────────────────────────────
@@ -269,7 +269,7 @@ async function drawLotPage(
   doc.moveTo(MARGIN, PAGE_H - MARGIN - 12).lineTo(PAGE_W - MARGIN, PAGE_H - MARGIN - 12)
     .lineWidth(0.5).strokeColor('#e8e0d0').stroke();
   doc.font('Helvetica').fontSize(8).fillColor('#aaaaaa')
-    .text('Omena Dom Aukcyjny · www.omena.pl', MARGIN, PAGE_H - MARGIN + 2, { width: CONTENT_W });
+    .text('Omenaa Dom Aukcyjny · www.omenaa.pl', MARGIN, PAGE_H - MARGIN + 2, { width: CONTENT_W });
   doc.font('Helvetica').fontSize(8).fillColor(GOLD)
     .text(`LOT ${lot.lotNumber}`, MARGIN, PAGE_H - MARGIN + 2, { width: CONTENT_W, align: 'right' });
 }
@@ -286,7 +286,7 @@ export async function generateCatalogPdf(
       margin: MARGIN,
       info: {
         Title: `Katalog: ${auction.title}`,
-        Author: 'Omena Dom Aukcyjny',
+        Author: 'Omenaa Dom Aukcyjny',
         Subject: 'Katalog aukcyjny',
       },
       autoFirstPage: false,

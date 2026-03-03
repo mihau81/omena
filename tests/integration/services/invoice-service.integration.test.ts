@@ -100,7 +100,7 @@ describe('Invoice Service Integration Tests', () => {
       expect(invoice.totalAmount).toBe(6000); // 5000 + 1000
       expect(invoice.currency).toBe('PLN');
       expect(invoice.status).toBe('pending');
-      expect(invoice.invoiceNumber).toMatch(/^OMENA\/\d{4}\/\d{3}$/);
+      expect(invoice.invoiceNumber).toMatch(/^OMENAA\/\d{4}\/\d{3}$/);
     });
 
     it('throws when lot is not found', async () => {

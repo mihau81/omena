@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test.use({ storageState: { cookies: [], origins: [] } });
 
-const BASE = '/omena';
+const BASE = '/omenaa';
 const LOCALE = 'en';
 
 test.describe('Email verification status pages', () => {
@@ -10,7 +10,7 @@ test.describe('Email verification status pages', () => {
     await page.goto(`${BASE}/${LOCALE}/auth/verify-email?status=approved`);
     await page.waitForLoadState('networkidle');
 
-    await expect(page.getByText('Welcome to Omena!')).toBeVisible();
+    await expect(page.getByText('Welcome to Omenaa!')).toBeVisible();
     await expect(page.getByRole('link', { name: /sign in/i })).toBeVisible();
   });
 

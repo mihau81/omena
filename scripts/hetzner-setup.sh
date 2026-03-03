@@ -1,26 +1,26 @@
 #!/bin/bash
-# One-time setup script for omena on Hetzner
-# Run this manually on the server: bash /root/omena/scripts/hetzner-setup.sh
+# One-time setup script for omenaa on Hetzner
+# Run this manually on the server: bash /root/omenaa/scripts/hetzner-setup.sh
 set -e
 
-APP_DIR=/root/omena
+APP_DIR=/root/omenaa
 NGINX_CONF=/etc/nginx/sites-enabled/bialek.pl
 
-echo "=== Omena Hetzner Setup ==="
+echo "=== Omenaa Hetzner Setup ==="
 
 # 1. Check .env exists
 if [ ! -f "$APP_DIR/.env" ]; then
   echo "ERROR: $APP_DIR/.env not found. Create it first with production values:"
   echo ""
-  echo "  DATABASE_URL=postgresql://omena:\$DB_PASSWORD@db:5432/omena"
+  echo "  DATABASE_URL=postgresql://omenaa:\$DB_PASSWORD@db:5432/omenaa"
   echo "  DB_PASSWORD=<strong-password>"
   echo "  MINIO_ENDPOINT=http://minio:9000"
   echo "  MINIO_ACCESS_KEY=<minio-user>"
   echo "  MINIO_SECRET_KEY=<minio-password>"
-  echo "  S3_BUCKET=omena-media"
-  echo "  S3_PUBLIC_URL=https://bialek.pl/omena-media"
+  echo "  S3_BUCKET=omenaa-media"
+  echo "  S3_PUBLIC_URL=https://bialek.pl/omenaa-media"
   echo "  NEXTAUTH_SECRET=<min-32-char-secret>"
-  echo "  NEXTAUTH_URL=https://bialek.pl/omena"
+  echo "  NEXTAUTH_URL=https://bialek.pl/omenaa"
   echo "  AUTH_TRUST_HOST=true"
   echo "  ENCRYPTION_KEY=<32-char-key>"
   echo "  STRIPE_SECRET_KEY=<stripe-sk>"
@@ -30,14 +30,14 @@ if [ ! -f "$APP_DIR/.env" ]; then
   exit 1
 fi
 
-# 2. Update nginx: replace static /omena/ block with reverse proxy
-if grep -q "alias /var/www/static/omena/" "$NGINX_CONF" 2>/dev/null; then
+# 2. Update nginx: replace static /omenaa/ block with reverse proxy
+if grep -q "alias /var/www/static/omenaa/" "$NGINX_CONF" 2>/dev/null; then
   echo "Updating nginx config: static -> reverse proxy..."
 
   # Create backup
   cp "$NGINX_CONF" "${NGINX_CONF}.bak.$(date +%Y%m%d%H%M%S)"
 
-  # Replace the static omena block with proxy
+  # Replace the static omenaa block with proxy
   python3 - "$NGINX_CONF" << 'PYTHON'
 import sys, re
 
@@ -45,11 +45,11 @@ conf_path = sys.argv[1]
 with open(conf_path, 'r') as f:
     content = f.read()
 
-# Remove old static omena blocks (location /omena and location /omena/)
+# Remove old static omenaa blocks (location /omenaa and location /omenaa/)
 # Match the whole location block including nested content
 old_patterns = [
-    r'\n\s*# Redirect /omena to /omena/\n\s*location = /omena \{[^}]*\}\n',
-    r'\n\s*location /omena/ \{[^}]*(?:\{[^}]*\}[^}]*)*\}\n',
+    r'\n\s*# Redirect /omenaa to /omenaa/\n\s*location = /omenaa \{[^}]*\}\n',
+    r'\n\s*location /omenaa/ \{[^}]*(?:\{[^}]*\}[^}]*)*\}\n',
 ]
 
 for pattern in old_patterns:
@@ -57,9 +57,9 @@ for pattern in old_patterns:
 
 # Insert new proxy block before the default location /
 new_block = """
-    # Omena CMS (reverse proxy to Docker)
-    location /omena/ {
-        proxy_pass http://127.0.0.1:3080/omena/;
+    # Omenaa CMS (reverse proxy to Docker)
+    location /omenaa/ {
+        proxy_pass http://127.0.0.1:3080/omenaa/;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection "upgrade";
@@ -106,8 +106,8 @@ sleep 5
 # Create bucket if it doesn't exist
 docker compose -f docker-compose.prod.yml exec -T minio sh -c '
   mc alias set local http://localhost:9000 $MINIO_ROOT_USER $MINIO_ROOT_PASSWORD 2>/dev/null
-  mc mb local/omena-media 2>/dev/null || true
-  mc anonymous set download local/omena-media 2>/dev/null || true
+  mc mb local/omenaa-media 2>/dev/null || true
+  mc anonymous set download local/omenaa-media 2>/dev/null || true
   echo "MinIO bucket ready"
 ' 2>/dev/null || echo "MinIO bucket setup skipped (configure manually via MinIO console at port 9002)"
 
@@ -129,11 +129,11 @@ docker compose -f docker-compose.prod.yml exec -T app sh -c '
       process.exit(1);
     });
   "
-' 2>/dev/null || echo "Migration skipped (run manually: docker exec omena_app npx drizzle-kit migrate)"
+' 2>/dev/null || echo "Migration skipped (run manually: docker exec omenaa_app npx drizzle-kit migrate)"
 
 echo ""
 echo "=== Setup complete ==="
-echo "App: https://bialek.pl/omena/"
+echo "App: https://bialek.pl/omenaa/"
 echo "MinIO console: http://77.42.31.51:9002"
 echo ""
 echo "GitHub secrets needed:"

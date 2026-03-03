@@ -116,13 +116,13 @@ describe('token-service', () => {
   describe('getBaseUrl', () => {
     it('returns NEXTAUTH_URL when set', async () => {
       const original = process.env.NEXTAUTH_URL;
-      process.env.NEXTAUTH_URL = 'https://omena.example.com';
+      process.env.NEXTAUTH_URL = 'https://omenaa.example.com';
 
       // Re-import to pick up env change
       const mod = await import('@/lib/token-service');
       const result = mod.getBaseUrl();
 
-      expect(result).toBe('https://omena.example.com');
+      expect(result).toBe('https://omenaa.example.com');
       process.env.NEXTAUTH_URL = original;
     });
 
@@ -133,7 +133,7 @@ describe('token-service', () => {
       const mod = await import('@/lib/token-service');
       const result = mod.getBaseUrl();
 
-      expect(result).toBe('http://localhost:3002/omena');
+      expect(result).toBe('http://localhost:3002/omenaa');
       process.env.NEXTAUTH_URL = original;
     });
   });

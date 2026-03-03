@@ -6,11 +6,11 @@ import { getTestDb } from '@/tests/helpers/db';
 
 const mockAuth = vi.hoisted(() => {
   const _g = globalThis as Record<string, unknown>;
-  if (!_g._omenaMockAuth) {
-    _g._omenaMockSession = null;
-    _g._omenaMockAuth = vi.fn().mockImplementation(async () => _g._omenaMockSession);
+  if (!_g._omenaaMockAuth) {
+    _g._omenaaMockSession = null;
+    _g._omenaaMockAuth = vi.fn().mockImplementation(async () => _g._omenaaMockSession);
   }
-  return _g._omenaMockAuth as ReturnType<typeof vi.fn>;
+  return _g._omenaaMockAuth as ReturnType<typeof vi.fn>;
 });
 
 vi.mock('@/lib/auth', () => ({
@@ -40,7 +40,7 @@ describe('/api/me/notifications', () => {
       accountStatus: 'approved',
     });
 
-    _g._omenaMockSession = {
+    _g._omenaaMockSession = {
       user: {
         id: user.id,
         email: user.email,
@@ -55,7 +55,7 @@ describe('/api/me/notifications', () => {
   afterAll(async () => {
     await db.execute(`DELETE FROM users WHERE email LIKE '${prefix}%@example.com'`);
     await db.execute(`DELETE FROM notifications WHERE user_id IN (SELECT id FROM users WHERE email LIKE '${prefix}%@example.com')`);
-    _g._omenaMockSession = null;
+    _g._omenaaMockSession = null;
   });
 
   describe('GET /api/me/notifications', () => {
@@ -71,14 +71,14 @@ describe('/api/me/notifications', () => {
     });
 
     it('returns 401 for unauthenticated', async () => {
-      _g._omenaMockSession = null;
+      _g._omenaaMockSession = null;
       const { GET } = await import('@/app/api/me/notifications/route');
       const { status } = await callRouteHandler(GET, createRequest('GET', '/api/me/notifications'));
       expect(status).toBe(401);
     });
 
     it('returns 403 for admin userType', async () => {
-      _g._omenaMockSession = {
+      _g._omenaaMockSession = {
         user: {
           id: user.id,
           email: user.email,
@@ -106,7 +106,7 @@ describe('/api/me/notifications', () => {
     });
 
     it('returns 401 for unauthenticated', async () => {
-      _g._omenaMockSession = null;
+      _g._omenaaMockSession = null;
       const { POST } = await import('@/app/api/me/notifications/read-all/route');
       const { status } = await callRouteHandler(POST, createRequest('POST', '/api/me/notifications/read-all'));
       expect(status).toBe(401);
@@ -125,7 +125,7 @@ describe('/api/me/notifications', () => {
     });
 
     it('returns 401 for unauthenticated', async () => {
-      _g._omenaMockSession = null;
+      _g._omenaaMockSession = null;
       const { POST } = await import('@/app/api/me/notifications/[id]/read/route');
       const request = createRequest('POST', '/api/me/notifications/fake-id/read');
       const context = { params: Promise.resolve({ id: 'fake-id' }) };

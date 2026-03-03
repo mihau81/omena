@@ -6,11 +6,11 @@ import { getTestDb } from '@/tests/helpers/db';
 
 const mockAuth = vi.hoisted(() => {
   const _g = globalThis as Record<string, unknown>;
-  if (!_g._omenaMockAuth) {
-    _g._omenaMockSession = null;
-    _g._omenaMockAuth = vi.fn().mockImplementation(async () => _g._omenaMockSession);
+  if (!_g._omenaaMockAuth) {
+    _g._omenaaMockSession = null;
+    _g._omenaaMockAuth = vi.fn().mockImplementation(async () => _g._omenaaMockSession);
   }
-  return _g._omenaMockAuth as ReturnType<typeof vi.fn>;
+  return _g._omenaaMockAuth as ReturnType<typeof vi.fn>;
 });
 
 vi.mock('@/lib/auth', () => ({
@@ -44,7 +44,7 @@ describe('Admin QR Registrations API', () => {
       role: 'super_admin',
     });
 
-    _g._omenaMockSession = {
+    _g._omenaaMockSession = {
       user: {
         id: admin.id,
         email: admin.email,
@@ -61,7 +61,7 @@ describe('Admin QR Registrations API', () => {
       await db.execute(`DELETE FROM qr_registrations WHERE id = '${id}'`);
     }
     await db.execute(`DELETE FROM admins WHERE email LIKE 'qr-admin-%@example.com'`);
-    _g._omenaMockSession = null;
+    _g._omenaaMockSession = null;
   });
 
   describe('GET /api/admin/qr-registrations', () => {

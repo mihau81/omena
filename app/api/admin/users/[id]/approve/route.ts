@@ -45,11 +45,11 @@ export async function POST(
       id,
       'registration_approved',
       'Konto zatwierdzone',
-      'Twoje konto Omena zostało zatwierdzone. Możesz się teraz zalogować i brać udział w aukcjach.',
+      'Twoje konto Omenaa zostało zatwierdzone. Możesz się teraz zalogować i brać udział w aukcjach.',
     );
 
     // Send email
-    await sendEmail(user.email, 'Konto zatwierdzone — Omena', accountApproved(user.name, 'pl'));
+    await sendEmail(user.email, 'Konto zatwierdzone — Omenaa', accountApproved(user.name, 'pl'));
 
     return NextResponse.json({ message: 'User approved successfully' });
   } catch (error) {

@@ -34,7 +34,7 @@ export default async function HomePage({
       {/* Hero */}
       <section className="relative flex min-h-screen items-center justify-center px-5 md:min-h-[80vh] md:px-8">
         <Image
-          src="/omena/images/hero/hero-bg.jpg"
+          src="/omenaa/images/hero/hero-bg.jpg"
           alt=""
           fill
           className="object-cover"
@@ -43,7 +43,7 @@ export default async function HomePage({
         <div className="absolute inset-0 bg-gradient-to-b from-dark-brown/70 via-dark-brown/50 to-dark-brown/70" />
         <div className="relative z-10 text-center">
           <h1 className="font-serif text-5xl font-bold text-gold md:text-7xl lg:text-8xl drop-shadow-lg">
-            Omena
+            Omenaa
           </h1>
           <div className="mx-auto my-6 h-px w-16 bg-gold" />
           <p className="font-serif text-lg text-white/90 md:text-2xl">
