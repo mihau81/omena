@@ -273,3 +273,38 @@ export async function getUserWatchedLotsPaginated(userId: string, page = 1, limi
     totalPages: Math.ceil(totalResult[0].total / limit),
   };
 }
+
+// ─── Admin: Users referred by this user (paginated) ─────────────────────────
+
+export async function getUserReferralsPaginated(referrerId: string, page = 1, limit = 20) {
+  const offset = (page - 1) * limit;
+
+  const [rows, totalResult] = await Promise.all([
+    db
+      .select({
+        id: users.id,
+        name: users.name,
+        email: users.email,
+        accountStatus: users.accountStatus,
+        isActive: users.isActive,
+        createdAt: users.createdAt,
+      })
+      .from(users)
+      .where(and(eq(users.referrerId, referrerId), notDeleted(users)))
+      .orderBy(desc(users.createdAt))
+      .limit(limit)
+      .offset(offset),
+    db
+      .select({ total: count() })
+      .from(users)
+      .where(and(eq(users.referrerId, referrerId), notDeleted(users))),
+  ]);
+
+  return {
+    data: rows,
+    total: totalResult[0].total,
+    page,
+    limit,
+    totalPages: Math.ceil(totalResult[0].total / limit),
+  };
+}

@@ -9,6 +9,7 @@ import VisibilityBadge from '../../components/VisibilityBadge';
 import UserForm from '../../components/UserForm';
 import UserBidHistory from '../../components/UserBidHistory';
 import UserRegistrations from '../../components/UserRegistrations';
+import UserReferrals from '../../components/UserReferrals';
 import ConfirmDialog from '../../components/ConfirmDialog';
 
 interface UserDetail {
@@ -35,7 +36,7 @@ interface UserDetail {
   referralCount: number;
 }
 
-type Tab = 'details' | 'bids' | 'registrations';
+type Tab = 'details' | 'bids' | 'registrations' | 'referrals';
 
 export default function UserDetailClient({ user }: { user: UserDetail }) {
   const router = useRouter();
@@ -113,6 +114,7 @@ export default function UserDetailClient({ user }: { user: UserDetail }) {
     { key: 'details', label: 'Details' },
     { key: 'bids', label: 'Bid History', count: user.bidCount },
     { key: 'registrations', label: 'Registrations', count: user.registrationCount },
+    { key: 'referrals', label: 'Referrals', count: user.referralCount },
   ];
 
   if (editing) {
@@ -316,6 +318,7 @@ export default function UserDetailClient({ user }: { user: UserDetail }) {
 
         {tab === 'bids' && <UserBidHistory userId={user.id} />}
         {tab === 'registrations' && <UserRegistrations userId={user.id} />}
+        {tab === 'referrals' && <UserReferrals userId={user.id} />}
       </div>
 
       {/* Confirm Dialogs */}
