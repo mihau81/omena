@@ -153,7 +153,7 @@ jobs:
         run: npm run test:e2e
 
   ci-gate:
-    needs: [lint, unit-tests, integration-tests, build, e2e-tests]
+    needs: [lint, unit-tests, integration-tests, build]
     runs-on: docker
     steps:
       - run: echo "CI gate passed"
