@@ -5,11 +5,11 @@ import { chromium, FullConfig } from '@playwright/test';
  * Seeds the test database and verifies the dev server is reachable.
  */
 async function globalSetup(_config: FullConfig) {
-  const browser = await chromium.launch(
-    process.env.CI
-      ? { args: ['--no-sandbox', '--disable-setuid-sandbox'] }
-      : undefined,
-  );
+  // In CI the server readiness check is done by the workflow (curl loop),
+  // so skip launching an extra Chromium instance here.
+  if (process.env.CI) return;
+
+  const browser = await chromium.launch();
   const page = await browser.newPage();
 
   // Wait for the dev server to be ready
