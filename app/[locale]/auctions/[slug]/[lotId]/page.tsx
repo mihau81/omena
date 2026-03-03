@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { getTranslation } from '@/app/lib/i18n';
-import { getAuctionBySlug, getLotById } from '@/db/queries';
+import { getAuctionBySlug, getLotById, getLotByAuctionAndNumber } from '@/db/queries';
 import { getTiersForAuction } from '@/db/queries/premium';
 import { mapDBAuctionToFrontend, mapDBLotToFrontend } from '@/lib/mappers';
 import { formatRate } from '@/lib/premium';
@@ -11,6 +11,19 @@ import ShareButtons from '@/app/components/ShareButtons';
 
 export const dynamic = 'force-dynamic';
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+function resolveLot(lotId: string, auctionSlug: string, visibility: number, locale?: string) {
+  if (UUID_RE.test(lotId)) {
+    return getLotById(lotId, visibility, locale);
+  }
+  const num = parseInt(lotId, 10);
+  if (!isNaN(num)) {
+    return getLotByAuctionAndNumber(auctionSlug, num, visibility, locale);
+  }
+  return Promise.resolve(null);
+}
+
 export async function generateMetadata({
   params,
 }: {
@@ -19,7 +32,7 @@ export async function generateMetadata({
   const { slug, lotId } = await params;
   const [auctionRow, lotRow] = await Promise.all([
     getAuctionBySlug(slug, 0),
-    getLotById(lotId, 0, 'en'),
+    resolveLot(lotId, slug, 0, 'en'),
   ]);
 
   if (!lotRow || !auctionRow) return {};
@@ -63,7 +76,7 @@ export default async function LotDetailPage({
   const t = getTranslation(locale);
 
   const auctionRow = await getAuctionBySlug(slug, 0);
-  const lotRow = await getLotById(lotId, 0, locale);
+  const lotRow = await resolveLot(lotId, slug, 0, locale);
 
   if (!lotRow || !auctionRow) {
     return (

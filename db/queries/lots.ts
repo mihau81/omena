@@ -122,6 +122,7 @@ export async function getLotByAuctionAndNumber(
   auctionSlug: string,
   lotNumber: number,
   userVisibility: number,
+  locale?: string,
 ) {
   const rows = await db
     .select({
@@ -166,7 +167,7 @@ export async function getLotByAuctionAndNumber(
       ),
     );
 
-  return {
+  const baseLot = {
     ...row.lot,
     auctionSlug: row.auctionSlug,
     auctionTitle: row.auctionTitle,
@@ -174,6 +175,33 @@ export async function getLotByAuctionAndNumber(
     bidCount: bidStats[0]?.bidCount ?? 0,
     highestBid: bidStats[0]?.highestBid ?? null,
   };
+
+  if (locale && locale !== 'pl') {
+    const translationRows = await db
+      .select()
+      .from(lotTranslations)
+      .where(and(eq(lotTranslations.lotId, row.lot.id), eq(lotTranslations.locale, locale)))
+      .limit(1);
+
+    const translation = translationRows[0];
+    if (translation) {
+      return {
+        ...baseLot,
+        title: translation.title || baseLot.title,
+        description: translation.description || baseLot.description,
+        medium: translation.medium || baseLot.medium,
+        provenance: Array.isArray(translation.provenance) && translation.provenance.length > 0
+          ? translation.provenance as string[]
+          : baseLot.provenance,
+        exhibitions: Array.isArray(translation.exhibitions) && translation.exhibitions.length > 0
+          ? translation.exhibitions as string[]
+          : baseLot.exhibitions,
+        conditionNotes: translation.conditionNotes ?? baseLot.conditionNotes,
+      };
+    }
+  }
+
+  return baseLot;
 }
 
 export async function searchLots(params: {
