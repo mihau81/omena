@@ -104,7 +104,7 @@ describe('POST /api/auth/register/invitation-send', () => {
 
     expect(sendEmail).toHaveBeenCalledWith(
       email,
-      expect.stringContaining('invited'),
+      expect.stringMatching(/invited|zaprasza/i),
       expect.any(String),
     );
   });

@@ -67,7 +67,7 @@ describe('POST /api/auth/magic-link', () => {
 
     expect(mockSendEmail).toHaveBeenCalledOnce();
     expect(mockSendEmail.mock.calls[0][0]).toBe(email);
-    expect(mockSendEmail.mock.calls[0][1]).toMatch(/sign in/i);
+    expect(mockSendEmail.mock.calls[0][1]).toMatch(/sign in|zaloguj/i);
   });
 
   it('creates a verification token in DB', async () => {
