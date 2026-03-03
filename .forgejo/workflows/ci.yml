@@ -7,7 +7,7 @@ on:
     branches: [main]
 
 jobs:
-  lint:
+  checks:
     runs-on: docker
     steps:
       - uses: actions/checkout@v4
@@ -15,24 +15,13 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
+          cache: "npm"
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       - name: Lint
         run: npm run lint -- --max-warnings 300
-
-  unit-tests:
-    runs-on: docker
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-
-      - name: Install dependencies
-        run: npm install
 
       - name: Run unit tests
         run: npm run test:unit
@@ -60,9 +49,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
+          cache: "npm"
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       - name: Run database migrations
         run: node db/run-migrations.mjs && npx drizzle-kit push
@@ -78,9 +68,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
+          cache: "npm"
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       - name: Build (standalone)
         run: npm run build
@@ -119,9 +110,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
+          cache: "npm"
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       - name: Run database migrations
         run: node db/run-migrations.mjs && npx drizzle-kit push
@@ -153,7 +145,7 @@ jobs:
         run: npm run test:e2e
 
   ci-gate:
-    needs: [lint, unit-tests, integration-tests, build]
+    needs: [checks, integration-tests, build]
     runs-on: docker
     steps:
       - run: echo "CI gate passed"
