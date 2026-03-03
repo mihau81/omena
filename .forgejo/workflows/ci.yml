@@ -89,7 +89,20 @@ jobs:
   e2e-tests:
     needs: build
     runs-on: docker
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: omenaa_test
+          POSTGRES_USER: omenaa
+          POSTGRES_PASSWORD: omenaa_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     env:
+      DATABASE_URL: postgresql://omenaa:omenaa_test@postgres:5432/omenaa_test
       CI: true
     steps:
       - uses: actions/checkout@v4
@@ -101,6 +114,15 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Run database migrations
+        run: node db/run-migrations.mjs && npx drizzle-kit push
+
+      - name: Seed test data
+        run: npx tsx db/seed.ts
+        env:
+          NEXTAUTH_SECRET: ci-build-secret
+          ENCRYPTION_KEY: ci-build-encryption-key-32chars
 
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
