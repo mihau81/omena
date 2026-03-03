@@ -34,7 +34,7 @@ export default async function HomePage({
       {/* Hero */}
       <section className="relative flex min-h-screen items-center justify-center px-5 md:min-h-[80vh] md:px-8">
         <Image
-          src="/omenaa/images/hero/hero-bg.jpg"
+          src="/images/hero/hero-bg.jpg"
           alt=""
           fill
           className="object-cover"
