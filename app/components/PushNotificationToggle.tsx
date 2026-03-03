@@ -54,7 +54,7 @@ export default function PushNotificationToggle() {
       }
 
       // Register service worker
-      const reg = await navigator.serviceWorker.register('/sw.js');
+      const reg = await navigator.serviceWorker.register('/omena/sw.js');
       await navigator.serviceWorker.ready;
 
       // Subscribe
@@ -88,7 +88,7 @@ export default function PushNotificationToggle() {
   async function unsubscribe() {
     setBusy(true);
     try {
-      const reg = await navigator.serviceWorker.getRegistration('/sw.js');
+      const reg = await navigator.serviceWorker.getRegistration('/omena/sw.js');
       const sub = await reg?.pushManager.getSubscription();
 
       if (sub) {
