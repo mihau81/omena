@@ -43,7 +43,41 @@ export default function UserDetailClient({ user }: { user: UserDetail }) {
   const [editing, setEditing] = useState(false);
   const [deactivateOpen, setDeactivateOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [rejectOpen, setRejectOpen] = useState(false);
+  const [rejectReason, setRejectReason] = useState('');
   const [actionLoading, setActionLoading] = useState(false);
+
+  const isPending = user.accountStatus === 'pending_approval' || user.accountStatus === 'pending_verification';
+
+  const handleApprove = async () => {
+    setActionLoading(true);
+    try {
+      const res = await fetch(apiUrl(`/api/admin/users/${user.id}/approve`), { method: 'POST' });
+      if (res.ok) {
+        router.refresh();
+      }
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleReject = async () => {
+    setActionLoading(true);
+    try {
+      const res = await fetch(apiUrl(`/api/admin/users/${user.id}/reject`), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reason: rejectReason || undefined }),
+      });
+      if (res.ok) {
+        router.refresh();
+      }
+    } finally {
+      setActionLoading(false);
+      setRejectOpen(false);
+      setRejectReason('');
+    }
+  };
 
   const handleToggleActive = async () => {
     setActionLoading(true);
@@ -127,6 +161,30 @@ export default function UserDetailClient({ user }: { user: UserDetail }) {
           <p className="text-sm text-taupe mt-1">{user.email}</p>
         </div>
         <div className="flex flex-wrap gap-2">
+          {isPending && (
+            <>
+              <button
+                onClick={handleApprove}
+                disabled={actionLoading}
+                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                </svg>
+                Approve
+              </button>
+              <button
+                onClick={() => setRejectOpen(true)}
+                disabled={actionLoading}
+                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-red-700 border border-red-200 rounded-lg hover:bg-red-50 transition-colors disabled:opacity-50"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+                </svg>
+                Reject
+              </button>
+            </>
+          )}
           <button
             onClick={() => setEditing(true)}
             className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium bg-gold text-white rounded-lg hover:bg-gold-dark transition-colors"
@@ -284,6 +342,40 @@ export default function UserDetailClient({ user }: { user: UserDetail }) {
         onConfirm={handleDelete}
         onCancel={() => setDeleteOpen(false)}
       />
+
+      {/* Reject dialog with reason */}
+      {rejectOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-md mx-4 p-6">
+            <h3 className="text-lg font-serif font-bold text-dark-brown">Reject User</h3>
+            <p className="mt-2 text-sm text-taupe">
+              Are you sure you want to reject {user.name}&apos;s account? They will be notified by email.
+            </p>
+            <textarea
+              value={rejectReason}
+              onChange={(e) => setRejectReason(e.target.value)}
+              placeholder="Reason (optional)"
+              className="mt-4 w-full rounded-lg border border-beige p-3 text-sm text-dark-brown placeholder:text-taupe/60 focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold"
+              rows={3}
+            />
+            <div className="mt-4 flex justify-end gap-3">
+              <button
+                onClick={() => { setRejectOpen(false); setRejectReason(''); }}
+                className="px-4 py-2 text-sm font-medium text-taupe hover:text-dark-brown transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleReject}
+                disabled={actionLoading}
+                className="px-4 py-2 text-sm font-medium bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50"
+              >
+                {actionLoading ? 'Rejecting...' : 'Reject'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
