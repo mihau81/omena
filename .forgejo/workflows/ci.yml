@@ -127,24 +127,26 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
 
-      - name: Start dev server
-        run: npm run dev &
+      - name: Build app
+        run: npm run build
         env:
-          PORT: 3002
           NEXTAUTH_SECRET: ci-build-secret
           ENCRYPTION_KEY: ci-build-encryption-key-32chars
 
-      - name: Wait for dev server
+      - name: Start production server
+        run: PORT=3002 NEXTAUTH_SECRET=ci-build-secret ENCRYPTION_KEY=ci-build-encryption-key-32chars node .next/standalone/server.js &
+
+      - name: Wait for server
         run: |
           for i in {1..60}; do
             if curl -s http://localhost:3002/omenaa/en > /dev/null; then
-              echo "Dev server is ready"
+              echo "Server is ready"
               exit 0
             fi
-            echo "Waiting for dev server... ($i/60)"
+            echo "Waiting for server... ($i/60)"
             sleep 2
           done
-          echo "Dev server did not start in time"
+          echo "Server did not start in time"
           exit 1
 
       - name: Run e2e tests
