@@ -29,13 +29,14 @@ services:
       dockerfile: Dockerfile
     ports:
       - "3080:3000"
+    env_file:
+      - .env
     environment:
-      - DATABASE_URL=postgresql://omena:omena_dev@db:5432/omena
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://omena:${POSTGRES_PASSWORD:-omena_dev}@db:5432/omena
       - MINIO_ENDPOINT=http://minio:9000
-      - MINIO_ACCESS_KEY=omena
-      - MINIO_SECRET_KEY=omena_dev
-      - NEXTAUTH_SECRET=dev-secret-change-in-production
-      - NEXTAUTH_URL=http://192.168.5.31:3080
+      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY:-omena}
+      - MINIO_SECRET_KEY=${MINIO_SECRET_KEY:-omena_dev}
       - AUTH_TRUST_HOST=true
     depends_on:
       - db
