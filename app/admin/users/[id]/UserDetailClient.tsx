@@ -158,11 +158,20 @@ export default function UserDetailClient({ user }: { user: UserDetail }) {
       <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
         <div className="bg-white rounded-xl border border-beige p-4">
           <p className="text-xs text-taupe uppercase font-semibold">Status</p>
-          <div className="mt-2">
-            {user.isActive ? (
-              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-700">Active</span>
+          <div className="mt-2 flex flex-col gap-1">
+            {user.accountStatus === 'approved' ? (
+              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-700">Approved</span>
+            ) : user.accountStatus === 'pending_approval' ? (
+              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-amber-100 text-amber-700">Pending Approval</span>
+            ) : user.accountStatus === 'pending_verification' ? (
+              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-700">Pending Verification</span>
+            ) : user.accountStatus === 'rejected' ? (
+              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-700">Rejected</span>
             ) : (
-              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-700">Inactive</span>
+              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-700">{user.accountStatus}</span>
+            )}
+            {!user.isActive && (
+              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-700">Deactivated</span>
             )}
           </div>
         </div>
