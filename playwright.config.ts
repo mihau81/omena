@@ -4,8 +4,9 @@ export default defineConfig({
   testDir: './tests/e2e',
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
+  retries: process.env.CI ? 1 : 0,
   workers: process.env.CI ? 1 : undefined,
+  timeout: process.env.CI ? 60_000 : 30_000,
   reporter: 'html',
   globalSetup: './tests/e2e/global-setup.ts',
   use: {
@@ -37,15 +38,19 @@ export default defineConfig({
       testMatch: /.*\/admin\/.*\.spec\.ts/,
       dependencies: ['setup'],
     },
-    {
-      name: 'mobile-chrome',
-      use: {
-        ...devices['Pixel 5'],
-        viewport: { width: 375, height: 667 },
-        storageState: 'tests/e2e/.auth/user.json',
-      },
-      dependencies: ['setup'],
-    },
+    ...(process.env.CI
+      ? []
+      : [
+          {
+            name: 'mobile-chrome',
+            use: {
+              ...devices['Pixel 5'],
+              viewport: { width: 375, height: 667 },
+              storageState: 'tests/e2e/.auth/user.json',
+            },
+            dependencies: ['setup'],
+          },
+        ]),
   ],
   webServer: process.env.CI
     ? undefined

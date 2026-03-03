@@ -139,7 +139,13 @@ jobs:
           cp -r .next/static .next/standalone/.next/static
 
       - name: Start production server
-        run: PORT=3002 HOSTNAME=0.0.0.0 NEXTAUTH_SECRET=ci-build-secret ENCRYPTION_KEY=ci-build-encryption-key-32chars node .next/standalone/server.js &
+        run: node .next/standalone/server.js &
+        env:
+          PORT: "3002"
+          HOSTNAME: 0.0.0.0
+          NEXTAUTH_SECRET: ci-build-secret
+          NEXTAUTH_URL: http://localhost:3002/omenaa
+          ENCRYPTION_KEY: ci-build-encryption-key-32chars
 
       - name: Wait for server
         run: |
