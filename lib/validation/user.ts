@@ -44,6 +44,7 @@ export const updateProfileSchema = z.object({
 
 export const magicLinkRequestSchema = z.object({
   email: z.string().email().max(320),
+  locale: z.string().max(5).default('pl'),
 });
 
 export const passwordResetRequestSchema = z.object({

@@ -59,8 +59,8 @@ export async function POST(request: Request) {
       expiresAt: new Date(Date.now() + 72 * 60 * 60 * 1000),
     });
 
-    const inviteUrl = `${getBaseUrl()}/en/register?invitation=${token}`;
-    await sendEmail(email, `${user.name} invited you to Omena`, invitationTemplate(user.name, inviteUrl));
+    const inviteUrl = `${getBaseUrl()}/pl/register?invitation=${token}`;
+    await sendEmail(email, `${user.name} zaprasza Cię do Omena`, invitationTemplate(user.name, inviteUrl, 'pl'));
 
     return NextResponse.json(
       { message: 'Invitation sent successfully' },

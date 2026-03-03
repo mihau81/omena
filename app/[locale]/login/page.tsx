@@ -27,7 +27,7 @@ export default function LoginPage() {
       const res = await fetch(apiUrl('/api/auth/magic-link'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email, locale }),
       });
 
       if (res.ok) {

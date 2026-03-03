@@ -20,7 +20,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const { email } = parsed.data;
+    const { email, locale } = parsed.data;
 
     // Rate limit per email — always return 200 to not leak existence
     const rateLimitResult = magicLinkLimiter.check(email.toLowerCase());
@@ -43,8 +43,9 @@ export async function POST(request: Request) {
 
     // Create magic link token (15 min)
     const token = await createVerificationToken(email, 'magic_link', 15 * 60 * 1000);
-    const magicUrl = `${getBaseUrl()}/en/auth/magic-link?token=${token}`;
-    await sendEmail(email, 'Sign in to Omena', magicLinkLogin(email, magicUrl));
+    const magicUrl = `${getBaseUrl()}/${locale}/auth/magic-link?token=${token}`;
+    const subject = locale === 'pl' ? 'Zaloguj się do Omena' : 'Sign in to Omena';
+    await sendEmail(email, subject, magicLinkLogin(email, magicUrl, locale));
 
     return NextResponse.json({ message: 'If an account exists, a sign-in link has been sent.' });
   } catch (error) {

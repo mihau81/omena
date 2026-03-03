@@ -103,7 +103,7 @@ export async function POST(request: Request) {
     // Create email verification token (24h)
     const token = await createVerificationToken(email, 'email_verification', 24 * 60 * 60 * 1000);
     const verifyUrl = `${getBaseUrl()}/api/auth/verify-email?token=${token}`;
-    await sendEmail(email, 'Verify your email — Omena', emailVerification(name, verifyUrl));
+    await sendEmail(email, 'Zweryfikuj swój email — Omena', emailVerification(name, verifyUrl, 'pl'));
 
     return NextResponse.json(
       { message: 'Account created. Please check your email to verify your address.', userId: newUser.id },

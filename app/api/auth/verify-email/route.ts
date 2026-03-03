@@ -56,12 +56,12 @@ export async function GET(request: Request) {
 
     if (autoApprove) {
       // Send welcome email
-      await sendEmail(email, 'Welcome to Omena', accountApproved(user.name));
+      await sendEmail(email, 'Witamy w Omena', accountApproved(user.name, 'pl'));
       return redirectToStatus('approved');
     }
 
     // Send "pending approval" email to user
-    await sendEmail(email, 'Email verified — Omena', pendingApproval(user.name));
+    await sendEmail(email, 'Email zweryfikowany — Omena', pendingApproval(user.name, 'pl'));
 
     // Notify admin(s) about new pending user
     const adminList = await db
@@ -84,5 +84,5 @@ export async function GET(request: Request) {
 }
 
 function redirectToStatus(status: string) {
-  return NextResponse.redirect(`${getBaseUrl()}/en/auth/verify-email?status=${status}`);
+  return NextResponse.redirect(`${getBaseUrl()}/pl/auth/verify-email?status=${status}`);
 }

@@ -4,9 +4,20 @@ const GOLD = '#C49A6C';
 const DARK = '#1a1a1a';
 const LIGHT_BG = '#f8f6f3';
 
-function layout(content: string): string {
+type Locale = string;
+
+const footerText: Record<string, string> = {
+  pl: 'Otrzymujesz tę wiadomość, ponieważ masz konto w Omena Auction House.',
+  en: 'You received this email because you have an account at Omena Auction House.',
+  de: 'Sie erhalten diese E-Mail, weil Sie ein Konto bei Omena Auction House haben.',
+  fr: 'Vous recevez cet e-mail car vous avez un compte chez Omena Auction House.',
+  es: 'Recibe este correo porque tiene una cuenta en Omena Auction House.',
+};
+
+function layout(content: string, locale: Locale = 'en'): string {
+  const footer = footerText[locale] || footerText.en;
   return `<!DOCTYPE html>
-<html lang="en">
+<html lang="${locale}">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -38,7 +49,7 @@ function layout(content: string): string {
           <tr>
             <td style="background:#f0ede8;padding:24px 40px;text-align:center;">
               <p style="margin:0;color:#999;font-size:11px;font-family:Arial,sans-serif;line-height:1.6;">
-                You received this email because you have an account at Omena Auction House.<br />
+                ${footer}<br />
                 © ${new Date().getFullYear()} Omena. All rights reserved.
               </p>
             </td>
@@ -89,9 +100,24 @@ export function outbidNotification(
   lotTitle: string,
   newBidAmount: number,
   lotUrl: string,
+  locale: Locale = 'en',
 ): string {
   const amountFormatted = new Intl.NumberFormat('pl-PL', { style: 'currency', currency: 'PLN' }).format(newBidAmount);
 
+  if (locale === 'pl') {
+    return layout(`
+      ${heading('Zostałeś przebity')}
+      ${paragraph(`Szanowny/a ${userName},`)}
+      ${paragraph('Ktoś złożył wyższą ofertę na lot, który wygrywałeś. Działaj szybko, aby pozostać w aukcji!')}
+      ${table(
+        highlight('Lot', lotTitle) +
+        highlight('Nowa najwyższa oferta', amountFormatted),
+      )}
+      ${paragraph('Nie przegap okazji — złóż nową ofertę teraz.')}
+      ${button('Licytuj', lotUrl)}
+      ${paragraph(`<span style="color:#999;font-size:12px;">Ten alert został wysłany, ponieważ miałeś ofertę na ten lot. Jeśli nie chcesz dalej licytować, zignoruj tę wiadomość.</span>`)}
+    `, locale);
+  }
   return layout(`
     ${heading('You\'ve Been Outbid')}
     ${paragraph(`Dear ${userName},`)}
@@ -103,7 +129,7 @@ export function outbidNotification(
     ${paragraph('Don\'t miss your chance — place a new bid now.')}
     ${button('Bid Now', lotUrl)}
     ${paragraph(`<span style="color:#999;font-size:12px;">This alert was sent because you had a bid on this lot. If you no longer wish to bid, simply ignore this message.</span>`)}
-  `);
+  `, locale);
 }
 
 export function auctionStarting(
@@ -111,12 +137,27 @@ export function auctionStarting(
   auctionTitle: string,
   startDate: Date,
   auctionUrl: string,
+  locale: Locale = 'en',
 ): string {
-  const dateFormatted = new Intl.DateTimeFormat('en-GB', {
+  const dateFmtLocale = locale === 'pl' ? 'pl-PL' : 'en-GB';
+  const dateFormatted = new Intl.DateTimeFormat(dateFmtLocale, {
     weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
     hour: '2-digit', minute: '2-digit', timeZoneName: 'short',
   }).format(startDate);
 
+  if (locale === 'pl') {
+    return layout(`
+      ${heading('Aukcja wkrótce się rozpocznie')}
+      ${paragraph(`Szanowny/a ${userName},`)}
+      ${paragraph('Aukcja, na którą się zarejestrowałeś, wkrótce się rozpocznie. Przygotuj się do licytacji!')}
+      ${table(
+        highlight('Aukcja', auctionTitle) +
+        highlight('Start', dateFormatted),
+      )}
+      ${paragraph('Przejrzyj katalog i zaplanuj swoje oferty przed rozpoczęciem aukcji.')}
+      ${button('Zobacz aukcję', auctionUrl)}
+    `, locale);
+  }
   return layout(`
     ${heading('Auction Starting Soon')}
     ${paragraph(`Dear ${userName},`)}
@@ -127,14 +168,28 @@ export function auctionStarting(
     )}
     ${paragraph('Browse the catalog and plan your bids before the auction begins.')}
     ${button('View Auction', auctionUrl)}
-  `);
+  `, locale);
 }
 
 export function registrationApproved(
   userName: string,
   auctionTitle: string,
   paddleNumber: number,
+  locale: Locale = 'en',
 ): string {
+  if (locale === 'pl') {
+    return layout(`
+      ${heading('Rejestracja zatwierdzona')}
+      ${paragraph(`Szanowny/a ${userName},`)}
+      ${paragraph('Twoja rejestracja na nadchodzącą aukcję została zatwierdzona. Możesz teraz licytować.')}
+      ${table(
+        highlight('Aukcja', auctionTitle) +
+        highlight('Twój numer tabliczki', String(paddleNumber)),
+      )}
+      ${paragraph('Zapamiętaj swój numer tabliczki — będziesz go potrzebować podczas aukcji.')}
+      ${paragraph(`<span style="color:#999;font-size:12px;">W razie pytań skontaktuj się z nami: <a href="mailto:info@omena.pl" style="color:${GOLD};">info@omena.pl</a>.</span>`)}
+    `, locale);
+  }
   return layout(`
     ${heading('Registration Approved')}
     ${paragraph(`Dear ${userName},`)}
@@ -145,14 +200,26 @@ export function registrationApproved(
     )}
     ${paragraph('Please note your paddle number — you will need it to participate in the live auction.')}
     ${paragraph(`<span style="color:#999;font-size:12px;">If you have any questions, please contact us at <a href="mailto:info@omena.pl" style="color:${GOLD};">info@omena.pl</a>.</span>`)}
-  `);
+  `, locale);
 }
 
 export function registrationRejected(
   userName: string,
   auctionTitle: string,
   reason?: string,
+  locale: Locale = 'en',
 ): string {
+  if (locale === 'pl') {
+    return layout(`
+      ${heading('Rejestracja niezatwierdzona')}
+      ${paragraph(`Szanowny/a ${userName},`)}
+      ${paragraph('Z przykrością informujemy, że Twoja rejestracja na poniższą aukcję nie została zatwierdzona.')}
+      ${table(highlight('Aukcja', auctionTitle))}
+      ${reason ? paragraph(`<strong>Powód:</strong> ${reason}`) : ''}
+      ${paragraph('Jeśli masz pytania lub chcesz przekazać dodatkowe informacje, skontaktuj się z nami.')}
+      ${paragraph(`<span style="color:#999;font-size:12px;">Kontakt: <a href="mailto:info@omena.pl" style="color:${GOLD};">info@omena.pl</a>.</span>`)}
+    `, locale);
+  }
   return layout(`
     ${heading('Registration Not Approved')}
     ${paragraph(`Dear ${userName},`)}
@@ -161,7 +228,7 @@ export function registrationRejected(
     ${reason ? paragraph(`<strong>Reason:</strong> ${reason}`) : ''}
     ${paragraph('If you have any questions or would like to provide additional information, please contact us.')}
     ${paragraph(`<span style="color:#999;font-size:12px;">For enquiries, contact us at <a href="mailto:info@omena.pl" style="color:${GOLD};">info@omena.pl</a>.</span>`)}
-  `);
+  `, locale);
 }
 
 export function lotWon(
@@ -170,9 +237,25 @@ export function lotWon(
   hammerPrice: number,
   premium: number,
   total: number,
+  locale: Locale = 'en',
 ): string {
   const fmt = (n: number) => new Intl.NumberFormat('pl-PL', { style: 'currency', currency: 'PLN' }).format(n);
 
+  if (locale === 'pl') {
+    return layout(`
+      ${heading('Gratulacje — wygrałeś!')}
+      ${paragraph(`Szanowny/a ${userName},`)}
+      ${paragraph('Udało Ci się wylicytować poniższy lot. Faktura zostanie wysłana wkrótce.')}
+      ${table(
+        highlight('Lot', lotTitle) +
+        highlight('Cena wylicytowana', fmt(hammerPrice)) +
+        highlight('Opłata aukcyjna', fmt(premium)) +
+        highlight('Łącznie do zapłaty', fmt(total)),
+      )}
+      ${paragraph('Prosimy czekać na fakturę z instrukcjami płatności. Termin płatności to zazwyczaj 7 dni.')}
+      ${paragraph(`<span style="color:#999;font-size:12px;">W sprawie płatności skontaktuj się z nami: <a href="mailto:info@omena.pl" style="color:${GOLD};">info@omena.pl</a>.</span>`)}
+    `, locale);
+  }
   return layout(`
     ${heading('Congratulations — You Won!')}
     ${paragraph(`Dear ${userName},`)}
@@ -185,7 +268,7 @@ export function lotWon(
     )}
     ${paragraph('Please await your invoice for payment instructions. Payment is typically due within 7 days.')}
     ${paragraph(`<span style="color:#999;font-size:12px;">For payment queries, contact us at <a href="mailto:info@omena.pl" style="color:${GOLD};">info@omena.pl</a>.</span>`)}
-  `);
+  `, locale);
 }
 
 // ─── Account Lifecycle Templates ────────────────────────────────────────────
@@ -193,45 +276,86 @@ export function lotWon(
 export function emailVerification(
   userName: string,
   verifyUrl: string,
+  locale: Locale = 'en',
 ): string {
+  if (locale === 'pl') {
+    return layout(`
+      ${heading('Zweryfikuj swój adres email')}
+      ${paragraph(`Szanowny/a ${userName},`)}
+      ${paragraph('Dziękujemy za rejestrację w Omena Auction House. Kliknij poniższy przycisk, aby potwierdzić swój adres email.')}
+      ${button('Zweryfikuj email', verifyUrl)}
+      ${paragraph('<span style="color:#999;font-size:12px;">Ten link jest ważny przez 24 godziny. Jeśli nie zakładałeś konta, zignoruj tę wiadomość.</span>')}
+    `, locale);
+  }
   return layout(`
     ${heading('Verify Your Email')}
     ${paragraph(`Dear ${userName},`)}
     ${paragraph('Thank you for registering at Omena Auction House. Please verify your email address by clicking the button below.')}
     ${button('Verify Email', verifyUrl)}
     ${paragraph('<span style="color:#999;font-size:12px;">This link is valid for 24 hours. If you did not create an account, please ignore this email.</span>')}
-  `);
+  `, locale);
 }
 
 export function magicLinkLogin(
   email: string,
   magicUrl: string,
+  locale: Locale = 'en',
 ): string {
+  if (locale === 'pl') {
+    return layout(`
+      ${heading('Zaloguj się do Omena')}
+      ${paragraph(`Link do logowania został wysłany na adres <strong>${email}</strong>.`)}
+      ${paragraph('Kliknij poniższy przycisk, aby zalogować się na swoje konto. Hasło nie jest wymagane.')}
+      ${button('Zaloguj się', magicUrl)}
+      ${paragraph('<span style="color:#999;font-size:12px;">Ten link jest ważny przez 15 minut i może być użyty tylko raz. Jeśli nie prosiłeś o ten link, zignoruj tę wiadomość.</span>')}
+    `, locale);
+  }
   return layout(`
     ${heading('Sign In to Omena')}
     ${paragraph(`A sign-in link was requested for <strong>${email}</strong>.`)}
     ${paragraph('Click the button below to sign in to your account. No password needed.')}
     ${button('Sign In', magicUrl)}
     ${paragraph('<span style="color:#999;font-size:12px;">This link is valid for 15 minutes and can only be used once. If you did not request this, please ignore this email.</span>')}
-  `);
+  `, locale);
 }
 
 export function accountApproved(
   userName: string,
+  locale: Locale = 'en',
 ): string {
+  if (locale === 'pl') {
+    return layout(`
+      ${heading('Konto zatwierdzone')}
+      ${paragraph(`Szanowny/a ${userName},`)}
+      ${paragraph('Twoje konto w Omena Auction House zostało zatwierdzone. Możesz teraz się zalogować i przeglądać nasze aukcje.')}
+      ${paragraph('Witamy w Omena — zapraszamy na nadchodzące wydarzenia.')}
+      ${paragraph(`<span style="color:#999;font-size:12px;">W razie pytań skontaktuj się z nami: <a href="mailto:info@omena.pl" style="color:${GOLD};">info@omena.pl</a>.</span>`)}
+    `, locale);
+  }
   return layout(`
     ${heading('Account Approved')}
     ${paragraph(`Dear ${userName},`)}
     ${paragraph('Your account at Omena Auction House has been approved. You can now sign in and start exploring our auctions.')}
     ${paragraph('Welcome to Omena — we look forward to seeing you at our upcoming events.')}
     ${paragraph(`<span style="color:#999;font-size:12px;">If you have any questions, contact us at <a href="mailto:info@omena.pl" style="color:${GOLD};">info@omena.pl</a>.</span>`)}
-  `);
+  `, locale);
 }
 
 export function accountRejected(
   userName: string,
   reason?: string,
+  locale: Locale = 'en',
 ): string {
+  if (locale === 'pl') {
+    return layout(`
+      ${heading('Wniosek o konto')}
+      ${paragraph(`Szanowny/a ${userName},`)}
+      ${paragraph('Z przykrością informujemy, że Twój wniosek o konto w Omena Auction House nie został zatwierdzony.')}
+      ${reason ? paragraph(`<strong>Powód:</strong> ${reason}`) : ''}
+      ${paragraph('Jeśli uważasz, że to pomyłka lub chcesz przekazać dodatkowe informacje, skontaktuj się z nami.')}
+      ${paragraph(`<span style="color:#999;font-size:12px;">Kontakt: <a href="mailto:info@omena.pl" style="color:${GOLD};">info@omena.pl</a>.</span>`)}
+    `, locale);
+  }
   return layout(`
     ${heading('Account Application')}
     ${paragraph(`Dear ${userName},`)}
@@ -239,45 +363,75 @@ export function accountRejected(
     ${reason ? paragraph(`<strong>Reason:</strong> ${reason}`) : ''}
     ${paragraph('If you believe this is an error or would like to provide additional information, please contact us.')}
     ${paragraph(`<span style="color:#999;font-size:12px;">For enquiries, contact us at <a href="mailto:info@omena.pl" style="color:${GOLD};">info@omena.pl</a>.</span>`)}
-  `);
+  `, locale);
 }
 
 export function pendingApproval(
   userName: string,
+  locale: Locale = 'en',
 ): string {
+  if (locale === 'pl') {
+    return layout(`
+      ${heading('Email zweryfikowany — oczekiwanie na zatwierdzenie')}
+      ${paragraph(`Szanowny/a ${userName},`)}
+      ${paragraph('Twój adres email został pomyślnie zweryfikowany. Twoje konto jest teraz weryfikowane przez nasz zespół.')}
+      ${paragraph('Otrzymasz wiadomość email, gdy Twoje konto zostanie zatwierdzone. Zwykle zajmuje to 1–2 dni robocze.')}
+      ${paragraph(`<span style="color:#999;font-size:12px;">W razie pytań skontaktuj się z nami: <a href="mailto:info@omena.pl" style="color:${GOLD};">info@omena.pl</a>.</span>`)}
+    `, locale);
+  }
   return layout(`
     ${heading('Email Verified — Awaiting Approval')}
     ${paragraph(`Dear ${userName},`)}
     ${paragraph('Your email address has been successfully verified. Your account is now being reviewed by our team.')}
     ${paragraph('You will receive an email once your account has been approved. This usually takes 1–2 business days.')}
     ${paragraph(`<span style="color:#999;font-size:12px;">If you have any questions, contact us at <a href="mailto:info@omena.pl" style="color:${GOLD};">info@omena.pl</a>.</span>`)}
-  `);
+  `, locale);
 }
 
 export function invitationTemplate(
   inviterName: string,
   inviteUrl: string,
+  locale: Locale = 'en',
 ): string {
+  if (locale === 'pl') {
+    return layout(`
+      ${heading('Zaproszenie do Omena')}
+      ${paragraph(`<strong>${inviterName}</strong> zaprasza Cię do dołączenia do Omena Auction House — platformy aukcji sztuki i kolekcjonerstwa.`)}
+      ${paragraph('Kliknij poniższy przycisk, aby utworzyć konto i zacząć przeglądać nadchodzące wydarzenia.')}
+      ${button('Przyjmij zaproszenie', inviteUrl)}
+      ${paragraph('<span style="color:#999;font-size:12px;">To zaproszenie jest ważne przez 72 godziny i może być użyte tylko raz. Jeśli nie oczekiwałeś tego zaproszenia, zignoruj tę wiadomość.</span>')}
+    `, locale);
+  }
   return layout(`
     ${heading('You\'re Invited to Omena')}
     ${paragraph(`<strong>${inviterName}</strong> has invited you to join Omena Auction House — a curated platform for art and collectibles auctions.`)}
     ${paragraph('Click the button below to create your account and start exploring our upcoming events.')}
     ${button('Accept Invitation', inviteUrl)}
     ${paragraph('<span style="color:#999;font-size:12px;">This invitation is valid for 72 hours and can only be used once. If you did not expect this, please ignore this email.</span>')}
-  `);
+  `, locale);
 }
 
 export function passwordReset(
   userName: string,
   resetUrl: string,
+  locale: Locale = 'en',
 ): string {
+  if (locale === 'pl') {
+    return layout(`
+      ${heading('Resetowanie hasła')}
+      ${paragraph(`Szanowny/a ${userName},`)}
+      ${paragraph('Otrzymaliśmy prośbę o zresetowanie hasła do Twojego konta w Omena Auction House. Kliknij poniższy przycisk, aby ustawić nowe hasło.')}
+      ${button('Zresetuj hasło', resetUrl)}
+      ${paragraph('<span style="color:#999;font-size:12px;">Ten link jest ważny przez 1 godzinę. Jeśli nie prosiłeś o reset hasła, zignoruj tę wiadomość — Twoje hasło pozostanie bez zmian.</span>')}
+    `, locale);
+  }
   return layout(`
     ${heading('Reset Your Password')}
     ${paragraph(`Dear ${userName},`)}
     ${paragraph('A password reset was requested for your Omena Auction House account. Click the button below to set a new password.')}
     ${button('Reset Password', resetUrl)}
     ${paragraph('<span style="color:#999;font-size:12px;">This link is valid for 1 hour. If you did not request a password reset, please ignore this email — your password will remain unchanged.</span>')}
-  `);
+  `, locale);
 }
 
 export function adminNewUserPending(

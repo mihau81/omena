@@ -41,8 +41,8 @@ export async function POST(request: Request) {
 
     // Create reset token (1h)
     const token = await createVerificationToken(email, 'password_reset', 60 * 60 * 1000);
-    const resetUrl = `${getBaseUrl()}/en/auth/reset-password?token=${token}`;
-    await sendEmail(email, 'Reset your password — Omena', passwordReset(user.name, resetUrl));
+    const resetUrl = `${getBaseUrl()}/pl/auth/reset-password?token=${token}`;
+    await sendEmail(email, 'Zresetuj hasło — Omena', passwordReset(user.name, resetUrl, 'pl'));
 
     return NextResponse.json({ message: 'If an account exists, a password reset link has been sent.' });
   } catch (error) {

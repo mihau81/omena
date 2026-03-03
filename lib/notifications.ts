@@ -122,25 +122,25 @@ async function sendEmailForNotification(
   switch (type) {
     case 'outbid':
       if (metadata?.lotTitle && metadata?.newBidAmount && metadata?.lotUrl) {
-        html = outbidNotification(user.name, metadata.lotTitle, metadata.newBidAmount, metadata.lotUrl);
+        html = outbidNotification(user.name, metadata.lotTitle, metadata.newBidAmount, metadata.lotUrl, 'pl');
       }
       break;
 
     case 'auction_starting':
       if (metadata?.auctionTitle && metadata?.startDate && metadata?.auctionUrl) {
-        html = auctionStarting(user.name, metadata.auctionTitle, new Date(metadata.startDate), metadata.auctionUrl);
+        html = auctionStarting(user.name, metadata.auctionTitle, new Date(metadata.startDate), metadata.auctionUrl, 'pl');
       }
       break;
 
     case 'registration_approved':
       if (metadata?.auctionTitle && metadata?.paddleNumber != null) {
-        html = registrationApproved(user.name, metadata.auctionTitle, metadata.paddleNumber);
+        html = registrationApproved(user.name, metadata.auctionTitle, metadata.paddleNumber, 'pl');
       }
       break;
 
     case 'registration_rejected':
       if (metadata?.auctionTitle) {
-        html = registrationRejected(user.name, metadata.auctionTitle, metadata.rejectionReason);
+        html = registrationRejected(user.name, metadata.auctionTitle, metadata.rejectionReason, 'pl');
       }
       break;
 
@@ -151,7 +151,7 @@ async function sendEmailForNotification(
         metadata?.buyersPremium != null &&
         metadata?.totalAmount != null
       ) {
-        html = lotWon(user.name, metadata.lotTitle, metadata.hammerPrice, metadata.buyersPremium, metadata.totalAmount);
+        html = lotWon(user.name, metadata.lotTitle, metadata.hammerPrice, metadata.buyersPremium, metadata.totalAmount, 'pl');
       }
       break;
 

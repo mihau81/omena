@@ -49,7 +49,7 @@ export async function POST(
     );
 
     // Send email
-    await sendEmail(user.email, 'Account approved — Omena', accountApproved(user.name));
+    await sendEmail(user.email, 'Konto zatwierdzone — Omena', accountApproved(user.name, 'pl'));
 
     return NextResponse.json({ message: 'User approved successfully' });
   } catch (error) {
