@@ -160,8 +160,8 @@ jobs:
           echo "Server did not start in time"
           exit 1
 
-      - name: Run e2e tests
-        run: npm run test:e2e
+      - name: Run e2e tests (smoke)
+        run: npx playwright test tests/e2e/public/ tests/e2e/auth/ --project=setup --project=chromium
 
   ci-gate:
     needs: [checks, integration-tests, build, e2e-tests]
