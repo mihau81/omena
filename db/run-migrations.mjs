@@ -33,3 +33,4 @@ for (const file of files) {
 
 await client.end();
 console.log('All migrations complete.');
+
