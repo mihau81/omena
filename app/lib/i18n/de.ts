@@ -247,4 +247,27 @@ export const de: Dictionary = {
   resultsDateTo: 'Datum bis',
   navResults: 'Ergebnisse',
 
+  // Login page
+  loginTitle: 'In Ihr Konto einloggen',
+  loginEmail: 'E-Mail',
+  loginEmailPlaceholder: 'sie@example.com',
+  loginSendMagicLink: 'Anmeldelink senden',
+  loginSending: 'Wird gesendet...',
+  loginOrPassword: 'oder mit Passwort anmelden',
+  loginHidePassword: 'ausblenden',
+  loginPassword: 'Passwort',
+  loginPasswordPlaceholder: 'Passwort eingeben',
+  loginSignIn: 'Anmelden',
+  loginSigningIn: 'Anmeldung...',
+  loginForgotPassword: 'Passwort vergessen?',
+  loginNoAccount: 'Noch kein Konto?',
+  loginRegister: 'Registrieren',
+  loginCheckEmail: 'Prüfen Sie Ihre E-Mails',
+  loginMagicLinkSent: 'Wir haben einen Anmeldelink gesendet an',
+  loginMagicLinkClick: 'Klicken Sie auf den Link, um sich anzumelden.',
+  loginDifferentEmail: 'Andere E-Mail verwenden',
+  loginErrorGeneric: 'Ein unerwarteter Fehler ist aufgetreten',
+  loginErrorInvalidCredentials: 'Ungültige E-Mail oder Passwort',
+  loginErrorMagicLink: 'Link konnte nicht gesendet werden',
+
 };

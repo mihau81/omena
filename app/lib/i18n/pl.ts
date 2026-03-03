@@ -245,4 +245,27 @@ export const pl = {
   resultsDateTo: 'Data do',
   navResults: 'Wyniki',
 
+  // Login page
+  loginTitle: 'Zaloguj się na swoje konto',
+  loginEmail: 'Email',
+  loginEmailPlaceholder: 'ty@example.com',
+  loginSendMagicLink: 'Wyślij link do logowania',
+  loginSending: 'Wysyłanie...',
+  loginOrPassword: 'lub zaloguj się hasłem',
+  loginHidePassword: 'ukryj',
+  loginPassword: 'Hasło',
+  loginPasswordPlaceholder: 'Wpisz swoje hasło',
+  loginSignIn: 'Zaloguj się',
+  loginSigningIn: 'Logowanie...',
+  loginForgotPassword: 'Nie pamiętasz hasła?',
+  loginNoAccount: 'Nie masz konta?',
+  loginRegister: 'Zarejestruj się',
+  loginCheckEmail: 'Sprawdź swoją skrzynkę',
+  loginMagicLinkSent: 'Wysłaliśmy link do logowania na adres',
+  loginMagicLinkClick: 'Kliknij link, aby się zalogować.',
+  loginDifferentEmail: 'Użyj innego adresu',
+  loginErrorGeneric: 'Wystąpił nieoczekiwany błąd',
+  loginErrorInvalidCredentials: 'Nieprawidłowy email lub hasło',
+  loginErrorMagicLink: 'Nie udało się wysłać linku',
+
 } as const;

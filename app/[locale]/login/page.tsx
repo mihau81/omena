@@ -2,9 +2,10 @@
 
 import { useState } from 'react';
 import { signIn } from 'next-auth/react';
-import { useRouter, useSearchParams, useParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { apiUrl } from '@/app/lib/utils';
+import { useLocale } from '@/app/lib/LocaleContext';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -15,7 +16,7 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { locale } = useParams<{ locale: string }>();
+  const { locale, t } = useLocale();
 
   async function handleMagicLink(e: React.FormEvent) {
     e.preventDefault();
@@ -34,10 +35,10 @@ export default function LoginPage() {
         setMagicLinkSent(true);
       } else {
         const data = await res.json();
-        setError(data.error || 'Failed to send magic link');
+        setError(data.error || t.loginErrorMagicLink);
       }
     } catch {
-      setError('An unexpected error occurred');
+      setError(t.loginErrorGeneric);
     } finally {
       setLoading(false);
     }
@@ -56,14 +57,14 @@ export default function LoginPage() {
       });
 
       if (result?.error) {
-        setError('Invalid email or password');
+        setError(t.loginErrorInvalidCredentials);
       } else {
         const next = searchParams.get('next');
         router.push(next || `/${locale}`);
         router.refresh();
       }
     } catch {
-      setError('An unexpected error occurred');
+      setError(t.loginErrorGeneric);
     } finally {
       setLoading(false);
     }
@@ -82,15 +83,15 @@ export default function LoginPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
               </svg>
             </div>
-            <h2 className="text-lg font-semibold text-dark-brown mb-2">Check your email</h2>
+            <h2 className="text-lg font-semibold text-dark-brown mb-2">{t.loginCheckEmail}</h2>
             <p className="text-sm text-taupe mb-4">
-              We sent a sign-in link to <strong className="text-dark-brown">{email}</strong>. Click the link to sign in.
+              {t.loginMagicLinkSent} <strong className="text-dark-brown">{email}</strong>. {t.loginMagicLinkClick}
             </p>
             <button
               onClick={() => setMagicLinkSent(false)}
               className="text-sm text-gold hover:underline"
             >
-              Use a different email
+              {t.loginDifferentEmail}
             </button>
           </div>
         </div>
@@ -106,7 +107,7 @@ export default function LoginPage() {
           <h1 className="text-3xl font-serif font-bold text-dark-brown tracking-wide">
             OMENA
           </h1>
-          <p className="text-sm text-taupe mt-1">Sign in to your account</p>
+          <p className="text-sm text-taupe mt-1">{t.loginTitle}</p>
         </div>
 
         {/* Login card */}
@@ -115,7 +116,7 @@ export default function LoginPage() {
           <form onSubmit={handleMagicLink} className="space-y-4">
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-dark-brown mb-1.5">
-                Email
+                {t.loginEmail}
               </label>
               <input
                 id="email"
@@ -125,7 +126,7 @@ export default function LoginPage() {
                 required
                 autoComplete="email"
                 className="w-full px-3 py-2.5 rounded-lg border border-beige bg-cream/30 text-dark-brown placeholder-taupe/50 focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold transition-colors"
-                placeholder="you@example.com"
+                placeholder={t.loginEmailPlaceholder}
               />
             </div>
 
@@ -137,10 +138,10 @@ export default function LoginPage() {
               {loading && !showPassword ? (
                 <span className="flex items-center justify-center gap-2">
                   <Spinner />
-                  Sending...
+                  {t.loginSending}
                 </span>
               ) : (
-                'Send magic link'
+                t.loginSendMagicLink
               )}
             </button>
           </form>
@@ -152,7 +153,7 @@ export default function LoginPage() {
               onClick={() => setShowPassword(!showPassword)}
               className="text-xs text-taupe hover:text-gold transition-colors"
             >
-              {showPassword ? 'hide' : 'or sign in with password'}
+              {showPassword ? t.loginHidePassword : t.loginOrPassword}
             </button>
             <div className="flex-1 h-px bg-beige" />
           </div>
@@ -162,7 +163,7 @@ export default function LoginPage() {
             <form onSubmit={handlePasswordLogin} className="space-y-4">
               <div>
                 <label htmlFor="password" className="block text-sm font-medium text-dark-brown mb-1.5">
-                  Password
+                  {t.loginPassword}
                 </label>
                 <input
                   id="password"
@@ -172,7 +173,7 @@ export default function LoginPage() {
                   required
                   autoComplete="current-password"
                   className="w-full px-3 py-2.5 rounded-lg border border-beige bg-cream/30 text-dark-brown placeholder-taupe/50 focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold transition-colors"
-                  placeholder="Enter your password"
+                  placeholder={t.loginPasswordPlaceholder}
                 />
               </div>
 
@@ -184,16 +185,16 @@ export default function LoginPage() {
                 {loading ? (
                   <span className="flex items-center justify-center gap-2">
                     <Spinner />
-                    Signing in...
+                    {t.loginSigningIn}
                   </span>
                 ) : (
-                  'Sign In'
+                  t.loginSignIn
                 )}
               </button>
 
               <div className="text-right">
                 <Link href={`/${locale}/auth/reset-password`} className="text-xs text-gold hover:underline">
-                  Forgot password?
+                  {t.loginForgotPassword}
                 </Link>
               </div>
             </form>
@@ -210,9 +211,9 @@ export default function LoginPage() {
         </div>
 
         <p className="text-center text-sm text-taupe mt-6">
-          Don&apos;t have an account?{' '}
+          {t.loginNoAccount}{' '}
           <Link href={`/${locale}/register`} className="text-gold hover:underline font-medium">
-            Register
+            {t.loginRegister}
           </Link>
         </p>
       </div>

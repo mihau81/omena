@@ -246,4 +246,28 @@ export const es: Dictionary = {
   resultsDateFrom: 'Fecha desde',
   resultsDateTo: 'Fecha hasta',
   navResults: 'Resultados',
+
+  // Login page
+  loginTitle: 'Inicia sesión en tu cuenta',
+  loginEmail: 'Correo electrónico',
+  loginEmailPlaceholder: 'tu@example.com',
+  loginSendMagicLink: 'Enviar enlace mágico',
+  loginSending: 'Enviando...',
+  loginOrPassword: 'o inicia sesión con contraseña',
+  loginHidePassword: 'ocultar',
+  loginPassword: 'Contraseña',
+  loginPasswordPlaceholder: 'Introduce tu contraseña',
+  loginSignIn: 'Iniciar sesión',
+  loginSigningIn: 'Iniciando sesión...',
+  loginForgotPassword: '¿Olvidaste tu contraseña?',
+  loginNoAccount: '¿No tienes cuenta?',
+  loginRegister: 'Regístrate',
+  loginCheckEmail: 'Revisa tu correo',
+  loginMagicLinkSent: 'Hemos enviado un enlace de inicio de sesión a',
+  loginMagicLinkClick: 'Haz clic en el enlace para iniciar sesión.',
+  loginDifferentEmail: 'Usar otro correo',
+  loginErrorGeneric: 'Ocurrió un error inesperado',
+  loginErrorInvalidCredentials: 'Correo o contraseña inválidos',
+  loginErrorMagicLink: 'No se pudo enviar el enlace',
+
 };

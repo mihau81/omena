@@ -247,4 +247,27 @@ export const en: Dictionary = {
   resultsDateTo: 'Date to',
   navResults: 'Results',
 
+  // Login page
+  loginTitle: 'Sign in to your account',
+  loginEmail: 'Email',
+  loginEmailPlaceholder: 'you@example.com',
+  loginSendMagicLink: 'Send magic link',
+  loginSending: 'Sending...',
+  loginOrPassword: 'or sign in with password',
+  loginHidePassword: 'hide',
+  loginPassword: 'Password',
+  loginPasswordPlaceholder: 'Enter your password',
+  loginSignIn: 'Sign In',
+  loginSigningIn: 'Signing in...',
+  loginForgotPassword: 'Forgot password?',
+  loginNoAccount: "Don't have an account?",
+  loginRegister: 'Register',
+  loginCheckEmail: 'Check your email',
+  loginMagicLinkSent: 'We sent a sign-in link to',
+  loginMagicLinkClick: 'Click the link to sign in.',
+  loginDifferentEmail: 'Use a different email',
+  loginErrorGeneric: 'An unexpected error occurred',
+  loginErrorInvalidCredentials: 'Invalid email or password',
+  loginErrorMagicLink: 'Failed to send magic link',
+
 };
