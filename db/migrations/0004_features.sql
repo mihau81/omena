@@ -56,6 +56,30 @@ CREATE INDEX "artists_slug_idx" ON "artists" ("slug");
 CREATE INDEX "artists_name_idx" ON "artists" ("name");
 CREATE INDEX "artists_deleted_at_idx" ON "artists" ("deleted_at");
 
+-- ─── Consignors table ──────────────────────────────────────────────────────
+
+CREATE TABLE IF NOT EXISTS "consignors" (
+  "id"              uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+  "name"            text NOT NULL,
+  "email"           varchar(320),
+  "phone"           varchar(30) DEFAULT '',
+  "address"         text DEFAULT '',
+  "city"            varchar(100) DEFAULT '',
+  "postal_code"     varchar(20) DEFAULT '',
+  "country"         varchar(100) DEFAULT 'Poland',
+  "company_name"    text DEFAULT '',
+  "tax_id"          varchar(30) DEFAULT '',
+  "commission_rate" numeric(5,4) DEFAULT '0.1000',
+  "notes"           text DEFAULT '',
+  "is_active"       boolean NOT NULL DEFAULT true,
+  "created_at"      timestamptz NOT NULL DEFAULT now(),
+  "updated_at"      timestamptz NOT NULL DEFAULT now(),
+  "deleted_at"      timestamptz
+);
+
+CREATE INDEX IF NOT EXISTS "consignors_name_idx" ON "consignors" ("name");
+CREATE INDEX IF NOT EXISTS "consignors_email_idx" ON "consignors" ("email");
+
 -- ─── Settlements tables ─────────────────────────────────────────────────────
 
 CREATE TABLE "settlements" (
