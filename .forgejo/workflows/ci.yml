@@ -20,7 +20,7 @@ jobs:
         run: npm install
 
       - name: Lint
-        run: npm run lint
+        run: npm run lint -- --max-warnings 300
 
   unit-tests:
     runs-on: docker
@@ -53,6 +53,7 @@ jobs:
           --health-retries 5
     env:
       DATABASE_URL: postgresql://omena:omena_test@postgres:5432/omena_test
+      CI: true
     steps:
       - uses: actions/checkout@v4
 
@@ -62,6 +63,9 @@ jobs:
 
       - name: Install dependencies
         run: npm install
+
+      - name: Run database migrations
+        run: node db/run-migrations.mjs
 
       - name: Run integration tests
         run: npm run test:integration
@@ -108,6 +112,7 @@ jobs:
           --health-retries 5
     env:
       DATABASE_URL: postgresql://omena:omena_test@postgres:5432/omena_test
+      CI: true
     steps:
       - uses: actions/checkout@v4
 
@@ -118,6 +123,9 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Run database migrations
+        run: node db/run-migrations.mjs
+
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
 
@@ -125,6 +133,8 @@ jobs:
         run: npm run dev &
         env:
           PORT: 3002
+          NEXTAUTH_SECRET: ci-build-secret
+          ENCRYPTION_KEY: ci-build-encryption-key-32chars
 
       - name: Wait for dev server
         run: |

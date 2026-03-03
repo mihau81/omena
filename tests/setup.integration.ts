@@ -3,10 +3,12 @@
  * Runs before each integration test file.
  */
 
-// Load .env first, then override DATABASE_URL to use isolated test database.
-// This ensures route handlers and test helpers both connect to omena_test.
+// Load .env first, then set DATABASE_URL for test database.
+// In CI, DATABASE_URL is already set to the postgres service container — don't override it.
 import 'dotenv/config';
-process.env.DATABASE_URL = 'postgresql://omena:omena_dev@localhost:5432/omena_test';
+if (!process.env.CI) {
+  process.env.DATABASE_URL = 'postgresql://omena:omena_dev@localhost:5432/omena_test';
+}
 
 // Reset global auth mock state between test files to ensure isolation.
 const _g = globalThis as { _omenaMockAuth?: { mockReset: () => void; mockResolvedValue: (v: unknown) => void }; _omenaMockSession?: unknown };
