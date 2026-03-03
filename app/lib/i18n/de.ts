@@ -270,4 +270,13 @@ export const de: Dictionary = {
   loginErrorInvalidCredentials: 'Ungültige E-Mail oder Passwort',
   loginErrorMagicLink: 'Link konnte nicht gesendet werden',
 
+  // Notifications page
+  notificationsTitle: 'Benachrichtigungen',
+  notificationsUnread: 'ungelesen',
+  notificationsMarkAllRead: 'Alle als gelesen markieren',
+  notificationsEmpty: 'Noch keine Benachrichtigungen.',
+  notificationsTimeMinutes: 'Min.',
+  notificationsTimeHours: 'Std.',
+  notificationsTimeDays: 'T.',
+
 };

@@ -75,8 +75,8 @@ export async function PATCH(
       createNotification(
         existing.userId,
         'registration_rejected',
-        'Registration Not Approved',
-        `Your registration for "${auctionTitle}" was not approved.${reason ? ` Reason: ${reason}` : ''}`,
+        'Rejestracja odrzucona',
+        `Twoja rejestracja na aukcję „${auctionTitle}" nie została zatwierdzona.${reason ? ` Powód: ${reason}` : ''}`,
         { auctionId: existing.auctionId, auctionTitle, rejectionReason: reason },
       ).catch((err) => console.error('[registrations] Notification error:', err));
     }

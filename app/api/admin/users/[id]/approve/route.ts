@@ -44,8 +44,8 @@ export async function POST(
     await createNotification(
       id,
       'registration_approved',
-      'Account Approved',
-      'Your Omena account has been approved. You can now sign in and participate in auctions.',
+      'Konto zatwierdzone',
+      'Twoje konto Omena zostało zatwierdzone. Możesz się teraz zalogować i brać udział w aukcjach.',
     );
 
     // Send email

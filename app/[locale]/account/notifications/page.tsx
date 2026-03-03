@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { apiUrl } from '@/app/lib/utils';
+import { useLocale } from '@/app/lib/LocaleContext';
 import PushNotificationToggle from '@/app/components/PushNotificationToggle';
 
 interface Notification {
@@ -15,6 +16,7 @@ interface Notification {
 }
 
 export default function AccountNotificationsPage() {
+  const { t } = useLocale();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -47,20 +49,20 @@ export default function AccountNotificationsPage() {
   function timeAgo(dateStr: string) {
     const diff = Date.now() - new Date(dateStr).getTime();
     const mins = Math.floor(diff / 60000);
-    if (mins < 60) return `${mins}m ago`;
+    if (mins < 60) return `${mins} ${t.notificationsTimeMinutes}`;
     const hours = Math.floor(mins / 60);
-    if (hours < 24) return `${hours}h ago`;
+    if (hours < 24) return `${hours} ${t.notificationsTimeHours}`;
     const days = Math.floor(hours / 24);
-    return `${days}d ago`;
+    return `${days} ${t.notificationsTimeDays}`;
   }
 
   return (
     <div>
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="font-serif text-3xl font-bold text-dark-brown md:text-4xl">Notifications</h1>
+          <h1 className="font-serif text-3xl font-bold text-dark-brown md:text-4xl">{t.notificationsTitle}</h1>
           {unreadCount > 0 && (
-            <p className="mt-1 text-sm text-gold">{unreadCount} unread</p>
+            <p className="mt-1 text-sm text-gold">{unreadCount} {t.notificationsUnread}</p>
           )}
         </div>
         {unreadCount > 0 && (
@@ -68,7 +70,7 @@ export default function AccountNotificationsPage() {
             onClick={markAllRead}
             className="text-sm text-gold hover:underline"
           >
-            Mark all as read
+            {t.notificationsMarkAllRead}
           </button>
         )}
       </div>
@@ -84,7 +86,7 @@ export default function AccountNotificationsPage() {
         </div>
       ) : notifications.length === 0 ? (
         <div className="mt-8 text-center py-12">
-          <p className="text-taupe">No notifications yet.</p>
+          <p className="text-taupe">{t.notificationsEmpty}</p>
         </div>
       ) : (
         <div className="mt-6 space-y-2">

@@ -164,8 +164,8 @@ export async function PATCH(
       createNotification(
         reg.userId,
         'registration_approved',
-        'Registration Approved',
-        `Your registration for "${auction.title}" has been approved. Your paddle number is #${nextPaddle}.`,
+        'Rejestracja zatwierdzona',
+        `Twoja rejestracja na aukcję „${auction.title}" została zatwierdzona. Twój numer palety: #${nextPaddle}.`,
         { auctionId, auctionTitle: auction.title, paddleNumber: nextPaddle },
       ).catch((err) => console.error('[registrations] Notification error:', err));
 

@@ -268,4 +268,13 @@ export const pl = {
   loginErrorInvalidCredentials: 'Nieprawidłowy email lub hasło',
   loginErrorMagicLink: 'Nie udało się wysłać linku',
 
+  // Notifications page
+  notificationsTitle: 'Powiadomienia',
+  notificationsUnread: 'nieprzeczytanych',
+  notificationsMarkAllRead: 'Oznacz wszystkie jako przeczytane',
+  notificationsEmpty: 'Brak powiadomień.',
+  notificationsTimeMinutes: 'min temu',
+  notificationsTimeHours: 'godz. temu',
+  notificationsTimeDays: 'dni temu',
+
 } as const;
