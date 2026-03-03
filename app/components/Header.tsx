@@ -233,7 +233,7 @@ export default function Header() {
                       </Link>
                       <div className="border-t border-beige mt-1 pt-1">
                         <button
-                          onClick={() => signOut({ callbackUrl: `/${locale}` })}
+                          onClick={() => signOut({ callbackUrl: `/omena/${locale}` })}
                           className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
                         >
                           {t.userMenuSignOut}
@@ -301,7 +301,7 @@ export default function Header() {
                   {t.userMenuMyAccount}
                 </Link>
                 <button
-                  onClick={() => { setMenuOpen(false); signOut({ callbackUrl: `/${locale}` }); }}
+                  onClick={() => { setMenuOpen(false); signOut({ callbackUrl: `/omena/${locale}` }); }}
                   className="font-serif text-2xl tracking-wide text-red-600 hover:text-red-700 transition-colors"
                 >
                   {t.userMenuSignOut}
