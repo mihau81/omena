@@ -133,8 +133,13 @@ jobs:
           NEXTAUTH_SECRET: ci-build-secret
           ENCRYPTION_KEY: ci-build-encryption-key-32chars
 
+      - name: Prepare standalone server
+        run: |
+          cp -r public .next/standalone/public
+          cp -r .next/static .next/standalone/.next/static
+
       - name: Start production server
-        run: PORT=3002 NEXTAUTH_SECRET=ci-build-secret ENCRYPTION_KEY=ci-build-encryption-key-32chars node .next/standalone/server.js &
+        run: PORT=3002 HOSTNAME=0.0.0.0 NEXTAUTH_SECRET=ci-build-secret ENCRYPTION_KEY=ci-build-encryption-key-32chars node .next/standalone/server.js &
 
       - name: Wait for server
         run: |
@@ -153,7 +158,7 @@ jobs:
         run: npm run test:e2e
 
   ci-gate:
-    needs: [checks, integration-tests, build]
+    needs: [checks, integration-tests, build, e2e-tests]
     runs-on: docker
     steps:
       - run: echo "CI gate passed"

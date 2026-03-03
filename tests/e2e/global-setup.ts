@@ -5,7 +5,11 @@ import { chromium, FullConfig } from '@playwright/test';
  * Seeds the test database and verifies the dev server is reachable.
  */
 async function globalSetup(_config: FullConfig) {
-  const browser = await chromium.launch();
+  const browser = await chromium.launch(
+    process.env.CI
+      ? { args: ['--no-sandbox', '--disable-setuid-sandbox'] }
+      : undefined,
+  );
   const page = await browser.newPage();
 
   // Wait for the dev server to be ready

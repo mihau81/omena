@@ -11,6 +11,9 @@ export default defineConfig({
   use: {
     baseURL: 'http://localhost:3002/omenaa',
     trace: 'on-first-retry',
+    ...(process.env.CI
+      ? { launchOptions: { args: ['--no-sandbox', '--disable-setuid-sandbox'] } }
+      : {}),
   },
   projects: [
     {
