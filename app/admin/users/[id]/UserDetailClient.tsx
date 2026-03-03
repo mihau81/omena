@@ -26,6 +26,7 @@ interface UserDetail {
   notes: string | null;
   emailVerified: boolean;
   isActive: boolean;
+  accountStatus: string;
   createdAt: string;
   updatedAt: string;
   bidCount: number;

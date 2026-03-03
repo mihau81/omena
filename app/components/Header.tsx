@@ -221,22 +221,22 @@ export default function Header() {
                       </div>
                       <Link href={`/${locale}/account`} onClick={() => setUserDropdown(false)}
                         className="block px-3 py-2 text-sm text-dark-brown hover:bg-beige/50 transition-colors">
-                        My Account
+                        {t.userMenuMyAccount}
                       </Link>
                       <Link href={`/${locale}/account/bids`} onClick={() => setUserDropdown(false)}
                         className="block px-3 py-2 text-sm text-dark-brown hover:bg-beige/50 transition-colors">
-                        My Bids
+                        {t.userMenuMyBids}
                       </Link>
                       <Link href={`/${locale}/account/favorites`} onClick={() => setUserDropdown(false)}
                         className="block px-3 py-2 text-sm text-dark-brown hover:bg-beige/50 transition-colors">
-                        Favorites
+                        {t.userMenuFavorites}
                       </Link>
                       <div className="border-t border-beige mt-1 pt-1">
                         <button
                           onClick={() => signOut({ callbackUrl: `/${locale}` })}
                           className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
                         >
-                          Sign Out
+                          {t.userMenuSignOut}
                         </button>
                       </div>
                     </div>
@@ -248,7 +248,7 @@ export default function Header() {
                 href={`/${locale}/login`}
                 className="px-4 py-1.5 bg-gold text-white text-sm font-medium rounded-lg hover:bg-gold/90 transition-colors"
               >
-                Sign In
+                {t.userMenuSignIn}
               </Link>
             )}
           </div>
@@ -298,13 +298,13 @@ export default function Header() {
                   onClick={() => setMenuOpen(false)}
                   className="font-serif text-2xl tracking-wide text-dark-brown hover:text-gold transition-colors"
                 >
-                  My Account
+                  {t.userMenuMyAccount}
                 </Link>
                 <button
                   onClick={() => { setMenuOpen(false); signOut({ callbackUrl: `/${locale}` }); }}
                   className="font-serif text-2xl tracking-wide text-red-600 hover:text-red-700 transition-colors"
                 >
-                  Sign Out
+                  {t.userMenuSignOut}
                 </button>
               </>
             ) : (
@@ -313,7 +313,7 @@ export default function Header() {
                 onClick={() => setMenuOpen(false)}
                 className="font-serif text-2xl tracking-wide text-gold hover:text-gold/80 transition-colors"
               >
-                Sign In
+                {t.userMenuSignIn}
               </Link>
             )}
 

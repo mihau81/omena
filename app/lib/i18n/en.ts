@@ -14,6 +14,13 @@ export const en: Dictionary = {
   navContact: 'Contact',
   navMyBids: 'My Bids',
 
+  // User menu
+  userMenuMyAccount: 'My Account',
+  userMenuMyBids: 'My Bids',
+  userMenuFavorites: 'Favorites',
+  userMenuSignOut: 'Sign Out',
+  userMenuSignIn: 'Sign In',
+
   // Common
   lot: 'Lot',
   estimate: 'Estimate',

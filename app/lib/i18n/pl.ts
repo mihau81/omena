@@ -12,6 +12,13 @@ export const pl = {
   navContact: 'Kontakt',
   navMyBids: 'Moje oferty',
 
+  // User menu
+  userMenuMyAccount: 'Moje konto',
+  userMenuMyBids: 'Moje oferty',
+  userMenuFavorites: 'Ulubione',
+  userMenuSignOut: 'Wyloguj się',
+  userMenuSignIn: 'Zaloguj się',
+
   // Common
   lot: 'Lot',
   estimate: 'Estymata',
