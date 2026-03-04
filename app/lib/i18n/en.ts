@@ -132,7 +132,7 @@ export const en: Dictionary = {
   cancelBid: 'Cancel',
   bidAmount: 'Bid amount',
   nextMinBid: 'Minimum next bid',
-  buyersPremium: "Buyer's premium (20%)",
+  buyersPremium: "Buyer's premium",
   totalWithPremium: 'Total incl. premium',
   bidHistory: 'Bid history',
   noBidsYet: 'No bids yet',

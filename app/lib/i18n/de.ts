@@ -132,7 +132,7 @@ export const de: Dictionary = {
   cancelBid: 'Abbrechen',
   bidAmount: 'Gebotsbetrag',
   nextMinBid: 'Nächstes Mindestgebot',
-  buyersPremium: 'Aufgeld (20%)',
+  buyersPremium: 'Aufgeld',
   totalWithPremium: 'Gesamt inkl. Aufgeld',
   bidHistory: 'Gebotshistorie',
   noBidsYet: 'Noch keine Gebote',

@@ -130,7 +130,7 @@ export const pl = {
   cancelBid: 'Anuluj',
   bidAmount: 'Kwota oferty',
   nextMinBid: 'Minimalna następna oferta',
-  buyersPremium: 'Opłata aukcyjna (20%)',
+  buyersPremium: 'Opłata aukcyjna',
   totalWithPremium: 'Łącznie z opłatą',
   bidHistory: 'Historia ofert',
   noBidsYet: 'Brak ofert',

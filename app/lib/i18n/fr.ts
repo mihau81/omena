@@ -132,7 +132,7 @@ export const fr: Dictionary = {
   cancelBid: 'Annuler',
   bidAmount: "Montant de l'enchère",
   nextMinBid: 'Enchère minimale suivante',
-  buyersPremium: "Prime acheteur (20%)",
+  buyersPremium: "Prime acheteur",
   totalWithPremium: 'Total prime incluse',
   bidHistory: 'Historique des enchères',
   noBidsYet: "Aucune enchère pour l'instant",
