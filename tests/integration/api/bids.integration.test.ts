@@ -204,20 +204,6 @@ describe('POST /api/lots/[id]/bids', () => {
     await db.execute(`DELETE FROM users WHERE email LIKE 'bids-test-user2-%@example.com'`);
   });
 
-  it('returns 403 when user is not registered for auction', async () => {
-    const { POST } = await import('@/app/api/lots/[id]/bids/route');
-
-    const unregisteredUser = await createTestUser({ email: `bids-unreg-${Date.now()}@example.com` });
-    (globalThis as any)._omenaaMockSession = { user: { id: unregisteredUser.id, email: unregisteredUser.email, name: unregisteredUser.name, userType: 'user', visibilityLevel: 0, role: null } };
-
-    const request = createRequest('POST', `/api/lots/${lotId}/bids`, { amount: 7000 });
-    const { status, data } = await callRouteHandler(POST, request, { params: Promise.resolve({ id: lotId }) });
-
-    expect(status).toBe(403);
-    expect((data as Record<string, string>).code).toBe('NOT_REGISTERED');
-
-    await db.execute(`DELETE FROM users WHERE email LIKE 'bids-unreg-%@example.com'`);
-  });
 });
 
 describe('GET /api/lots/[id]/bids', () => {

@@ -39,12 +39,6 @@ vi.mock('@/db/schema', () => ({
     isActive: 'absenteeBids.isActive',
   },
   bids: { id: 'bids.id' },
-  bidRegistrations: {
-    id: 'bidRegistrations.id',
-    userId: 'bidRegistrations.userId',
-    auctionId: 'bidRegistrations.auctionId',
-    isApproved: 'bidRegistrations.isApproved',
-  },
   bidRetractions: {},
   lots: {
     id: 'lots.id',
@@ -133,7 +127,6 @@ describe('AbsenteeError', () => {
   it('supports all defined error codes', () => {
     const codes = [
       'NOT_AUTHENTICATED',
-      'NOT_REGISTERED',
       'AUCTION_NOT_LIVE',
       'LOT_NOT_ACTIVE',
       'AMOUNT_TOO_LOW',
@@ -158,8 +151,6 @@ describe('placeAbsenteeBid', () => {
     startingBid: 1000,
     auctionId: AUCTION_ID,
   };
-
-  const approvedRegistration = { id: 'reg-1', isApproved: true };
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -202,7 +193,6 @@ describe('placeAbsenteeBid', () => {
   it('allows preview auction status', async () => {
     setupDbSelect(
       [{ ...validLotRow, auctionStatus: 'preview' }],
-      [approvedRegistration],
       [],
     );
     setupDbInsert([{ id: 'new-bid-id' }]);
@@ -217,7 +207,6 @@ describe('placeAbsenteeBid', () => {
   it('allows live auction status', async () => {
     setupDbSelect(
       [{ ...validLotRow, auctionStatus: 'live' }],
-      [approvedRegistration],
       [],
     );
     setupDbInsert([{ id: 'live-bid-id' }]);
@@ -246,7 +235,6 @@ describe('placeAbsenteeBid', () => {
   it('allows active lot status', async () => {
     setupDbSelect(
       [{ ...validLotRow, lotStatus: 'active', auctionStatus: 'live' }],
-      [approvedRegistration],
       [],
     );
     setupDbInsert([{ id: 'bid-id' }]);
@@ -255,34 +243,10 @@ describe('placeAbsenteeBid', () => {
     expect(result).toBeTruthy();
   });
 
-  it('throws NOT_REGISTERED (403) when user has no registration', async () => {
-    setupDbSelect(
-      [validLotRow],
-      [],
-    );
-
-    await expect(placeAbsenteeBid(LOT_ID, USER_ID, 5000)).rejects.toMatchObject({
-      code: 'NOT_REGISTERED',
-      statusCode: 403,
-    });
-  });
-
-  it('throws NOT_REGISTERED when registration is not approved', async () => {
-    setupDbSelect(
-      [validLotRow],
-      [{ id: 'reg-1', isApproved: false }],
-    );
-
-    await expect(placeAbsenteeBid(LOT_ID, USER_ID, 5000)).rejects.toMatchObject({
-      code: 'NOT_REGISTERED',
-      statusCode: 403,
-    });
-  });
-
   it('throws AMOUNT_TOO_LOW when maxAmount is below startingBid', async () => {
     setupDbSelect(
       [{ ...validLotRow, startingBid: 1000 }],
-      [approvedRegistration],
+
     );
 
     await expect(placeAbsenteeBid(LOT_ID, USER_ID, 500)).rejects.toMatchObject({
@@ -294,7 +258,7 @@ describe('placeAbsenteeBid', () => {
   it('includes the minimum amount in AMOUNT_TOO_LOW message', async () => {
     setupDbSelect(
       [{ ...validLotRow, startingBid: 1000 }],
-      [approvedRegistration],
+
     );
 
     await expect(placeAbsenteeBid(LOT_ID, USER_ID, 500)).rejects.toThrow(/1000/);
@@ -304,7 +268,7 @@ describe('placeAbsenteeBid', () => {
     // getNextMinBid(0) returns 100 per mock
     setupDbSelect(
       [{ ...validLotRow, startingBid: null }],
-      [approvedRegistration],
+
     );
 
     await expect(placeAbsenteeBid(LOT_ID, USER_ID, 50)).rejects.toMatchObject({
@@ -315,7 +279,7 @@ describe('placeAbsenteeBid', () => {
   it('accepts amount exactly equal to startingBid', async () => {
     setupDbSelect(
       [{ ...validLotRow, startingBid: 1000 }],
-      [approvedRegistration],
+
       [],
     );
     setupDbInsert([{ id: 'exact-bid-id' }]);
@@ -327,7 +291,7 @@ describe('placeAbsenteeBid', () => {
   it('inserts new bid when none exists and returns correct shape', async () => {
     setupDbSelect(
       [validLotRow],
-      [approvedRegistration],
+
       [],
     );
     setupDbInsert([{ id: 'inserted-id' }]);
@@ -344,7 +308,7 @@ describe('placeAbsenteeBid', () => {
 
     setupDbSelect(
       [validLotRow],
-      [approvedRegistration],
+
       [existingBid],
     );
     setupDbUpdate();
@@ -361,7 +325,7 @@ describe('placeAbsenteeBid', () => {
 
     setupDbSelect(
       [validLotRow],
-      [approvedRegistration],
+
       [],
     );
     setupDbInsert([{ id: 'new-id' }]);
@@ -382,7 +346,7 @@ describe('placeAbsenteeBid', () => {
 
     setupDbSelect(
       [validLotRow],
-      [approvedRegistration],
+
       [{ id: 'existing-id', maxAmount: 1500 }],
     );
     setupDbUpdate();

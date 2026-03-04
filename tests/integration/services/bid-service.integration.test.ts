@@ -171,23 +171,6 @@ describe('Bid Service Integration Tests', () => {
       }
     });
 
-    it('throws NOT_REGISTERED for unregistered user', async () => {
-      const { placeBid, BidError } = await import('@/lib/bid-service');
-      const unregistered = await createTestUser({ email: `bid-svc-unreg-${Date.now()}@example.com` });
-
-      try {
-        await expect(placeBid(lotId, unregistered.id, 2000)).rejects.toThrow(BidError);
-
-        await placeBid(lotId, unregistered.id, 2000);
-      } catch (e) {
-        if (e instanceof BidError) {
-          expect(e.code).toBe('NOT_REGISTERED');
-        }
-      } finally {
-        await db.execute(`DELETE FROM users WHERE email LIKE 'bid-svc-unreg-%@example.com'`);
-      }
-    });
-
     it('throws AUCTION_NOT_LIVE for non-live auction', async () => {
       const { placeBid, BidError } = await import('@/lib/bid-service');
       const { randomUUID } = await import('crypto');

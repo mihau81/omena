@@ -1,7 +1,7 @@
 import { eq, and, desc, sql, isNull } from 'drizzle-orm';
 import { db, pool } from '@/db/connection';
 import {
-  bids, bidRegistrations, bidRetractions,
+  bids, bidRetractions,
   lots, auctions, users,
 } from '@/db/schema';
 import { getNextMinBid, isValidBidAmount } from '@/app/lib/bidding';
@@ -32,7 +32,6 @@ export class BidError extends Error {
     message: string,
     public code:
       | 'NOT_AUTHENTICATED'
-      | 'NOT_REGISTERED'
       | 'AUCTION_NOT_LIVE'
       | 'LOT_NOT_ACTIVE'
       | 'BID_TOO_LOW'
@@ -109,38 +108,7 @@ export async function placeBid(
       throw new BidError('Lot is not active for bidding', 'LOT_NOT_ACTIVE', 400);
     }
 
-    // 3. Check user is registered for this auction (approved)
-    const [registration] = await db
-      .select({
-        id: bidRegistrations.id,
-        isApproved: bidRegistrations.isApproved,
-        paddleNumber: bidRegistrations.paddleNumber,
-      })
-      .from(bidRegistrations)
-      .where(
-        and(
-          eq(bidRegistrations.userId, userId),
-          eq(bidRegistrations.auctionId, lotRow.auctionId),
-        ),
-      )
-      .limit(1);
-
-    if (!registration) {
-      throw new BidError(
-        'You must register for this auction before bidding',
-        'NOT_REGISTERED',
-        403,
-      );
-    }
-    if (!registration.isApproved) {
-      throw new BidError(
-        'Your auction registration has not been approved yet',
-        'NOT_REGISTERED',
-        403,
-      );
-    }
-
-    // 4. Get current highest non-retracted bid
+    // 3. Get current highest non-retracted bid
     const [currentHighest] = await db
       .select({
         amount: bids.amount,
@@ -209,7 +177,7 @@ export async function placeBid(
       `INSERT INTO bids (lot_id, user_id, registration_id, amount, bid_type, paddle_number, is_winning, ip_address, user_agent)
        VALUES ($1, $2, $3, $4, 'online', $5, true, $6, $7)
        RETURNING id, lot_id, user_id, amount, bid_type, is_winning, created_at`,
-      [lotId, userId, registration.id, amount, registration.paddleNumber, ipAddress ?? null, userAgent ?? null],
+      [lotId, userId, null, amount, null, ipAddress ?? null, userAgent ?? null],
     );
 
     const newBid = insertResult.rows[0];
@@ -225,7 +193,7 @@ export async function placeBid(
         userId,
         amount,
         bidType: 'online',
-        paddleNumber: registration.paddleNumber,
+        paddleNumber: null,
         isWinning: true,
       },
       userId,

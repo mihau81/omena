@@ -1,8 +1,8 @@
 import { eq, and, desc } from 'drizzle-orm';
 import { db, pool } from '@/db/connection';
 import {
-  absenteeBids, bids, bidRegistrations, bidRetractions,
-  lots, auctions, users,
+  absenteeBids, bids, bidRetractions,
+  lots, auctions,
 } from '@/db/schema';
 import { getNextMinBid } from '@/app/lib/bidding';
 import { logCreate, logUpdate } from '@/lib/audit';
@@ -16,7 +16,6 @@ export class AbsenteeError extends Error {
     message: string,
     public code:
       | 'NOT_AUTHENTICATED'
-      | 'NOT_REGISTERED'
       | 'AUCTION_NOT_LIVE'
       | 'LOT_NOT_ACTIVE'
       | 'AMOUNT_TOO_LOW'
@@ -62,34 +61,7 @@ export async function placeAbsenteeBid(
     throw new AbsenteeError('Lot is not available for absentee bids', 'LOT_NOT_ACTIVE', 400);
   }
 
-  // 2. Verify registration
-  const [registration] = await db
-    .select({ id: bidRegistrations.id, isApproved: bidRegistrations.isApproved })
-    .from(bidRegistrations)
-    .where(
-      and(
-        eq(bidRegistrations.userId, userId),
-        eq(bidRegistrations.auctionId, lotRow.auctionId),
-      ),
-    )
-    .limit(1);
-
-  if (!registration) {
-    throw new AbsenteeError(
-      'You must register for this auction before placing absentee bids',
-      'NOT_REGISTERED',
-      403,
-    );
-  }
-  if (!registration.isApproved) {
-    throw new AbsenteeError(
-      'Your auction registration has not been approved yet',
-      'NOT_REGISTERED',
-      403,
-    );
-  }
-
-  // 3. maxAmount must be at least the opening bid
+  // 2. maxAmount must be at least the opening bid
   const minAcceptable = lotRow.startingBid ?? getNextMinBid(0);
   if (maxAmount < minAcceptable) {
     throw new AbsenteeError(
@@ -243,19 +215,13 @@ export async function processAbsenteeBids(
       id: string;
       user_id: string;
       max_amount: number;
-      registration_id: string;
-      paddle_number: number;
     }>(
-      `SELECT ab.id, ab.user_id, ab.max_amount, br.id AS registration_id, br.paddle_number
+      `SELECT ab.id, ab.user_id, ab.max_amount
        FROM absentee_bids ab
-       INNER JOIN lots l ON l.id = ab.lot_id
-       INNER JOIN auctions a ON a.id = l.auction_id
-       INNER JOIN bid_registrations br ON br.user_id = ab.user_id AND br.auction_id = a.id
        WHERE ab.lot_id = $1
          AND ab.is_active = true
          AND ab.user_id != $2
          AND ab.max_amount >= $3
-         AND br.is_approved = true
        ORDER BY ab.max_amount DESC
        LIMIT 1`,
       [lotId, current.user_id ?? '', nextMin],
@@ -287,9 +253,9 @@ export async function processAbsenteeBids(
       created_at: Date;
     }>(
       `INSERT INTO bids (lot_id, user_id, registration_id, amount, bid_type, paddle_number, is_winning)
-       VALUES ($1, $2, $3, $4, 'system', $5, true)
+       VALUES ($1, $2, NULL, $3, 'system', NULL, true)
        RETURNING id, lot_id, user_id, amount, bid_type, is_winning, created_at`,
-      [lotId, absentee.user_id, absentee.registration_id, autoBidAmount, absentee.paddle_number],
+      [lotId, absentee.user_id, autoBidAmount],
     );
 
     const newBid = insertResult.rows[0];
