@@ -21,7 +21,6 @@ services:
     depends_on:
       - db
       - minio
-    privileged: true
 
   prod:
     build:
