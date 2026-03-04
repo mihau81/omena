@@ -11,6 +11,7 @@ services:
       - .env
     environment:
       - NODE_ENV=production
+      - HOSTNAME=0.0.0.0
       - REDIS_URL=redis://redis:6379
     depends_on:
       db:
