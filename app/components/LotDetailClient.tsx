@@ -1,6 +1,8 @@
 'use client';
 
+import { useEffect } from 'react';
 import type { Lot } from '../lib/types';
+import { useBidding } from '../lib/BiddingContext';
 import LotMediaGallery from './LotMediaGallery';
 import LotInfo from './LotInfo';
 import BidPanel from './BidPanel';
@@ -20,6 +22,18 @@ export default function LotDetailClient({
   auctionSlug,
   premiumLabel,
 }: LotDetailClientProps) {
+  const { subscribeLot, unsubscribeLot } = useBidding();
+
+  // Subscribe to this lot's bids + SSE on mount, unsubscribe on unmount
+  useEffect(() => {
+    if (lot.auctionId) {
+      subscribeLot(lot.id, lot.auctionId);
+    }
+    return () => {
+      unsubscribeLot();
+    };
+  }, [lot.id, lot.auctionId, subscribeLot, unsubscribeLot]);
+
   return (
     <>
       {/* Full-width gallery at the top */}

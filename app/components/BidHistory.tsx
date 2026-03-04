@@ -4,10 +4,14 @@ import { useState } from 'react';
 import { useBidding } from '../lib/BiddingContext';
 import { useLocale } from '../lib/LocaleContext';
 import { useCurrency } from '../lib/CurrencyContext';
-import { formatTimestamp } from '../lib/utils';
 
 interface BidHistoryProps {
   lotId: string;
+}
+
+function formatTime(iso: string): string {
+  const d = new Date(iso);
+  return d.toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 }
 
 export default function BidHistory({ lotId }: BidHistoryProps) {
@@ -52,26 +56,33 @@ export default function BidHistory({ lotId }: BidHistoryProps) {
                     bid.isUser
                       ? 'bg-gold/10 border border-gold/20'
                       : 'bg-cream'
-                  }`}
+                  } ${bid.isRetracted ? 'opacity-50' : ''}`}
                 >
                   <div>
                     <span
                       className={`font-medium ${
-                        bid.isUser ? 'text-gold' : 'text-dark-brown'
+                        bid.isRetracted
+                          ? 'line-through text-taupe'
+                          : bid.isUser
+                            ? 'text-gold'
+                            : 'text-dark-brown'
                       }`}
                     >
-                      {bid.bidderLabel}
+                      {bid.paddleNumber ? `Licytant #${bid.paddleNumber}` : 'Oferta'}
                     </span>
                     {bid.isUser && (
                       <span className="ml-2 text-xs text-gold">(Ty)</span>
                     )}
+                    {bid.isRetracted && (
+                      <span className="ml-2 text-xs text-red-500">(wycofana)</span>
+                    )}
                   </div>
                   <div className="text-right">
-                    <span className="font-medium text-dark-brown">
+                    <span className={`font-medium ${bid.isRetracted ? 'line-through text-taupe' : 'text-dark-brown'}`}>
                       {formatPrice(bid.amount)}
                     </span>
                     <span className="ml-2 text-xs text-taupe">
-                      {formatTimestamp(bid.timestamp)}
+                      {formatTime(bid.createdAt)}
                     </span>
                   </div>
                 </div>

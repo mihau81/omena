@@ -26,27 +26,6 @@ export function getNextMinBid(currentBid: number): number {
   return currentBid + getBidIncrement(currentBid);
 }
 
-export function generateBidderId(): string {
-  return 'bidder-' + Math.random().toString(36).substring(2, 10);
-}
-
-export function generatePaddleNumber(): number {
-  return Math.floor(100 + Math.random() * 900);
-}
-
-export function generateBotBidderLabel(): string {
-  const num = Math.floor(10 + Math.random() * 90);
-  return `Licytant #${num}`;
-}
-
-export function shouldBotCounterBid(): boolean {
-  return Math.random() < 0.4;
-}
-
-export function getBotResponseDelay(): number {
-  return 2000 + Math.random() * 4000;
-}
-
 // Soft close: if bid placed within last 2 minutes, extend by 2 minutes
 export const SOFT_CLOSE_WINDOW_MS = 2 * 60 * 1000;
 export const SOFT_CLOSE_EXTENSION_MS = 2 * 60 * 1000;

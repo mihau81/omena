@@ -3,7 +3,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import type { Lot } from '../lib/types';
-import { useBidding } from '../lib/BiddingContext';
 import { useLocale } from '../lib/LocaleContext';
 import { useCurrency } from '../lib/CurrencyContext';
 import CurrencyDisplay from './CurrencyDisplay';
@@ -19,11 +18,8 @@ export default function LotCardEnhanced({
   auctionSlug,
   auctionStatus,
 }: LotCardEnhancedProps) {
-  const { getHighestBid } = useBidding();
   const { locale, t } = useLocale();
   const { formatPrice } = useCurrency();
-
-  const liveBid = auctionStatus === 'live' ? getHighestBid(lot.id) : null;
 
   return (
     <Link
@@ -85,11 +81,9 @@ export default function LotCardEnhanced({
               <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-green-500" />
             </span>
             {t.currentBid}:{' '}
-            {liveBid
-              ? <CurrencyDisplay amountPLN={liveBid} />
-              : lot.currentBid
-                ? <CurrencyDisplay amountPLN={lot.currentBid} />
-                : '—'}
+            {lot.currentBid
+              ? <CurrencyDisplay amountPLN={lot.currentBid} />
+              : '—'}
           </p>
         )}
 

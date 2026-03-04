@@ -29,7 +29,7 @@ export default function BidPanel({ lot, auctionStatus, auctionSlug, premiumLabel
     isLotWatched,
     toggleWatch,
     placeBid,
-    bids,
+    currentHighestBid,
   } = useBidding();
   const { t } = useLocale();
   const { formatPrice } = useCurrency();
@@ -45,6 +45,7 @@ export default function BidPanel({ lot, auctionStatus, auctionSlug, premiumLabel
   const [showCustomInput, setShowCustomInput] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [bidLoading, setBidLoading] = useState(false);
   const watched = isLotWatched(lot.id);
 
   // Compute quick-bid options
@@ -58,21 +59,18 @@ export default function BidPanel({ lot, auctionStatus, auctionSlug, premiumLabel
 
   // Track previous highest bid to detect outbids
   const prevHighestRef = useRef(highestBid);
+  const lastUserBidRef = useRef<number | null>(null);
   useEffect(() => {
     if (
       prevHighestRef.current !== null &&
       highestBid !== null &&
-      highestBid > prevHighestRef.current
+      highestBid > prevHighestRef.current &&
+      highestBid !== lastUserBidRef.current // Not our own bid
     ) {
-      const latestBid = bids
-        .filter((b) => b.lotId === lot.id)
-        .sort((a, b) => b.timestamp - a.timestamp)[0];
-      if (latestBid && !latestBid.isUser) {
-        showBidToast('outbid', `${t.bidOutbid} ${formatPrice(highestBid)}`);
-      }
+      showBidToast('outbid', `${t.bidOutbid} ${formatPrice(highestBid)}`);
     }
     prevHighestRef.current = highestBid;
-  }, [highestBid, bids, lot.id, t, formatPrice]);
+  }, [highestBid, t, formatPrice]);
 
   // When the next minimum bid changes (new bid via SSE), reset selection to first quick tag
   useEffect(() => {
@@ -101,10 +99,22 @@ export default function BidPanel({ lot, auctionStatus, auctionSlug, premiumLabel
     }
   }, [session]);
 
-  const handleConfirmBid = useCallback(() => {
-    placeBid(lot.id, auctionSlug, bidAmount);
+  const handleConfirmBid = useCallback(async () => {
     setShowConfirmModal(false);
-    showBidToast('success', `${t.bidAccepted} ${formatPrice(bidAmount)}`);
+    setBidLoading(true);
+    try {
+      lastUserBidRef.current = bidAmount;
+      const result = await placeBid(lot.id, auctionSlug, bidAmount);
+      // Update ref with actual amount from server (in case server adjusted)
+      lastUserBidRef.current = result.bid.amount;
+      showBidToast('success', `${t.bidAccepted} ${formatPrice(bidAmount)}`);
+    } catch (error) {
+      lastUserBidRef.current = null;
+      const msg = error instanceof Error ? error.message : 'Bid failed';
+      showBidToast('outbid', msg);
+    } finally {
+      setBidLoading(false);
+    }
   }, [placeBid, lot.id, auctionSlug, bidAmount, t, formatPrice]);
 
   const handleAuthenticated = useCallback(() => {
@@ -137,7 +147,7 @@ export default function BidPanel({ lot, auctionStatus, auctionSlug, premiumLabel
             </div>
 
             <button
-              onClick={() => session?.user ? toggleWatch(lot.id, auctionSlug) : setShowLoginModal(true)}
+              onClick={() => session?.user ? toggleWatch(lot.id) : setShowLoginModal(true)}
               className="mt-4 flex w-full items-center justify-center gap-2 rounded-lg border border-beige py-2.5 text-base font-medium text-dark-brown transition-colors hover:bg-beige/50"
             >
               <HeartIcon filled={watched} />
@@ -279,15 +289,27 @@ export default function BidPanel({ lot, auctionStatus, auctionSlug, premiumLabel
             {/* Place bid button */}
             <button
               onClick={handleBidClick}
-              disabled={!isValidBid}
+              disabled={!isValidBid || bidLoading}
               className="mt-4 w-full rounded-lg bg-gold py-3.5 text-lg font-medium text-white transition-all hover:bg-gold-dark hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
             >
-              {t.placeBid} — {isValidBid ? formatPrice(bidAmount) : '…'}
+              {bidLoading ? (
+                <span className="inline-flex items-center gap-2">
+                  <svg className="h-5 w-5 animate-spin" viewBox="0 0 24 24" fill="none">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                  </svg>
+                  {t.placeBid}…
+                </span>
+              ) : (
+                <>
+                  {t.placeBid} — {isValidBid ? formatPrice(bidAmount) : '…'}
+                </>
+              )}
             </button>
 
             {/* Watch toggle */}
             <button
-              onClick={() => session?.user ? toggleWatch(lot.id, auctionSlug) : setShowLoginModal(true)}
+              onClick={() => session?.user ? toggleWatch(lot.id) : setShowLoginModal(true)}
               className="mt-3 flex w-full items-center justify-center gap-2 rounded-lg border border-beige py-2.5 text-base font-medium text-dark-brown transition-colors hover:bg-beige/50"
             >
               <HeartIcon filled={watched} />

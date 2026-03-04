@@ -1,67 +1,57 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
-import type { BidRecord, BidderRegistration, WatchedLot } from './types';
+import { useSession } from 'next-auth/react';
+import type { BidRecord } from './types';
+import type { BidEvent } from '@/lib/bid-events';
+import { useRealtimeBids } from './useRealtimeBids';
+import { apiUrl } from './utils';
 import {
-  generateBidderId,
-  generatePaddleNumber,
-  generateBotBidderLabel,
   getNextMinBid,
-  shouldBotCounterBid,
-  getBotResponseDelay,
   SOFT_CLOSE_WINDOW_MS,
   SOFT_CLOSE_EXTENSION_MS,
 } from './bidding';
-
-// ---------------------------------------------------------------------------
-// Storage keys
-// ---------------------------------------------------------------------------
-
-const STORAGE_PREFIX = 'omenaa_';
-const KEY_REGISTRATION = STORAGE_PREFIX + 'registration';
-const KEY_BIDS = STORAGE_PREFIX + 'bids';
-const KEY_WATCHED = STORAGE_PREFIX + 'watched';
-const KEY_END_TIMES = STORAGE_PREFIX + 'end_times';
-
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
-function loadJSON<T>(key: string, fallback: T): T {
-  if (typeof window === 'undefined') return fallback;
-  try {
-    const raw = localStorage.getItem(key);
-    return raw ? (JSON.parse(raw) as T) : fallback;
-  } catch {
-    return fallback;
-  }
-}
-
-function saveJSON(key: string, value: unknown): void {
-  if (typeof window === 'undefined') return;
-  localStorage.setItem(key, JSON.stringify(value));
-}
 
 // ---------------------------------------------------------------------------
 // Context shape
 // ---------------------------------------------------------------------------
 
 interface BiddingState {
-  registration: BidderRegistration | null;
+  // Lot-specific bid data (set when a lot detail page mounts)
   bids: BidRecord[];
-  watchedLots: WatchedLot[];
-  auctionEndTimes: Record<string, number>;
+  currentHighestBid: number | null;
+  nextMinBid: number | null;
+  totalBids: number;
+  bidsLoading: boolean;
 
-  register: (name: string, email: string, phone: string) => void;
-  placeBid: (lotId: string, auctionSlug: string, amount: number) => void;
-  toggleWatch: (lotId: string, auctionSlug: string) => void;
+  // SSE subscription
+  subscribeLot: (lotId: string, auctionId: string) => void;
+  unsubscribeLot: () => void;
+
+  // Actions
+  placeBid: (lotId: string, auctionSlug: string, amount: number) => Promise<{ bid: { id: string; amount: number; isWinning: boolean; createdAt: string }; nextMinBid: number }>;
+  toggleWatch: (lotId: string) => void;
+
+  // Queries
   getBidsForLot: (lotId: string) => BidRecord[];
   getHighestBid: (lotId: string) => number | null;
   isUserWinning: (lotId: string) => boolean;
-  isUserRegistered: () => boolean;
-  getAuctionEndTime: (auctionSlug: string) => number | null;
-  getUserBids: () => BidRecord[];
+  getUserBids: () => UserBidSummary[];
   isLotWatched: (lotId: string) => boolean;
+  getAuctionEndTime: (auctionSlug: string) => number | null;
+
+  // Soft-close end times
+  auctionEndTimes: Record<string, number>;
+
+  // User bid count for header badge
+  userBidsCount: number;
+}
+
+interface UserBidSummary {
+  lotId: string;
+  bidAmount: number;
+  isWinning: boolean;
+  bidCreatedAt: string;
 }
 
 const BiddingContext = createContext<BiddingState | null>(null);
@@ -72,222 +62,78 @@ const BiddingContext = createContext<BiddingState | null>(null);
 
 interface BiddingProviderProps {
   children: React.ReactNode;
-  /** Optional auction end times keyed by slug, provided by the server */
   initialAuctionEndTimes?: Record<string, number>;
 }
 
 export function BiddingProvider({ children, initialAuctionEndTimes }: BiddingProviderProps) {
-  const [registration, setRegistration] = useState<BidderRegistration | null>(null);
+  const { data: session } = useSession();
+
+  // ---- Lot-specific state (one lot at a time on detail page) ----
   const [bids, setBids] = useState<BidRecord[]>([]);
-  const [watchedLots, setWatchedLots] = useState<WatchedLot[]>([]);
+  const [currentHighestBid, setCurrentHighestBid] = useState<number | null>(null);
+  const [nextMinBidState, setNextMinBid] = useState<number | null>(null);
+  const [totalBids, setTotalBids] = useState(0);
+  const [bidsLoading, setBidsLoading] = useState(false);
+  const [subscribedLotId, setSubscribedLotId] = useState<string | null>(null);
+  const [subscribedAuctionId, setSubscribedAuctionId] = useState<string | null>(null);
+
+  // ---- Global state ----
+  const [watchedLotIds, setWatchedLotIds] = useState<Set<string>>(new Set());
+  const [userBidsList, setUserBidsList] = useState<UserBidSummary[]>([]);
   const [auctionEndTimes, setAuctionEndTimes] = useState<Record<string, number>>({});
-  const [hydrated, setHydrated] = useState(false);
+  const watchedFetched = useRef(false);
+  const userBidsFetched = useRef(false);
 
-  const botTimers = useRef<ReturnType<typeof setTimeout>[]>([]);
-
-  // ---- hydrate from localStorage on mount ----
+  // ---- Fetch favorites on session change ----
   useEffect(() => {
-    setRegistration(loadJSON<BidderRegistration | null>(KEY_REGISTRATION, null));
-    setBids(loadJSON<BidRecord[]>(KEY_BIDS, []));
-    setWatchedLots(loadJSON<WatchedLot[]>(KEY_WATCHED, []));
-    setAuctionEndTimes(loadJSON<Record<string, number>>(KEY_END_TIMES, {}));
-    setHydrated(true);
-  }, []);
-
-  // ---- persist on change (skip before hydration) ----
-  useEffect(() => {
-    if (!hydrated) return;
-    saveJSON(KEY_REGISTRATION, registration);
-  }, [registration, hydrated]);
-
-  useEffect(() => {
-    if (!hydrated) return;
-    saveJSON(KEY_BIDS, bids);
-  }, [bids, hydrated]);
-
-  useEffect(() => {
-    if (!hydrated) return;
-    saveJSON(KEY_WATCHED, watchedLots);
-  }, [watchedLots, hydrated]);
-
-  useEffect(() => {
-    if (!hydrated) return;
-    saveJSON(KEY_END_TIMES, auctionEndTimes);
-  }, [auctionEndTimes, hydrated]);
-
-  // ---- cross-tab sync ----
-  useEffect(() => {
-    function onStorage(e: StorageEvent) {
-      if (e.key === KEY_REGISTRATION) setRegistration(loadJSON(KEY_REGISTRATION, null));
-      if (e.key === KEY_BIDS) setBids(loadJSON(KEY_BIDS, []));
-      if (e.key === KEY_WATCHED) setWatchedLots(loadJSON(KEY_WATCHED, []));
-      if (e.key === KEY_END_TIMES) setAuctionEndTimes(loadJSON(KEY_END_TIMES, {}));
+    if (!session?.user || session.user.userType !== 'user') {
+      setWatchedLotIds(new Set());
+      watchedFetched.current = false;
+      return;
     }
-    window.addEventListener('storage', onStorage);
-    return () => window.removeEventListener('storage', onStorage);
-  }, []);
+    if (watchedFetched.current) return;
+    watchedFetched.current = true;
 
-  // ---- cleanup bot timers ----
-  useEffect(() => {
-    return () => {
-      botTimers.current.forEach(clearTimeout);
-    };
-  }, []);
-
-  // ---- soft close helper ----
-  const applySoftClose = useCallback(
-    (auctionSlug: string) => {
-      setAuctionEndTimes((prev) => {
-        const currentEnd = prev[auctionSlug];
-        if (!currentEnd) return prev;
-        const now = Date.now();
-        const remaining = currentEnd - now;
-        if (remaining > 0 && remaining <= SOFT_CLOSE_WINDOW_MS) {
-          const newEnd = now + SOFT_CLOSE_EXTENSION_MS;
-          const updated = { ...prev, [auctionSlug]: newEnd };
-          saveJSON(KEY_END_TIMES, updated);
-          return updated;
+    fetch(apiUrl('/api/me/favorites'))
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data?.favorites) {
+          setWatchedLotIds(new Set(data.favorites.map((f: { lotId: string }) => f.lotId)));
         }
-        return prev;
-      });
-    },
-    [],
-  );
+      })
+      .catch(() => {});
+  }, [session]);
 
-  // ---- register ----
-  const register = useCallback((name: string, email: string, phone: string) => {
-    const reg: BidderRegistration = {
-      id: generateBidderId(),
-      name,
-      email,
-      phone,
-      paddleNumber: generatePaddleNumber(),
-      registeredAt: Date.now(),
-      acceptedTerms: true,
-    };
-    setRegistration(reg);
-  }, []);
-
-  // ---- place bid ----
-  const placeBid = useCallback(
-    (lotId: string, auctionSlug: string, amount: number) => {
-      if (!registration) return;
-
-      const bid: BidRecord = {
-        id: 'bid-' + Math.random().toString(36).substring(2, 10),
-        lotId,
-        auctionSlug,
-        amount,
-        bidderId: registration.id,
-        bidderLabel: `Licytant #${registration.paddleNumber}`,
-        timestamp: Date.now(),
-        isUser: true,
-      };
-
-      setBids((prev) => {
-        const updated = [...prev, bid];
-        saveJSON(KEY_BIDS, updated);
-        return updated;
-      });
-
-      // Soft close check
-      applySoftClose(auctionSlug);
-
-      // Simulated competitor response
-      if (shouldBotCounterBid()) {
-        const delay = getBotResponseDelay();
-        const timer = setTimeout(() => {
-          const counterAmount = getNextMinBid(amount);
-          const botBid: BidRecord = {
-            id: 'bid-' + Math.random().toString(36).substring(2, 10),
-            lotId,
-            auctionSlug,
-            amount: counterAmount,
-            bidderId: 'bot-' + Math.random().toString(36).substring(2, 8),
-            bidderLabel: generateBotBidderLabel(),
-            timestamp: Date.now(),
-            isUser: false,
-          };
-          setBids((prev) => {
-            const updated = [...prev, botBid];
-            saveJSON(KEY_BIDS, updated);
-            return updated;
-          });
-          applySoftClose(auctionSlug);
-        }, delay);
-        botTimers.current.push(timer);
-      }
-    },
-    [registration, applySoftClose],
-  );
-
-  // ---- toggle watch ----
-  const toggleWatch = useCallback((lotId: string, auctionSlug: string) => {
-    setWatchedLots((prev) => {
-      const exists = prev.some((w) => w.lotId === lotId);
-      const updated = exists
-        ? prev.filter((w) => w.lotId !== lotId)
-        : [...prev, { lotId, auctionSlug, addedAt: Date.now() }];
-      saveJSON(KEY_WATCHED, updated);
-      return updated;
-    });
-  }, []);
-
-  // ---- queries ----
-  const getBidsForLot = useCallback(
-    (lotId: string): BidRecord[] => {
-      return bids
-        .filter((b) => b.lotId === lotId)
-        .sort((a, b) => b.amount - a.amount);
-    },
-    [bids],
-  );
-
-  const getHighestBid = useCallback(
-    (lotId: string): number | null => {
-      const lotBids = bids.filter((b) => b.lotId === lotId);
-      if (lotBids.length === 0) return null;
-      return Math.max(...lotBids.map((b) => b.amount));
-    },
-    [bids],
-  );
-
-  const isUserWinning = useCallback(
-    (lotId: string): boolean => {
-      if (!registration) return false;
-      const lotBids = bids.filter((b) => b.lotId === lotId);
-      if (lotBids.length === 0) return false;
-      const highest = lotBids.reduce((max, b) => (b.amount > max.amount ? b : max), lotBids[0]);
-      return highest.bidderId === registration.id;
-    },
-    [bids, registration],
-  );
-
-  const isUserRegistered = useCallback((): boolean => {
-    return registration !== null;
-  }, [registration]);
-
-  const getAuctionEndTime = useCallback(
-    (auctionSlug: string): number | null => {
-      return auctionEndTimes[auctionSlug] ?? null;
-    },
-    [auctionEndTimes],
-  );
-
-  const getUserBids = useCallback((): BidRecord[] => {
-    return bids.filter((b) => b.isUser).sort((a, b) => b.timestamp - a.timestamp);
-  }, [bids]);
-
-  const isLotWatched = useCallback(
-    (lotId: string): boolean => {
-      return watchedLots.some((w) => w.lotId === lotId);
-    },
-    [watchedLots],
-  );
-
-  // ---- Initialize auction end times from server-provided data on hydration ----
+  // ---- Fetch user bids on session change ----
   useEffect(() => {
-    if (!hydrated || !initialAuctionEndTimes) return;
+    if (!session?.user || session.user.userType !== 'user') {
+      setUserBidsList([]);
+      userBidsFetched.current = false;
+      return;
+    }
+    if (userBidsFetched.current) return;
+    userBidsFetched.current = true;
+
+    fetch(apiUrl('/api/user/bids'))
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data?.bids) {
+          setUserBidsList(
+            data.bids.map((b: { lotId: string; bidAmount: number; isWinning: boolean; bidCreatedAt: string }) => ({
+              lotId: b.lotId,
+              bidAmount: b.bidAmount,
+              isWinning: b.isWinning,
+              bidCreatedAt: b.bidCreatedAt,
+            })),
+          );
+        }
+      })
+      .catch(() => {});
+  }, [session]);
+
+  // ---- Initialize auction end times from server ----
+  useEffect(() => {
+    if (!initialAuctionEndTimes) return;
     setAuctionEndTimes((prev) => {
       const updated = { ...prev };
       let changed = false;
@@ -297,28 +143,244 @@ export function BiddingProvider({ children, initialAuctionEndTimes }: BiddingPro
           changed = true;
         }
       }
-      if (changed) {
-        saveJSON(KEY_END_TIMES, updated);
-      }
       return changed ? updated : prev;
     });
-  }, [hydrated, initialAuctionEndTimes]);
+  }, [initialAuctionEndTimes]);
+
+  // ---- Fetch bids for subscribed lot ----
+  const fetchBidsForLot = useCallback(
+    async (lotId: string) => {
+      setBidsLoading(true);
+      try {
+        const res = await fetch(apiUrl(`/api/lots/${lotId}/bids`));
+        if (!res.ok) return;
+        const data = await res.json();
+        const records: BidRecord[] = (data.bids || []).map(
+          (b: { id: string; amount: number; paddleNumber: number | null; bidType: string; isWinning: boolean; isRetracted: boolean; createdAt: string }) => ({
+            id: b.id,
+            lotId,
+            amount: b.amount,
+            paddleNumber: b.paddleNumber,
+            bidType: b.bidType,
+            isWinning: b.isWinning,
+            isRetracted: b.isRetracted,
+            createdAt: b.createdAt,
+            isUser: false, // We can't determine from anonymized GET — the POST response marks own bids
+          }),
+        );
+        setBids(records);
+        setCurrentHighestBid(data.currentHighestBid);
+        setNextMinBid(data.nextMinBid);
+        setTotalBids(data.totalBids);
+      } catch {
+        // Silently fail
+      } finally {
+        setBidsLoading(false);
+      }
+    },
+    [],
+  );
+
+  // ---- Subscribe/unsubscribe to lot ----
+  const subscribeLot = useCallback(
+    (lotId: string, auctionId: string) => {
+      setSubscribedLotId(lotId);
+      setSubscribedAuctionId(auctionId);
+      fetchBidsForLot(lotId);
+    },
+    [fetchBidsForLot],
+  );
+
+  const unsubscribeLot = useCallback(() => {
+    setSubscribedLotId(null);
+    setSubscribedAuctionId(null);
+    setBids([]);
+    setCurrentHighestBid(null);
+    setNextMinBid(null);
+    setTotalBids(0);
+  }, []);
+
+  // ---- SSE: real-time bid updates ----
+  const handleBidEvent = useCallback(
+    (event: BidEvent) => {
+      if (subscribedLotId && event.lotId === subscribedLotId) {
+        // Refetch bids to get fresh data
+        fetchBidsForLot(subscribedLotId);
+      }
+    },
+    [subscribedLotId, fetchBidsForLot],
+  );
+
+  useRealtimeBids({
+    auctionId: subscribedAuctionId,
+    lotId: subscribedLotId,
+    onBid: handleBidEvent,
+  });
+
+  // ---- Soft close helper ----
+  const applySoftClose = useCallback((auctionSlug: string) => {
+    setAuctionEndTimes((prev) => {
+      const currentEnd = prev[auctionSlug];
+      if (!currentEnd) return prev;
+      const now = Date.now();
+      const remaining = currentEnd - now;
+      if (remaining > 0 && remaining <= SOFT_CLOSE_WINDOW_MS) {
+        return { ...prev, [auctionSlug]: now + SOFT_CLOSE_EXTENSION_MS };
+      }
+      return prev;
+    });
+  }, []);
+
+  // ---- Place bid (async, calls real API) ----
+  const placeBid = useCallback(
+    async (lotId: string, auctionSlug: string, amount: number) => {
+      const res = await fetch(apiUrl(`/api/lots/${lotId}/bids`), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({ error: 'Bid failed' }));
+        throw new Error(data.error || 'Bid failed');
+      }
+
+      const data = await res.json();
+
+      // Update local state immediately with the new bid
+      if (subscribedLotId === lotId) {
+        setCurrentHighestBid(data.bid.amount);
+        setNextMinBid(data.nextMinBid);
+        // Refetch to get full bid list
+        fetchBidsForLot(lotId);
+      }
+
+      // Update user bids count
+      setUserBidsList((prev) => {
+        const existing = prev.find((b) => b.lotId === lotId);
+        if (existing) {
+          return prev.map((b) =>
+            b.lotId === lotId
+              ? { ...b, bidAmount: data.bid.amount, isWinning: data.bid.isWinning, bidCreatedAt: data.bid.createdAt }
+              : b,
+          );
+        }
+        return [
+          ...prev,
+          { lotId, bidAmount: data.bid.amount, isWinning: data.bid.isWinning, bidCreatedAt: data.bid.createdAt },
+        ];
+      });
+
+      // Soft close check
+      applySoftClose(auctionSlug);
+
+      return data;
+    },
+    [subscribedLotId, fetchBidsForLot, applySoftClose],
+  );
+
+  // ---- Toggle watch (optimistic + API) ----
+  const toggleWatch = useCallback(
+    (lotId: string) => {
+      const isCurrentlyWatched = watchedLotIds.has(lotId);
+
+      // Optimistic update
+      setWatchedLotIds((prev) => {
+        const next = new Set(prev);
+        if (isCurrentlyWatched) {
+          next.delete(lotId);
+        } else {
+          next.add(lotId);
+        }
+        return next;
+      });
+
+      // API call
+      const method = isCurrentlyWatched ? 'DELETE' : 'POST';
+      fetch(apiUrl('/api/me/favorites'), {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ lotId }),
+      }).catch(() => {
+        // Revert on failure
+        setWatchedLotIds((prev) => {
+          const next = new Set(prev);
+          if (isCurrentlyWatched) {
+            next.add(lotId);
+          } else {
+            next.delete(lotId);
+          }
+          return next;
+        });
+      });
+    },
+    [watchedLotIds],
+  );
+
+  // ---- Queries ----
+  const getBidsForLot = useCallback(
+    (lotId: string): BidRecord[] => {
+      if (lotId !== subscribedLotId) return [];
+      return [...bids].sort((a, b) => b.amount - a.amount);
+    },
+    [bids, subscribedLotId],
+  );
+
+  const getHighestBid = useCallback(
+    (lotId: string): number | null => {
+      if (lotId !== subscribedLotId) return null;
+      return currentHighestBid;
+    },
+    [subscribedLotId, currentHighestBid],
+  );
+
+  const isUserWinning = useCallback(
+    (lotId: string): boolean => {
+      if (!currentHighestBid) return false;
+      // Compare user's highest bid amount with current highest
+      const userBid = userBidsList.find((b) => b.lotId === lotId);
+      if (!userBid) return false;
+      return userBid.bidAmount >= currentHighestBid;
+    },
+    [currentHighestBid, userBidsList],
+  );
+
+  const getUserBids = useCallback((): UserBidSummary[] => {
+    return userBidsList;
+  }, [userBidsList]);
+
+  const isLotWatched = useCallback(
+    (lotId: string): boolean => {
+      return watchedLotIds.has(lotId);
+    },
+    [watchedLotIds],
+  );
+
+  const getAuctionEndTime = useCallback(
+    (auctionSlug: string): number | null => {
+      return auctionEndTimes[auctionSlug] ?? null;
+    },
+    [auctionEndTimes],
+  );
 
   const value: BiddingState = {
-    registration,
     bids,
-    watchedLots,
-    auctionEndTimes,
-    register,
+    currentHighestBid,
+    nextMinBid: nextMinBidState,
+    totalBids,
+    bidsLoading,
+    subscribeLot,
+    unsubscribeLot,
     placeBid,
     toggleWatch,
     getBidsForLot,
     getHighestBid,
     isUserWinning,
-    isUserRegistered,
-    getAuctionEndTime,
     getUserBids,
     isLotWatched,
+    getAuctionEndTime,
+    auctionEndTimes,
+    userBidsCount: userBidsList.length,
   };
 
   return (

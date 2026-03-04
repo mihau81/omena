@@ -13,7 +13,7 @@ import { apiUrl } from '../lib/utils';
 export default function Header() {
   const { locale, t } = useLocale();
   const { currency, setCurrency } = useCurrency();
-  const { getUserBids } = useBidding();
+  const { userBidsCount } = useBidding();
   const { data: session } = useSession();
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -28,7 +28,6 @@ export default function Header() {
 
   const isLoggedIn = session?.user?.userType === 'user';
   const userName = session?.user?.name || '';
-  const userBidsCount = getUserBids().length;
 
   // Build nav links — only show "My Bids" for logged-in users
   const navLinks = [
