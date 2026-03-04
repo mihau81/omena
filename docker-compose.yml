@@ -41,6 +41,17 @@ services:
     depends_on:
       - db
       - minio
+      - redis
+
+  redis:
+    image: redis:7-alpine
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   db:
     image: postgres:16-alpine
@@ -49,7 +60,7 @@ services:
       POSTGRES_USER: omenaa
       POSTGRES_PASSWORD: omenaa_dev
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
 
@@ -60,11 +71,12 @@ services:
       MINIO_ROOT_USER: omenaa
       MINIO_ROOT_PASSWORD: omenaa_dev
     ports:
-      - "9000:9000"
-      - "9001:9001"
+      - "127.0.0.1:9000:9000"
+      - "127.0.0.1:9001:9001"
     volumes:
       - minio_data:/data
 
 volumes:
   pgdata:
   minio_data:
+  redis_data:
