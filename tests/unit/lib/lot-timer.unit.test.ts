@@ -3,6 +3,8 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 // ─── Hoisted mocks ──────────────────────────────────────────────────────────
 
 const mockEmitTimerEvent = vi.hoisted(() => vi.fn());
+const mockCreateNotification = vi.hoisted(() => vi.fn().mockResolvedValue('notif-1'));
+const mockGenerateInvoice = vi.hoisted(() => vi.fn().mockResolvedValue({}));
 
 const mockReturning = vi.hoisted(() => vi.fn());
 const mockUpdateWhere = vi.hoisted(() => vi.fn());
@@ -33,16 +35,22 @@ vi.mock('@/db/schema', () => ({
     timerDuration: 'lots.timerDuration',
     updatedAt: 'lots.updatedAt',
     hammerPrice: 'lots.hammerPrice',
+    title: 'lots.title',
   },
   bids: {
     id: 'bids.id',
     lotId: 'bids.lotId',
+    userId: 'bids.userId',
     amount: 'bids.amount',
     isWinning: 'bids.isWinning',
   },
   bidRetractions: {
     id: 'bidRetractions.id',
     bidId: 'bidRetractions.bidId',
+  },
+  auctions: {
+    id: 'auctions.id',
+    buyersPremiumRate: 'auctions.buyersPremiumRate',
   },
 }));
 
@@ -55,6 +63,14 @@ vi.mock('drizzle-orm', () => ({
 
 vi.mock('@/lib/bid-events', () => ({
   emitTimerEvent: mockEmitTimerEvent,
+}));
+
+vi.mock('@/lib/notifications', () => ({
+  createNotification: mockCreateNotification,
+}));
+
+vi.mock('@/lib/invoice-service', () => ({
+  generateInvoice: mockGenerateInvoice,
 }));
 
 // ─── Import under test ──────────────────────────────────────────────────────
@@ -351,7 +367,7 @@ describe('lot-timer', () => {
 
       // closeLot inner calls:
       // 1. select winning bid (with leftJoin)
-      const mockWinningBidLimit = vi.fn().mockResolvedValue([{ id: 'bid-1', amount: 5000 }]);
+      const mockWinningBidLimit = vi.fn().mockResolvedValue([{ id: 'bid-1', userId: 'user-1', amount: 5000 }]);
       const mockWinningBidWhere = vi.fn().mockReturnValue({ limit: mockWinningBidLimit });
       const mockWinningBidLeftJoin = vi.fn().mockReturnValue({ where: mockWinningBidWhere });
       const mockWinningBidFrom = vi.fn().mockReturnValue({ leftJoin: mockWinningBidLeftJoin });
@@ -359,9 +375,13 @@ describe('lot-timer', () => {
       // 2. update lot to sold
       const mockCloseUpdateWhere = vi.fn().mockResolvedValue(undefined);
       const mockCloseUpdateSet = vi.fn().mockReturnValue({ where: mockCloseUpdateWhere });
-      const mockCloseUpdate = vi.fn().mockReturnValue({ set: mockCloseUpdateSet });
 
-      // Wire: first call = lot select, second call = winning bid select
+      // notifyWinnerAndQueueInvoice makes 2 selects (lot title + auction premium rate)
+      const mockNotifySelectLimit = vi.fn().mockResolvedValue([{ title: 'Test Lot' }]);
+      const mockNotifySelectWhere = vi.fn().mockReturnValue({ limit: mockNotifySelectLimit });
+      const mockNotifySelectFrom = vi.fn().mockReturnValue({ where: mockNotifySelectWhere });
+
+      // Wire: first call = lot select, second call = winning bid select, rest = notify selects
       let selectCallCount = 0;
       mockSelect.mockImplementation(() => {
         selectCallCount++;
@@ -369,16 +389,16 @@ describe('lot-timer', () => {
           // checkLotExpired select
           return { from: mockSelectFrom };
         }
-        // closeLot winning bid select
-        return { from: mockWinningBidFrom };
+        if (selectCallCount === 2) {
+          // closeLot winning bid select
+          return { from: mockWinningBidFrom };
+        }
+        // notifyWinnerAndQueueInvoice selects
+        return { from: mockNotifySelectFrom };
       });
 
-      // Wire: first call = (none for checkLotExpired), second call = closeLot update
-      let updateCallCount = 0;
-      mockUpdate.mockImplementation(() => {
-        updateCallCount++;
-        return { set: mockCloseUpdateSet };
-      });
+      // Wire: closeLot update
+      mockUpdate.mockReturnValue({ set: mockCloseUpdateSet });
 
       const result = await checkLotExpired('lot-1');
 
@@ -428,7 +448,7 @@ describe('lot-timer', () => {
       const past = new Date(NOW - 10_000);
       setupSelectChain([{ closingAt: past, status: 'active', auctionId: 'a-1' }]);
 
-      const mockWinningBidLimit = vi.fn().mockResolvedValue([{ id: 'bid-1', amount: 7500 }]);
+      const mockWinningBidLimit = vi.fn().mockResolvedValue([{ id: 'bid-1', userId: 'user-1', amount: 7500 }]);
       const mockWinningBidWhere = vi.fn().mockReturnValue({ limit: mockWinningBidLimit });
       const mockWinningBidLeftJoin = vi.fn().mockReturnValue({ where: mockWinningBidWhere });
       const mockWinningBidFrom = vi.fn().mockReturnValue({ leftJoin: mockWinningBidLeftJoin });
@@ -436,11 +456,18 @@ describe('lot-timer', () => {
       const mockCloseUpdateWhere = vi.fn().mockResolvedValue(undefined);
       const mockCloseUpdateSet = vi.fn().mockReturnValue({ where: mockCloseUpdateWhere });
 
+      // notifyWinnerAndQueueInvoice makes 2 selects (lot title + auction premium rate)
+      const mockNotifySelectLimit = vi.fn().mockResolvedValue([{ title: 'Test Lot' }]);
+      const mockNotifySelectWhere = vi.fn().mockReturnValue({ limit: mockNotifySelectLimit });
+      const mockNotifySelectFrom = vi.fn().mockReturnValue({ where: mockNotifySelectWhere });
+
       let selectCallCount = 0;
       mockSelect.mockImplementation(() => {
         selectCallCount++;
         if (selectCallCount === 1) return { from: mockSelectFrom };
-        return { from: mockWinningBidFrom };
+        if (selectCallCount === 2) return { from: mockWinningBidFrom };
+        // subsequent selects are from notifyWinnerAndQueueInvoice
+        return { from: mockNotifySelectFrom };
       });
 
       mockUpdate.mockReturnValue({ set: mockCloseUpdateSet });

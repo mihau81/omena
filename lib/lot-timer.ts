@@ -1,7 +1,9 @@
 import { eq, and, isNull, lt } from 'drizzle-orm';
 import { db } from '@/db/connection';
-import { lots, bids, bidRetractions } from '@/db/schema';
+import { lots, bids, bidRetractions, auctions } from '@/db/schema';
 import { emitTimerEvent } from '@/lib/bid-events';
+import { createNotification } from '@/lib/notifications';
+import { generateInvoice } from '@/lib/invoice-service';
 
 // ─── Start Timer ─────────────────────────────────────────────────────────────
 
@@ -100,7 +102,7 @@ export async function checkLotExpired(lotId: string): Promise<boolean> {
 
 async function closeLot(lotId: string, auctionId: string): Promise<boolean> {
   const [winningBid] = await db
-    .select({ id: bids.id, amount: bids.amount })
+    .select({ id: bids.id, userId: bids.userId, amount: bids.amount })
     .from(bids)
     .leftJoin(bidRetractions, eq(bidRetractions.bidId, bids.id))
     .where(
@@ -130,7 +132,60 @@ async function closeLot(lotId: string, auctionId: string): Promise<boolean> {
     result,
   });
 
+  // When sold, send lot_won notification and queue invoice generation
+  if (result === 'sold' && winningBid?.userId) {
+    notifyWinnerAndQueueInvoice(lotId, auctionId, winningBid.userId, winningBid.amount).catch(
+      () => {},
+    );
+
+    generateInvoice(lotId).catch(
+      (err) => console.warn('[lot-timer] Invoice generation failed for lot', lotId, err),
+    );
+  }
+
   return true;
+}
+
+async function notifyWinnerAndQueueInvoice(
+  lotId: string,
+  auctionId: string,
+  userId: string,
+  hammerPrice: number,
+): Promise<void> {
+  const [lotRow] = await db
+    .select({ title: lots.title })
+    .from(lots)
+    .where(eq(lots.id, lotId))
+    .limit(1);
+
+  const [auctionRow] = await db
+    .select({ buyersPremiumRate: auctions.buyersPremiumRate })
+    .from(auctions)
+    .where(eq(auctions.id, auctionId))
+    .limit(1);
+
+  const rate = auctionRow?.buyersPremiumRate
+    ? parseFloat(String(auctionRow.buyersPremiumRate))
+    : 0.20;
+
+  const buyersPremium = Math.round(hammerPrice * rate * 100) / 100;
+  const totalAmount = hammerPrice + buyersPremium;
+  const lotTitle = lotRow?.title ?? 'Lot';
+
+  await createNotification(
+    userId,
+    'lot_won',
+    'Gratulacje — wygrałeś lot!',
+    `Wygrałeś lot "${lotTitle}". Faktura zostanie wysłana wkrótce.`,
+    {
+      lotId,
+      auctionId,
+      lotTitle,
+      hammerPrice,
+      buyersPremium,
+      totalAmount,
+    },
+  );
 }
 
 // ─── Check All Expired Lots ─────────────────────────────────────────────────

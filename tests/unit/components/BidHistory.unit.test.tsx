@@ -14,10 +14,6 @@ vi.mock('@/app/lib/CurrencyContext', () => ({
   useCurrency: vi.fn(),
 }));
 
-vi.mock('@/app/lib/utils', () => ({
-  formatTimestamp: vi.fn((ts: number) => `${ts}`),
-}));
-
 import BidHistory from '@/app/components/BidHistory';
 import { useBidding } from '@/app/lib/BiddingContext';
 import { useLocale } from '@/app/lib/LocaleContext';
@@ -25,16 +21,33 @@ import { useCurrency } from '@/app/lib/CurrencyContext';
 
 type MockBid = {
   id: string;
+  lotId: string;
   amount: number;
-  bidderLabel: string;
+  paddleNumber: number | null;
+  bidType: string;
+  isWinning: boolean;
+  isRetracted: boolean;
+  createdAt: string;
   isUser: boolean;
-  timestamp: number;
 };
 
 const mockT = {
   bidHistory: 'Bid history',
   noBidsYet: 'No bids yet',
 };
+
+function makeBid(overrides: Partial<MockBid> & { id: string; amount: number }): MockBid {
+  return {
+    lotId: 'lot-1',
+    paddleNumber: null,
+    bidType: 'online',
+    isWinning: false,
+    isRetracted: false,
+    createdAt: '2024-01-15T12:00:00Z',
+    isUser: false,
+    ...overrides,
+  };
+}
 
 function setupMocks(bids: MockBid[] = []) {
   (useBidding as ReturnType<typeof vi.fn>).mockReturnValue({
@@ -73,10 +86,10 @@ describe('BidHistory', () => {
       expect(screen.getByText('No bids yet')).toBeInTheDocument();
     });
 
-    it('renders list of bids', () => {
+    it('renders list of bids with paddle numbers', () => {
       const bids: MockBid[] = [
-        { id: 'bid-1', amount: 5000, bidderLabel: 'Licytant #42', isUser: false, timestamp: 1700000000 },
-        { id: 'bid-2', amount: 6000, bidderLabel: 'Licytant #77', isUser: false, timestamp: 1700000060 },
+        makeBid({ id: 'bid-1', amount: 5000, paddleNumber: 42 }),
+        makeBid({ id: 'bid-2', amount: 6000, paddleNumber: 77 }),
       ];
       setupMocks(bids);
       render(<BidHistory lotId="lot-1" />);
@@ -86,9 +99,20 @@ describe('BidHistory', () => {
       expect(screen.getByText('Licytant #77')).toBeInTheDocument();
     });
 
+    it('shows "Oferta" when paddleNumber is null', () => {
+      const bids: MockBid[] = [
+        makeBid({ id: 'bid-1', amount: 5000, paddleNumber: null }),
+      ];
+      setupMocks(bids);
+      render(<BidHistory lotId="lot-1" />);
+      fireEvent.click(screen.getByText(/Bid history/));
+
+      expect(screen.getByText('Oferta')).toBeInTheDocument();
+    });
+
     it('shows formatted price for each bid', () => {
       const bids: MockBid[] = [
-        { id: 'bid-1', amount: 5000, bidderLabel: 'Bidder', isUser: false, timestamp: 1700000000 },
+        makeBid({ id: 'bid-1', amount: 5000 }),
       ];
       setupMocks(bids);
       render(<BidHistory lotId="lot-1" />);
@@ -99,7 +123,7 @@ describe('BidHistory', () => {
 
     it('shows "(Ty)" label for user bids', () => {
       const bids: MockBid[] = [
-        { id: 'bid-1', amount: 5000, bidderLabel: 'Ty', isUser: true, timestamp: 1700000000 },
+        makeBid({ id: 'bid-1', amount: 5000, isUser: true }),
       ];
       setupMocks(bids);
       render(<BidHistory lotId="lot-1" />);
@@ -110,7 +134,7 @@ describe('BidHistory', () => {
 
     it('does not show "(Ty)" for non-user bids', () => {
       const bids: MockBid[] = [
-        { id: 'bid-1', amount: 5000, bidderLabel: 'Licytant #42', isUser: false, timestamp: 1700000000 },
+        makeBid({ id: 'bid-1', amount: 5000, paddleNumber: 42, isUser: false }),
       ];
       setupMocks(bids);
       render(<BidHistory lotId="lot-1" />);
@@ -118,17 +142,24 @@ describe('BidHistory', () => {
 
       expect(screen.queryByText('(Ty)')).not.toBeInTheDocument();
     });
+
+    it('shows retracted bids with strikethrough and label', () => {
+      const bids: MockBid[] = [
+        makeBid({ id: 'bid-1', amount: 5000, isRetracted: true, paddleNumber: 42 }),
+      ];
+      setupMocks(bids);
+      render(<BidHistory lotId="lot-1" />);
+      fireEvent.click(screen.getByText(/Bid history/));
+
+      expect(screen.getByText('(wycofana)')).toBeInTheDocument();
+    });
   });
 
   describe('show more', () => {
     it('shows "Pokaż więcej" button when more than 10 bids', () => {
-      const bids: MockBid[] = Array.from({ length: 15 }, (_, i) => ({
-        id: `bid-${i}`,
-        amount: 5000 + i * 100,
-        bidderLabel: `Bidder ${i}`,
-        isUser: false,
-        timestamp: 1700000000 + i,
-      }));
+      const bids: MockBid[] = Array.from({ length: 15 }, (_, i) =>
+        makeBid({ id: `bid-${i}`, amount: 5000 + i * 100, paddleNumber: 100 + i }),
+      );
       setupMocks(bids);
       render(<BidHistory lotId="lot-1" />);
       fireEvent.click(screen.getByText(/Bid history/));
@@ -137,13 +168,9 @@ describe('BidHistory', () => {
     });
 
     it('does not show "Pokaż więcej" for 10 or fewer bids', () => {
-      const bids: MockBid[] = Array.from({ length: 10 }, (_, i) => ({
-        id: `bid-${i}`,
-        amount: 5000 + i * 100,
-        bidderLabel: `Bidder ${i}`,
-        isUser: false,
-        timestamp: 1700000000 + i,
-      }));
+      const bids: MockBid[] = Array.from({ length: 10 }, (_, i) =>
+        makeBid({ id: `bid-${i}`, amount: 5000 + i * 100, paddleNumber: 100 + i }),
+      );
       setupMocks(bids);
       render(<BidHistory lotId="lot-1" />);
       fireEvent.click(screen.getByText(/Bid history/));
@@ -152,20 +179,16 @@ describe('BidHistory', () => {
     });
 
     it('shows all bids after clicking "Pokaż więcej"', () => {
-      const bids: MockBid[] = Array.from({ length: 15 }, (_, i) => ({
-        id: `bid-${i}`,
-        amount: 5000 + i * 100,
-        bidderLabel: `Bidder ${i}`,
-        isUser: false,
-        timestamp: 1700000000 + i,
-      }));
+      const bids: MockBid[] = Array.from({ length: 15 }, (_, i) =>
+        makeBid({ id: `bid-${i}`, amount: 5000 + i * 100, paddleNumber: 100 + i }),
+      );
       setupMocks(bids);
       render(<BidHistory lotId="lot-1" />);
       fireEvent.click(screen.getByText(/Bid history/));
       fireEvent.click(screen.getByText(/Pokaż więcej/));
 
-      // All 15 bidders should be visible
-      expect(screen.getByText('Bidder 14')).toBeInTheDocument();
+      // All 15 bidders should be visible (last one is paddle 114)
+      expect(screen.getByText('Licytant #114')).toBeInTheDocument();
     });
   });
 

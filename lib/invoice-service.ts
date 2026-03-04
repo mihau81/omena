@@ -84,24 +84,14 @@ export async function generateInvoice(lotId: string): Promise<typeof invoices.$i
   }
 
   // Find the winning bidder
-  const { bids, bidRegistrations } = await import('@/db/schema');
+  const { bids } = await import('@/db/schema');
   const [winningBid] = await db
-    .select({ userId: bids.userId, registrationId: bids.registrationId })
+    .select({ userId: bids.userId })
     .from(bids)
     .where(and(eq(bids.lotId, lotId), eq(bids.isWinning, true)))
     .limit(1);
 
-  let buyerId: string | null = winningBid?.userId ?? null;
-
-  // If bid has no direct userId, try to get it from registration
-  if (!buyerId && winningBid?.registrationId) {
-    const [reg] = await db
-      .select({ userId: bidRegistrations.userId })
-      .from(bidRegistrations)
-      .where(eq(bidRegistrations.id, winningBid.registrationId))
-      .limit(1);
-    buyerId = reg?.userId ?? null;
-  }
+  const buyerId: string | null = winningBid?.userId ?? null;
 
   if (!buyerId) {
     throw new Error(`No winning bidder found for lot ${lotId}`);

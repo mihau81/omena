@@ -28,7 +28,8 @@ export async function fetchNBPRates(): Promise<Record<string, number>> {
     const rates: Record<string, number> = { PLN: 1 };
 
     for (const rate of data[0]?.rates ?? []) {
-      rates[rate.code] = rate.mid;
+      // Store as "1 PLN = X foreign" so convertFromPLN can multiply
+      rates[rate.code] = 1 / rate.mid;
     }
 
     rateCache = { rates, fetchedAt: now };
@@ -36,8 +37,8 @@ export async function fetchNBPRates(): Promise<Record<string, number>> {
   } catch {
     // Return cached data if available, even if stale
     if (rateCache) return rateCache.rates;
-    // Fallback rates
-    return { PLN: 1, EUR: 0.23, USD: 0.25, GBP: 0.2 };
+    // Fallback rates (1 PLN = X foreign, based on NBP table A)
+    return { PLN: 1, EUR: 1 / 4.2224, USD: 1 / 3.5792, GBP: 1 / 4.8416 };
   }
 }
 

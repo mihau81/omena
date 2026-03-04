@@ -42,7 +42,7 @@ describe('fetchNBPRates', () => {
     vi.useRealTimers();
   });
 
-  it('fetches rates from NBP API and includes PLN=1', async () => {
+  it('fetches rates from NBP API and includes PLN=1, with inverted rates (1 PLN = X foreign)', async () => {
     vi.stubGlobal(
       'fetch',
       vi.fn().mockResolvedValue({
@@ -57,9 +57,9 @@ describe('fetchNBPRates', () => {
 
     const rates = await freshFetch();
     expect(rates.PLN).toBe(1);
-    expect(rates.EUR).toBe(4.32);
-    expect(rates.USD).toBe(3.95);
-    expect(rates.GBP).toBe(5.08);
+    expect(rates.EUR).toBeCloseTo(1 / 4.32, 6);
+    expect(rates.USD).toBeCloseTo(1 / 3.95, 6);
+    expect(rates.GBP).toBeCloseTo(1 / 5.08, 6);
   });
 
   it('calls the correct NBP API URL', async () => {
@@ -136,14 +136,14 @@ describe('fetchNBPRates', () => {
 
     // First call succeeds
     const firstRates = await freshFetch();
-    expect(firstRates.EUR).toBe(4.32);
+    expect(firstRates.EUR).toBeCloseTo(1 / 4.32, 6);
 
     // Expire cache
     vi.advanceTimersByTime(24 * 60 * 60 * 1000 + 1);
 
     // Second call fails, should return stale cache
     const secondRates = await freshFetch();
-    expect(secondRates.EUR).toBe(4.32);
+    expect(secondRates.EUR).toBeCloseTo(1 / 4.32, 6);
   });
 
   it('returns fallback rates when API fails and no cache exists', async () => {
@@ -156,7 +156,10 @@ describe('fetchNBPRates', () => {
     const { fetchNBPRates: freshFetch } = await import('@/lib/currency');
 
     const rates = await freshFetch();
-    expect(rates).toEqual({ PLN: 1, EUR: 0.23, USD: 0.25, GBP: 0.2 });
+    expect(rates.PLN).toBe(1);
+    expect(rates.EUR).toBeCloseTo(1 / 4.2224, 4);
+    expect(rates.USD).toBeCloseTo(1 / 3.5792, 4);
+    expect(rates.GBP).toBeCloseTo(1 / 4.8416, 4);
   });
 
   it('returns fallback rates when API returns non-OK status', async () => {
@@ -172,7 +175,10 @@ describe('fetchNBPRates', () => {
     const { fetchNBPRates: freshFetch } = await import('@/lib/currency');
 
     const rates = await freshFetch();
-    expect(rates).toEqual({ PLN: 1, EUR: 0.23, USD: 0.25, GBP: 0.2 });
+    expect(rates.PLN).toBe(1);
+    expect(rates.EUR).toBeCloseTo(1 / 4.2224, 4);
+    expect(rates.USD).toBeCloseTo(1 / 3.5792, 4);
+    expect(rates.GBP).toBeCloseTo(1 / 4.8416, 4);
   });
 
   it('handles empty rates array from API', async () => {
@@ -195,11 +201,12 @@ describe('fetchNBPRates', () => {
 });
 
 describe('convertFromPLN', () => {
+  // Rates in "1 PLN = X foreign" format (inverted NBP mid values)
   const rates: Record<string, number> = {
     PLN: 1,
-    EUR: 4.32,
-    USD: 3.95,
-    GBP: 5.08,
+    EUR: 1 / 4.32,   // ~0.2315
+    USD: 1 / 3.95,   // ~0.2532
+    GBP: 1 / 5.08,   // ~0.1969
   };
 
   it('returns the same amount for PLN', () => {
@@ -207,17 +214,18 @@ describe('convertFromPLN', () => {
   });
 
   it('converts PLN to EUR using the rate', () => {
-    // The function multiplies amountPLN * rate (not divides)
-    // This is how the NBP rates work: mid is the exchange rate
-    expect(convertFromPLN(1000, 'EUR', rates)).toBe(4320);
+    // 1000 PLN * (1/4.32) = ~231.48 EUR
+    expect(convertFromPLN(1000, 'EUR', rates)).toBeCloseTo(1000 / 4.32, 2);
   });
 
   it('converts PLN to USD using the rate', () => {
-    expect(convertFromPLN(1000, 'USD', rates)).toBe(3950);
+    // 1000 PLN * (1/3.95) = ~253.16 USD
+    expect(convertFromPLN(1000, 'USD', rates)).toBeCloseTo(1000 / 3.95, 2);
   });
 
   it('converts PLN to GBP using the rate', () => {
-    expect(convertFromPLN(1000, 'GBP', rates)).toBe(5080);
+    // 1000 PLN * (1/5.08) = ~196.85 GBP
+    expect(convertFromPLN(1000, 'GBP', rates)).toBeCloseTo(1000 / 5.08, 2);
   });
 
   it('returns amountPLN when currency rate is missing', () => {
@@ -231,7 +239,7 @@ describe('convertFromPLN', () => {
 
   it('handles fractional amounts', () => {
     const result = convertFromPLN(100.5, 'EUR', rates);
-    expect(result).toBeCloseTo(434.16, 1);
+    expect(result).toBeCloseTo(100.5 / 4.32, 1);
   });
 
   it('returns PLN amount unchanged regardless of rates object', () => {

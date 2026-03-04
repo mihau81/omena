@@ -11,7 +11,6 @@ const NAV_ITEMS = [
   { key: '', icon: 'dashboard', labelKey: 'Dashboard' },
   { key: '/bids', icon: 'bids', labelKey: 'My Bids' },
   { key: '/favorites', icon: 'heart', labelKey: 'Favorites' },
-  { key: '/registrations', icon: 'paddle', labelKey: 'Registrations' },
   { key: '/invoices', icon: 'invoice', labelKey: 'Invoices' },
   { key: '/notifications', icon: 'bell', labelKey: 'Notifications' },
   { key: '/profile', icon: 'profile', labelKey: 'Profile' },
@@ -36,12 +35,6 @@ function NavIcon({ icon, className }: { icon: string; className?: string }) {
       return (
         <svg className={cls} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
-        </svg>
-      );
-    case 'paddle':
-      return (
-        <svg className={cls} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 6v.75m0 3v.75m0 3v.75m0 3V18m-9-5.25h5.25M7.5 15h3M3.375 5.25c-.621 0-1.125.504-1.125 1.125v3.026a2.999 2.999 0 0 1 0 5.198v3.026c0 .621.504 1.125 1.125 1.125h17.25c.621 0 1.125-.504 1.125-1.125v-3.026a2.999 2.999 0 0 1 0-5.198V6.375c0-.621-.504-1.125-1.125-1.125H3.375Z" />
         </svg>
       );
     case 'invoice':

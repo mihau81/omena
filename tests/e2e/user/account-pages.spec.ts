@@ -105,21 +105,6 @@ test.describe('Account pages (authenticated user)', () => {
     });
   });
 
-  test.describe('Account registrations', () => {
-    test('renders Registrations heading', async ({ page }) => {
-      await page.goto(`${BASE}/${LOCALE}/account/registrations`);
-      await page.waitForLoadState('networkidle');
-
-      const heading = page.getByRole('heading', { name: /registrations/i });
-      const isVisible = await heading.isVisible({ timeout: 5000 }).catch(() => false);
-
-      if (!isVisible) {
-        const loginInput = page.locator('input[type="email"]').first();
-        expect(await loginInput.isVisible({ timeout: 2000 }).catch(() => false)).toBeTruthy();
-      }
-    });
-  });
-
   test.describe('Account layout navigation', () => {
     test('sidebar navigation links are present (desktop)', async ({ page }) => {
       await page.goto(`${BASE}/${LOCALE}/account/bids`);
@@ -132,7 +117,7 @@ test.describe('Account pages (authenticated user)', () => {
       }
 
       // Check sidebar nav items
-      const navItems = ['Dashboard', 'My Bids', 'Favorites', 'Registrations', 'Notifications', 'Profile'];
+      const navItems = ['Dashboard', 'My Bids', 'Favorites', 'Invoices', 'Notifications', 'Profile'];
       for (const item of navItems) {
         const link = page.getByRole('link', { name: item }).first();
         const isVisible = await link.isVisible({ timeout: 1000 }).catch(() => false);

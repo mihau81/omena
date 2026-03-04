@@ -2,14 +2,13 @@ import { describe, it, expect } from 'vitest';
 import {
   getBidIncrement,
   getNextMinBid,
-  generatePaddleNumber,
-  shouldBotCounterBid,
-  getBotResponseDelay,
   calculatePremium,
   calculateTotal,
   BUYERS_PREMIUM_RATE,
   SOFT_CLOSE_WINDOW_MS,
   SOFT_CLOSE_EXTENSION_MS,
+  getValidBidOptions,
+  isValidBidAmount,
 } from '@/app/lib/bidding';
 
 describe('getBidIncrement', () => {
@@ -86,42 +85,46 @@ describe('getNextMinBid', () => {
   });
 });
 
-describe('generatePaddleNumber', () => {
-  it('returns a number between 100 and 999 inclusive', () => {
-    for (let i = 0; i < 50; i++) {
-      const paddle = generatePaddleNumber();
-      expect(paddle).toBeGreaterThanOrEqual(100);
-      expect(paddle).toBeLessThanOrEqual(999);
-      expect(Number.isInteger(paddle)).toBe(true);
-    }
+describe('getValidBidOptions', () => {
+  it('returns correct number of options', () => {
+    expect(getValidBidOptions(5000, 4)).toHaveLength(4);
+    expect(getValidBidOptions(5000, 2)).toHaveLength(2);
+  });
+
+  it('returns consecutive increments from current bid', () => {
+    // At 5000, increment is 500, so: 5500, 6000, 6500, 7000
+    const options = getValidBidOptions(5000, 4);
+    expect(options).toEqual([5500, 6000, 6500, 7000]);
+  });
+
+  it('crosses increment boundaries correctly', () => {
+    // At 9000, increment is 500 (>=5000 threshold), so first is 9500
+    // At 9500, still 500, so 10000
+    // At 10000, increment jumps to 1000 (>=10000 threshold), so 11000
+    const options = getValidBidOptions(9000, 4);
+    expect(options).toEqual([9500, 10000, 11000, 12000]);
+  });
+
+  it('defaults to 4 options', () => {
+    expect(getValidBidOptions(1000)).toHaveLength(4);
   });
 });
 
-describe('shouldBotCounterBid', () => {
-  it('returns a boolean', () => {
-    const result = shouldBotCounterBid();
-    expect(typeof result).toBe('boolean');
+describe('isValidBidAmount', () => {
+  it('accepts exact minimum bid', () => {
+    expect(isValidBidAmount(5000, 5500)).toBe(true);
   });
 
-  it('returns true approximately 40% of the time (statistical)', () => {
-    let trueCount = 0;
-    const trials = 1000;
-    for (let i = 0; i < trials; i++) {
-      if (shouldBotCounterBid()) trueCount++;
-    }
-    // With 1000 trials, expect roughly 400 ± 60 (3σ)
-    expect(trueCount).toBeGreaterThan(300);
-    expect(trueCount).toBeLessThan(500);
+  it('accepts amount above minimum', () => {
+    expect(isValidBidAmount(5000, 6000)).toBe(true);
   });
-});
 
-describe('getBotResponseDelay', () => {
-  it('returns a delay between 2000 and 6000 ms', () => {
-    for (let i = 0; i < 50; i++) {
-      const delay = getBotResponseDelay();
-      expect(delay).toBeGreaterThanOrEqual(2000);
-      expect(delay).toBeLessThan(6000);
-    }
+  it('rejects amount below minimum', () => {
+    expect(isValidBidAmount(5000, 5100)).toBe(false);
+  });
+
+  it('rejects same amount as current bid', () => {
+    expect(isValidBidAmount(5000, 5000)).toBe(false);
   });
 });
 
