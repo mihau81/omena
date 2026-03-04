@@ -279,4 +279,18 @@ export const en: Dictionary = {
   notificationsTimeHours: 'h ago',
   notificationsTimeDays: 'd ago',
 
+
+  // MaxBidPanel
+  maxBidTitle: 'Set Maximum Bid',
+  maxBidDescription: "Enter the most you're willing to pay. We'll automatically bid for you at the minimum increment, keeping your maximum confidential.",
+  maxBidActive: 'You have an active maximum bid on this lot.',
+  maxBidCancel: 'Cancel it',
+  maxBidSuccess: 'Maximum bid set. We will bid on your behalf up to this amount.',
+  maxBidMinAmount: 'Must be at least {amount} PLN',
+  maxBidSaving: 'Saving...',
+  maxBidUpdate: 'Update Maximum Bid',
+  maxBidSet: 'Set Maximum Bid',
+  maxBidNetworkError: 'Network error. Please try again.',
+  maxBidFailed: 'Failed to set maximum bid.',
+  maxBidCancelFailed: 'Failed to cancel.',
 };

@@ -277,4 +277,17 @@ export const pl = {
   notificationsTimeHours: 'godz. temu',
   notificationsTimeDays: 'dni temu',
 
+  // MaxBidPanel
+  maxBidTitle: 'Ustal maksymalną ofertę',
+  maxBidDescription: 'Podaj maksymalną kwotę, jaką chcesz zapłacić. Będziemy licytować w Twoim imieniu z minimalnym postąpieniem, zachowując poufność Twojego limitu.',
+  maxBidActive: 'Masz aktywną ofertę maksymalną na ten obiekt.',
+  maxBidCancel: 'Anuluj',
+  maxBidSuccess: 'Oferta maksymalna ustawiona. Będziemy licytować w Twoim imieniu.',
+  maxBidMinAmount: 'Minimum {amount} PLN',
+  maxBidSaving: 'Zapisywanie...',
+  maxBidUpdate: 'Zaktualizuj ofertę',
+  maxBidSet: 'Ustal maksymalną ofertę',
+  maxBidNetworkError: 'Błąd sieci. Spróbuj ponownie.',
+  maxBidFailed: 'Nie udało się ustawić oferty.',
+  maxBidCancelFailed: 'Nie udało się anulować.',
 } as const;

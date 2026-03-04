@@ -279,4 +279,17 @@ export const de: Dictionary = {
   notificationsTimeHours: 'Std.',
   notificationsTimeDays: 'T.',
 
+  // MaxBidPanel
+  maxBidTitle: 'Maximales Gebot festlegen',
+  maxBidDescription: 'Geben Sie den Höchstbetrag ein, den Sie zahlen möchten. Wir bieten automatisch mit dem Mindestschritt für Sie, wobei Ihr Maximum vertraulich bleibt.',
+  maxBidActive: 'Sie haben ein aktives Maximalgebot für dieses Lot.',
+  maxBidCancel: 'Stornieren',
+  maxBidSuccess: 'Maximalgebot gesetzt. Wir bieten in Ihrem Namen bis zu diesem Betrag.',
+  maxBidMinAmount: 'Mindestens {amount} PLN',
+  maxBidSaving: 'Speichern...',
+  maxBidUpdate: 'Maximalgebot aktualisieren',
+  maxBidSet: 'Maximales Gebot festlegen',
+  maxBidNetworkError: 'Netzwerkfehler. Bitte erneut versuchen.',
+  maxBidFailed: 'Maximalgebot konnte nicht gesetzt werden.',
+  maxBidCancelFailed: 'Stornierung fehlgeschlagen.',
 };

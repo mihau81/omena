@@ -279,4 +279,17 @@ export const fr: Dictionary = {
   notificationsTimeHours: 'h',
   notificationsTimeDays: 'j',
 
+  // MaxBidPanel
+  maxBidTitle: "Définir l'enchère maximale",
+  maxBidDescription: 'Indiquez le montant maximum que vous êtes prêt à payer. Nous enchérirons automatiquement au pas minimum, en gardant votre maximum confidentiel.',
+  maxBidActive: 'Vous avez une enchère maximale active sur ce lot.',
+  maxBidCancel: 'Annuler',
+  maxBidSuccess: 'Enchère maximale définie. Nous enchérirons en votre nom.',
+  maxBidMinAmount: 'Minimum {amount} PLN',
+  maxBidSaving: 'Enregistrement...',
+  maxBidUpdate: "Mettre à jour l'enchère",
+  maxBidSet: "Définir l'enchère maximale",
+  maxBidNetworkError: 'Erreur réseau. Veuillez réessayer.',
+  maxBidFailed: "Impossible de définir l'enchère maximale.",
+  maxBidCancelFailed: "Impossible d'annuler.",
 };

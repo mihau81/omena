@@ -279,4 +279,17 @@ export const es: Dictionary = {
   notificationsTimeHours: 'h',
   notificationsTimeDays: 'd',
 
+  // MaxBidPanel
+  maxBidTitle: 'Establecer puja máxima',
+  maxBidDescription: 'Introduzca el máximo que está dispuesto a pagar. Pujaremos automáticamente con el incremento mínimo, manteniendo su máximo confidencial.',
+  maxBidActive: 'Tiene una puja máxima activa en este lote.',
+  maxBidCancel: 'Cancelar',
+  maxBidSuccess: 'Puja máxima establecida. Pujaremos en su nombre.',
+  maxBidMinAmount: 'Mínimo {amount} PLN',
+  maxBidSaving: 'Guardando...',
+  maxBidUpdate: 'Actualizar puja máxima',
+  maxBidSet: 'Establecer puja máxima',
+  maxBidNetworkError: 'Error de red. Inténtelo de nuevo.',
+  maxBidFailed: 'No se pudo establecer la puja máxima.',
+  maxBidCancelFailed: 'No se pudo cancelar.',
 };

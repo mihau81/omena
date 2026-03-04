@@ -5,13 +5,13 @@ import type { Lot } from '../lib/types';
 import { useBidding } from '../lib/BiddingContext';
 import { useLocale } from '../lib/LocaleContext';
 import { useCurrency } from '../lib/CurrencyContext';
-import { getNextMinBid, BUYERS_PREMIUM_RATE } from '../lib/bidding';
-import { getValidBidOptions, getBidIncrement } from '@/lib/bid-increments';
+import { useSession } from 'next-auth/react';
+import { getNextMinBid, getBidIncrement, getValidBidOptions } from '../lib/bidding';
 import { showBidToast } from './BidToast';
 import AllCurrencyPrices from './AllCurrencyPrices';
 import BidHistory from './BidHistory';
 import BidConfirmModal from './BidConfirmModal';
-import RegistrationModal from './RegistrationModal';
+import LoginModal from './LoginModal';
 import MaxBidPanel from './MaxBidPanel';
 
 interface BidPanelProps {
@@ -26,7 +26,6 @@ export default function BidPanel({ lot, auctionStatus, auctionSlug, premiumLabel
   const {
     getHighestBid,
     isUserWinning,
-    isUserRegistered,
     isLotWatched,
     toggleWatch,
     placeBid,
@@ -34,6 +33,7 @@ export default function BidPanel({ lot, auctionStatus, auctionSlug, premiumLabel
   } = useBidding();
   const { t } = useLocale();
   const { formatPrice } = useCurrency();
+  const { data: session } = useSession();
 
   const highestBid = getHighestBid(lot.id);
   const currentBid = highestBid ?? lot.estimateMin;
@@ -43,7 +43,7 @@ export default function BidPanel({ lot, auctionStatus, auctionSlug, premiumLabel
   const [selectedTag, setSelectedTag] = useState<number | null>(nextMin);
   const [customAmount, setCustomAmount] = useState('');
   const [showCustomInput, setShowCustomInput] = useState(false);
-  const [showRegModal, setShowRegModal] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const watched = isLotWatched(lot.id);
 
@@ -94,12 +94,12 @@ export default function BidPanel({ lot, auctionStatus, auctionSlug, premiumLabel
   };
 
   const handleBidClick = useCallback(() => {
-    if (!isUserRegistered()) {
-      setShowRegModal(true);
+    if (!session?.user) {
+      setShowLoginModal(true);
     } else {
       setShowConfirmModal(true);
     }
-  }, [isUserRegistered]);
+  }, [session]);
 
   const handleConfirmBid = useCallback(() => {
     placeBid(lot.id, auctionSlug, bidAmount);
@@ -107,8 +107,8 @@ export default function BidPanel({ lot, auctionStatus, auctionSlug, premiumLabel
     showBidToast('success', `${t.bidAccepted} ${formatPrice(bidAmount)}`);
   }, [placeBid, lot.id, auctionSlug, bidAmount, t, formatPrice]);
 
-  const handleRegistered = useCallback(() => {
-    setShowRegModal(false);
+  const handleAuthenticated = useCallback(() => {
+    setShowLoginModal(false);
     setShowConfirmModal(true);
   }, []);
 
@@ -137,7 +137,7 @@ export default function BidPanel({ lot, auctionStatus, auctionSlug, premiumLabel
             </div>
 
             <button
-              onClick={() => toggleWatch(lot.id, auctionSlug)}
+              onClick={() => session?.user ? toggleWatch(lot.id, auctionSlug) : setShowLoginModal(true)}
               className="mt-4 flex w-full items-center justify-center gap-2 rounded-lg border border-beige py-2.5 text-base font-medium text-dark-brown transition-colors hover:bg-beige/50"
             >
               <HeartIcon filled={watched} />
@@ -287,7 +287,7 @@ export default function BidPanel({ lot, auctionStatus, auctionSlug, premiumLabel
 
             {/* Watch toggle */}
             <button
-              onClick={() => toggleWatch(lot.id, auctionSlug)}
+              onClick={() => session?.user ? toggleWatch(lot.id, auctionSlug) : setShowLoginModal(true)}
               className="mt-3 flex w-full items-center justify-center gap-2 rounded-lg border border-beige py-2.5 text-base font-medium text-dark-brown transition-colors hover:bg-beige/50"
             >
               <HeartIcon filled={watched} />
@@ -310,10 +310,10 @@ export default function BidPanel({ lot, auctionStatus, auctionSlug, premiumLabel
         )}
       </div>
 
-      <RegistrationModal
-        isOpen={showRegModal}
-        onClose={() => setShowRegModal(false)}
-        onRegistered={handleRegistered}
+      <LoginModal
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        onAuthenticated={handleAuthenticated}
       />
 
       <BidConfirmModal

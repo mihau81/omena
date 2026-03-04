@@ -1,6 +1,7 @@
 'use client';
 
 import { apiUrl } from '@/app/lib/utils';
+import { useLocale } from '../lib/LocaleContext';
 
 import { useState, useEffect, useCallback } from 'react';
 
@@ -10,6 +11,7 @@ interface MaxBidPanelProps {
 }
 
 export default function MaxBidPanel({ lotId, nextMin }: MaxBidPanelProps) {
+  const { t } = useLocale();
   const [isOpen, setIsOpen] = useState(false);
   const [hasAbsenteeBid, setHasAbsenteeBid] = useState(false);
   const [maxAmount, setMaxAmount] = useState(nextMin);
@@ -46,19 +48,19 @@ export default function MaxBidPanel({ lotId, nextMin }: MaxBidPanelProps) {
       if (res.ok) {
         setHasAbsenteeBid(true);
         setStatus('success');
-        setStatusMsg('Maximum bid set. We will bid on your behalf up to this amount.');
+        setStatusMsg(t.maxBidSuccess);
       } else {
         const data = await res.json();
         setStatus('error');
-        setStatusMsg(data.error ?? 'Failed to set maximum bid.');
+        setStatusMsg(data.error ?? t.maxBidFailed);
       }
     } catch {
       setStatus('error');
-      setStatusMsg('Network error. Please try again.');
+      setStatusMsg(t.maxBidNetworkError);
     } finally {
       setLoading(false);
     }
-  }, [lotId, maxAmount, nextMin]);
+  }, [lotId, maxAmount, nextMin, t]);
 
   const handleCancel = useCallback(async () => {
     setLoading(true);
@@ -72,15 +74,15 @@ export default function MaxBidPanel({ lotId, nextMin }: MaxBidPanelProps) {
       } else {
         const data = await res.json();
         setStatus('error');
-        setStatusMsg(data.error ?? 'Failed to cancel.');
+        setStatusMsg(data.error ?? t.maxBidCancelFailed);
       }
     } catch {
       setStatus('error');
-      setStatusMsg('Network error. Please try again.');
+      setStatusMsg(t.maxBidNetworkError);
     } finally {
       setLoading(false);
     }
-  }, [lotId]);
+  }, [lotId, t]);
 
   return (
     <div className="mt-3 rounded-lg border border-beige">
@@ -91,28 +93,27 @@ export default function MaxBidPanel({ lotId, nextMin }: MaxBidPanelProps) {
       >
         <span className="flex items-center gap-2">
           <ChevronIcon />
-          Set Maximum Bid
+          {t.maxBidTitle}
         </span>
-        <span className="text-xs text-taupe">{isOpen ? '▲' : '▼'}</span>
+        <span className="text-xs text-taupe">{isOpen ? '\u25B2' : '\u25BC'}</span>
       </button>
 
       {isOpen && (
         <div className="border-t border-beige px-4 pb-4 pt-3">
           <p className="mb-3 text-xs text-taupe">
-            Enter the most you&apos;re willing to pay. We&apos;ll automatically bid for you at
-            the minimum increment, keeping your maximum confidential.
+            {t.maxBidDescription}
           </p>
 
           {hasAbsenteeBid && status !== 'success' && (
             <div className="mb-3 rounded-md bg-green-50 px-3 py-2 text-xs text-green-700">
-              You have an active maximum bid on this lot.{' '}
+              {t.maxBidActive}{' '}
               <button
                 type="button"
                 onClick={handleCancel}
                 disabled={loading}
                 className="underline hover:text-green-900 disabled:opacity-50"
               >
-                Cancel it
+                {t.maxBidCancel}
               </button>
             </div>
           )}
@@ -147,7 +148,7 @@ export default function MaxBidPanel({ lotId, nextMin }: MaxBidPanelProps) {
           </div>
           {maxAmount < nextMin && (
             <p className="mt-1 text-xs text-red-600">
-              Must be at least {nextMin.toLocaleString()} PLN
+              {t.maxBidMinAmount.replace('{amount}', nextMin.toLocaleString())}
             </p>
           )}
 
@@ -157,7 +158,7 @@ export default function MaxBidPanel({ lotId, nextMin }: MaxBidPanelProps) {
             disabled={loading || maxAmount < nextMin}
             className="mt-3 w-full rounded-lg border border-gold py-2 text-sm font-medium text-gold transition-colors hover:bg-gold/5 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loading ? 'Saving…' : hasAbsenteeBid ? 'Update Maximum Bid' : 'Set Maximum Bid'}
+            {loading ? t.maxBidSaving : hasAbsenteeBid ? t.maxBidUpdate : t.maxBidSet}
           </button>
         </div>
       )}

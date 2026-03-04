@@ -61,3 +61,24 @@ export function calculatePremium(amount: number): number {
 export function calculateTotal(amount: number): number {
   return amount + calculatePremium(amount);
 }
+
+/**
+ * Returns `count` consecutive valid bid amounts starting from the next valid bid.
+ * e.g. for currentBid=5000, count=4 → [6000, 7000, 8000, 9000]
+ */
+export function getValidBidOptions(currentBid: number, count = 4): number[] {
+  const options: number[] = [];
+  let bid = currentBid;
+  for (let i = 0; i < count; i++) {
+    bid = getNextMinBid(bid);
+    options.push(bid);
+  }
+  return options;
+}
+
+/**
+ * Validates that `proposedBid` meets the minimum increment above `currentBid`.
+ */
+export function isValidBidAmount(currentBid: number, proposedBid: number): boolean {
+  return proposedBid >= getNextMinBid(currentBid);
+}

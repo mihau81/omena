@@ -1,7 +1,7 @@
 'use client';
 
 import { apiUrl } from '@/app/lib/utils';
-import { getValidBidOptions, getBidIncrement } from '@/lib/bid-increments';
+import { getValidBidOptions, getBidIncrement } from '@/app/lib/bidding';
 
 import { useState, useEffect, useCallback, use, useRef } from 'react';
 import Link from 'next/link';

@@ -4,8 +4,7 @@ import {
   bids, bidRegistrations, bidRetractions,
   lots, auctions, users,
 } from '@/db/schema';
-import { getNextMinBid } from '@/app/lib/bidding';
-import { isValidBidAmount } from '@/lib/bid-increments';
+import { getNextMinBid, isValidBidAmount } from '@/app/lib/bidding';
 import { logCreate } from '@/lib/audit';
 import { emitBid } from '@/lib/bid-events';
 import { extendLotTimer } from '@/lib/lot-timer';

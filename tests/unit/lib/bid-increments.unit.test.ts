@@ -1,24 +1,23 @@
 import { describe, it, expect } from 'vitest';
 import {
   getBidIncrement,
-  getNextValidBid,
+  getNextMinBid,
   getValidBidOptions,
   isValidBidAmount,
-  formatBidAmount,
-} from '@/lib/bid-increments';
+} from '@/app/lib/bidding';
+
+// Increment table (app/lib/bidding.ts):
+//   [0, 100], [1000, 100], [2000, 200], [5000, 500],
+//   [10000, 1000], [20000, 2000], [50000, 5000],
+//   [100000, 10000], [200000, 20000], [500000, 50000], [1000000, 100000]
 
 describe('getBidIncrement', () => {
   describe('returns correct increment per threshold', () => {
-    it('returns 50 for bids from 0 up to 499', () => {
-      expect(getBidIncrement(0)).toBe(50);
-      expect(getBidIncrement(1)).toBe(50);
-      expect(getBidIncrement(250)).toBe(50);
-      expect(getBidIncrement(499)).toBe(50);
-    });
-
-    it('returns 100 for bids from 500 up to 1999', () => {
+    it('returns 100 for bids from 0 up to 1999', () => {
+      expect(getBidIncrement(0)).toBe(100);
+      expect(getBidIncrement(1)).toBe(100);
       expect(getBidIncrement(500)).toBe(100);
-      expect(getBidIncrement(501)).toBe(100);
+      expect(getBidIncrement(999)).toBe(100);
       expect(getBidIncrement(1000)).toBe(100);
       expect(getBidIncrement(1999)).toBe(100);
     });
@@ -29,44 +28,56 @@ describe('getBidIncrement', () => {
       expect(getBidIncrement(4999)).toBe(200);
     });
 
-    it('returns 500 for bids from 5000 up to 19999', () => {
+    it('returns 500 for bids from 5000 up to 9999', () => {
       expect(getBidIncrement(5000)).toBe(500);
-      expect(getBidIncrement(10000)).toBe(500);
-      expect(getBidIncrement(19999)).toBe(500);
+      expect(getBidIncrement(7500)).toBe(500);
+      expect(getBidIncrement(9999)).toBe(500);
     });
 
-    it('returns 1000 for bids from 20000 up to 49999', () => {
-      expect(getBidIncrement(20000)).toBe(1000);
-      expect(getBidIncrement(35000)).toBe(1000);
-      expect(getBidIncrement(49999)).toBe(1000);
+    it('returns 1000 for bids from 10000 up to 19999', () => {
+      expect(getBidIncrement(10000)).toBe(1000);
+      expect(getBidIncrement(15000)).toBe(1000);
+      expect(getBidIncrement(19999)).toBe(1000);
     });
 
-    it('returns 2000 for bids from 50000 up to 99999', () => {
-      expect(getBidIncrement(50000)).toBe(2000);
-      expect(getBidIncrement(75000)).toBe(2000);
-      expect(getBidIncrement(99999)).toBe(2000);
+    it('returns 2000 for bids from 20000 up to 49999', () => {
+      expect(getBidIncrement(20000)).toBe(2000);
+      expect(getBidIncrement(35000)).toBe(2000);
+      expect(getBidIncrement(49999)).toBe(2000);
     });
 
-    it('returns 5000 for bids from 100000 up to 499999', () => {
-      expect(getBidIncrement(100000)).toBe(5000);
-      expect(getBidIncrement(250000)).toBe(5000);
-      expect(getBidIncrement(499999)).toBe(5000);
+    it('returns 5000 for bids from 50000 up to 99999', () => {
+      expect(getBidIncrement(50000)).toBe(5000);
+      expect(getBidIncrement(75000)).toBe(5000);
+      expect(getBidIncrement(99999)).toBe(5000);
     });
 
-    it('returns 10000 for bids from 500000 and above', () => {
-      expect(getBidIncrement(500000)).toBe(10000);
-      expect(getBidIncrement(750000)).toBe(10000);
-      expect(getBidIncrement(1000000)).toBe(10000);
-      expect(getBidIncrement(5000000)).toBe(10000);
+    it('returns 10000 for bids from 100000 up to 199999', () => {
+      expect(getBidIncrement(100000)).toBe(10000);
+      expect(getBidIncrement(150000)).toBe(10000);
+      expect(getBidIncrement(199999)).toBe(10000);
+    });
+
+    it('returns 20000 for bids from 200000 up to 499999', () => {
+      expect(getBidIncrement(200000)).toBe(20000);
+      expect(getBidIncrement(350000)).toBe(20000);
+      expect(getBidIncrement(499999)).toBe(20000);
+    });
+
+    it('returns 50000 for bids from 500000 up to 999999', () => {
+      expect(getBidIncrement(500000)).toBe(50000);
+      expect(getBidIncrement(750000)).toBe(50000);
+      expect(getBidIncrement(999999)).toBe(50000);
+    });
+
+    it('returns 100000 for bids from 1000000 and above', () => {
+      expect(getBidIncrement(1000000)).toBe(100000);
+      expect(getBidIncrement(2500000)).toBe(100000);
+      expect(getBidIncrement(5000000)).toBe(100000);
     });
   });
 
   describe('exact threshold boundaries', () => {
-    it('transitions at 500 boundary', () => {
-      expect(getBidIncrement(499)).toBe(50);
-      expect(getBidIncrement(500)).toBe(100);
-    });
-
     it('transitions at 2000 boundary', () => {
       expect(getBidIncrement(1999)).toBe(100);
       expect(getBidIncrement(2000)).toBe(200);
@@ -77,63 +88,72 @@ describe('getBidIncrement', () => {
       expect(getBidIncrement(5000)).toBe(500);
     });
 
+    it('transitions at 10000 boundary', () => {
+      expect(getBidIncrement(9999)).toBe(500);
+      expect(getBidIncrement(10000)).toBe(1000);
+    });
+
     it('transitions at 20000 boundary', () => {
-      expect(getBidIncrement(19999)).toBe(500);
-      expect(getBidIncrement(20000)).toBe(1000);
+      expect(getBidIncrement(19999)).toBe(1000);
+      expect(getBidIncrement(20000)).toBe(2000);
     });
 
     it('transitions at 50000 boundary', () => {
-      expect(getBidIncrement(49999)).toBe(1000);
-      expect(getBidIncrement(50000)).toBe(2000);
+      expect(getBidIncrement(49999)).toBe(2000);
+      expect(getBidIncrement(50000)).toBe(5000);
     });
 
     it('transitions at 100000 boundary', () => {
-      expect(getBidIncrement(99999)).toBe(2000);
-      expect(getBidIncrement(100000)).toBe(5000);
+      expect(getBidIncrement(99999)).toBe(5000);
+      expect(getBidIncrement(100000)).toBe(10000);
+    });
+
+    it('transitions at 200000 boundary', () => {
+      expect(getBidIncrement(199999)).toBe(10000);
+      expect(getBidIncrement(200000)).toBe(20000);
     });
 
     it('transitions at 500000 boundary', () => {
-      expect(getBidIncrement(499999)).toBe(5000);
-      expect(getBidIncrement(500000)).toBe(10000);
+      expect(getBidIncrement(499999)).toBe(20000);
+      expect(getBidIncrement(500000)).toBe(50000);
+    });
+
+    it('transitions at 1000000 boundary', () => {
+      expect(getBidIncrement(999999)).toBe(50000);
+      expect(getBidIncrement(1000000)).toBe(100000);
     });
   });
 
   describe('edge cases', () => {
-    it('returns 50 for zero', () => {
-      expect(getBidIncrement(0)).toBe(50);
-    });
-
-    it('returns 50 for negative values (below first threshold)', () => {
-      // Negative bids are below the 0 threshold so the loop still sets increment to 50
-      expect(getBidIncrement(-1)).toBe(50);
-      expect(getBidIncrement(-100)).toBe(50);
+    it('returns 100 for zero', () => {
+      expect(getBidIncrement(0)).toBe(100);
     });
   });
 });
 
-describe('getNextValidBid', () => {
+describe('getNextMinBid', () => {
   it('returns currentBid + increment for each tier', () => {
-    expect(getNextValidBid(0)).toBe(50);
-    expect(getNextValidBid(100)).toBe(150);
-    expect(getNextValidBid(500)).toBe(600);
-    expect(getNextValidBid(2000)).toBe(2200);
-    expect(getNextValidBid(5000)).toBe(5500);
-    expect(getNextValidBid(20000)).toBe(21000);
-    expect(getNextValidBid(50000)).toBe(52000);
-    expect(getNextValidBid(100000)).toBe(105000);
-    expect(getNextValidBid(500000)).toBe(510000);
+    expect(getNextMinBid(0)).toBe(100);
+    expect(getNextMinBid(500)).toBe(600);
+    expect(getNextMinBid(2000)).toBe(2200);
+    expect(getNextMinBid(5000)).toBe(5500);
+    expect(getNextMinBid(10000)).toBe(11000);
+    expect(getNextMinBid(20000)).toBe(22000);
+    expect(getNextMinBid(50000)).toBe(55000);
+    expect(getNextMinBid(100000)).toBe(110000);
+    expect(getNextMinBid(200000)).toBe(220000);
+    expect(getNextMinBid(500000)).toBe(550000);
+    expect(getNextMinBid(1000000)).toBe(1100000);
   });
 
   it('works at tier boundary values', () => {
-    // At 499, increment is 50, so next = 549
-    expect(getNextValidBid(499)).toBe(549);
-    // At 500, increment is 100, so next = 600
-    expect(getNextValidBid(500)).toBe(600);
+    expect(getNextMinBid(1999)).toBe(2099);
+    expect(getNextMinBid(2000)).toBe(2200);
   });
 
   it('handles large values in the highest tier', () => {
-    expect(getNextValidBid(1000000)).toBe(1010000);
-    expect(getNextValidBid(2500000)).toBe(2510000);
+    expect(getNextMinBid(1000000)).toBe(1100000);
+    expect(getNextMinBid(2500000)).toBe(2600000);
   });
 });
 
@@ -149,9 +169,9 @@ describe('getValidBidOptions', () => {
   });
 
   it('returns consecutive valid bids starting at 0', () => {
-    // 0 → 50 → 100 → 150 → 200 (all in tier [0, 50])
+    // 0 → 100 → 200 → 300 → 400 (all in tier [0, 100])
     const options = getValidBidOptions(0, 4);
-    expect(options).toEqual([50, 100, 150, 200]);
+    expect(options).toEqual([100, 200, 300, 400]);
   });
 
   it('returns consecutive valid bids in the 5000 tier', () => {
@@ -160,12 +180,18 @@ describe('getValidBidOptions', () => {
     expect(options).toEqual([5500, 6000, 6500, 7000]);
   });
 
+  it('returns consecutive valid bids in the 10000 tier', () => {
+    // 10000 increment=1000 → 11000 → 12000 → 13000 → 14000
+    const options = getValidBidOptions(10000, 4);
+    expect(options).toEqual([11000, 12000, 13000, 14000]);
+  });
+
   it('handles tier transitions within options', () => {
-    // 450 is in [0,50] tier: 450+50=500. 500 is in [500,100] tier: 500+100=600, etc.
-    const options = getValidBidOptions(450, 3);
-    expect(options[0]).toBe(500);
-    expect(options[1]).toBe(600);
-    expect(options[2]).toBe(700);
+    // 1900 is in [1000,100] tier: 1900+100=2000. 2000 is in [2000,200] tier: 2000+200=2200, etc.
+    const options = getValidBidOptions(1900, 3);
+    expect(options[0]).toBe(2000);
+    expect(options[1]).toBe(2200);
+    expect(options[2]).toBe(2400);
   });
 
   it('returns empty array for count=0', () => {
@@ -188,22 +214,22 @@ describe('getValidBidOptions', () => {
 
 describe('isValidBidAmount', () => {
   it('returns true when proposed bid equals next valid bid', () => {
-    expect(isValidBidAmount(0, 50)).toBe(true);
+    expect(isValidBidAmount(0, 100)).toBe(true);
     expect(isValidBidAmount(5000, 5500)).toBe(true);
-    expect(isValidBidAmount(100000, 105000)).toBe(true);
+    expect(isValidBidAmount(100000, 110000)).toBe(true);
   });
 
   it('returns true when proposed bid exceeds next valid bid', () => {
-    expect(isValidBidAmount(0, 100)).toBe(true);
+    expect(isValidBidAmount(0, 200)).toBe(true);
     expect(isValidBidAmount(5000, 6000)).toBe(true);
     expect(isValidBidAmount(100000, 200000)).toBe(true);
   });
 
   it('returns false when proposed bid is less than next valid bid', () => {
-    expect(isValidBidAmount(0, 49)).toBe(false);
+    expect(isValidBidAmount(0, 99)).toBe(false);
     expect(isValidBidAmount(0, 0)).toBe(false);
     expect(isValidBidAmount(5000, 5499)).toBe(false);
-    expect(isValidBidAmount(100000, 104999)).toBe(false);
+    expect(isValidBidAmount(100000, 109999)).toBe(false);
   });
 
   it('returns false when proposed bid equals current bid', () => {
@@ -216,50 +242,8 @@ describe('isValidBidAmount', () => {
   });
 
   it('validates boundary transitions correctly', () => {
-    // At 499, next valid is 549
-    expect(isValidBidAmount(499, 549)).toBe(true);
-    expect(isValidBidAmount(499, 548)).toBe(false);
-  });
-});
-
-describe('formatBidAmount', () => {
-  it('formats zero', () => {
-    expect(formatBidAmount(0)).toBe('0 PLN');
-  });
-
-  it('formats small amounts without separators', () => {
-    expect(formatBidAmount(100)).toBe('100 PLN');
-    expect(formatBidAmount(999)).toBe('999 PLN');
-  });
-
-  it('formats amounts with thousands separator', () => {
-    const result = formatBidAmount(5500);
-    // In some environments Polish locale adds grouping separators, in others it does not.
-    // The result must contain the digits and PLN suffix.
-    expect(result).toContain('5500');
-    expect(result).toContain('PLN');
-  });
-
-  it('formats large amounts', () => {
-    const result = formatBidAmount(1250000);
-    // Must contain all digits (possibly with grouping separators) and PLN
-    expect(result).toContain('PLN');
-    expect(result.replace(/\s/g, '')).toContain('1250000');
-  });
-
-  it('appends PLN suffix', () => {
-    expect(formatBidAmount(500)).toContain('PLN');
-  });
-
-  it('formats without decimal places', () => {
-    const result = formatBidAmount(1000);
-    expect(result).not.toContain(',');
-    expect(result).not.toContain('.');
-  });
-
-  it('truncates fractional amounts (Intl rounds)', () => {
-    const result = formatBidAmount(1000.75);
-    // Intl rounds 1000.75 to 1001 with maximumFractionDigits: 0
-    expect(result.replace(/\s/g, '')).toBe('1001PLN');
+    // At 1999, next valid is 2099
+    expect(isValidBidAmount(1999, 2099)).toBe(true);
+    expect(isValidBidAmount(1999, 2098)).toBe(false);
   });
 });
