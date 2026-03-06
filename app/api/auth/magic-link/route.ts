@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { eq, and, isNull } from 'drizzle-orm';
 import { db } from '@/db/connection';
-import { users } from '@/db/schema';
+import { users, admins } from '@/db/schema';
 import { magicLinkRequestSchema } from '@/lib/validation/user';
 import { magicLinkLimiter } from '@/lib/rate-limiters';
 import { sendEmail } from '@/lib/email';
@@ -29,15 +29,24 @@ export async function POST(request: Request) {
       return NextResponse.json({ message: 'If an account exists, a sign-in link has been sent.' });
     }
 
-    // Lookup user — don't reveal if exists
+    // Lookup user or admin — don't reveal if exists
     const [user] = await db
       .select({ id: users.id, accountStatus: users.accountStatus })
       .from(users)
       .where(and(eq(users.email, email), isNull(users.deletedAt)))
       .limit(1);
 
-    if (!user || user.accountStatus !== 'approved') {
-      // Don't reveal user doesn't exist — always return success
+    const [admin] = await db
+      .select({ id: admins.id, isActive: admins.isActive })
+      .from(admins)
+      .where(and(eq(admins.email, email), isNull(admins.deletedAt)))
+      .limit(1);
+
+    const userFound = user && user.accountStatus === 'approved';
+    const adminFound = admin && admin.isActive;
+
+    if (!userFound && !adminFound) {
+      // Don't reveal account doesn't exist — always return success
       return NextResponse.json({ message: 'If an account exists, a sign-in link has been sent.' });
     }
 

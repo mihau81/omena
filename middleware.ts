@@ -51,10 +51,7 @@ export async function middleware(request: NextRequest) {
     if (pathname.startsWith('/api/')) {
       return NextResponse.json({ error: 'Session revoked' }, { status: 401 });
     }
-    // For page routes, determine correct login redirect
-    const isAdminPath = pathname.startsWith('/admin');
-    const loginUrl = isAdminPath ? '/admin/login' : '/en/login';
-    const response = NextResponse.redirect(redirectTo(loginUrl));
+    const response = NextResponse.redirect(redirectTo('/en/login'));
     applySecurityHeaders(response);
     return response;
   }
@@ -80,28 +77,24 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // Protect /admin/* routes — redirect to admin login if not admin
+  // Redirect /admin/login to unified login page
+  if (pathname === '/admin/login') {
+    const response = NextResponse.redirect(redirectTo('/en/login'));
+    applySecurityHeaders(response);
+    return response;
+  }
+
+  // Protect /admin/* routes — redirect to main login if not admin
   if (pathname.startsWith('/admin')) {
-    // Allow access to admin login page
-    if (pathname === '/admin/login') {
-      // If already logged in as admin, redirect to dashboard
-      if (token && userType === 'admin') {
-        return NextResponse.redirect(redirectTo('/admin'));
-      }
-      const response = NextResponse.next();
+    if (!token || userType !== 'admin') {
+      const response = NextResponse.redirect(redirectTo('/en/login'));
       applySecurityHeaders(response);
       return response;
-    }
-
-    // All other admin routes require admin auth
-    if (!token || userType !== 'admin') {
-      return NextResponse.redirect(redirectTo('/admin/login'));
     }
   }
 
   // Protect /api/admin/* routes — return 401 if not admin
-  // Exception: /api/admin/login must be accessible without auth
-  if (pathname.startsWith('/api/admin') && pathname !== '/api/admin/login') {
+  if (pathname.startsWith('/api/admin')) {
     if (!token || userType !== 'admin') {
       return NextResponse.json(
         { error: 'Admin access required' },

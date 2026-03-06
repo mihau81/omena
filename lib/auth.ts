@@ -93,19 +93,56 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       },
     }),
 
-    // Client login: email + password
+    // Unified login: email + password (checks admins first, then users)
     Credentials({
       id: 'user-credentials',
-      name: 'User Login',
+      name: 'Login',
       credentials: {
         email: { label: 'Email', type: 'email' },
         password: { label: 'Password', type: 'password' },
+        totpCode: { label: 'TOTP Code', type: 'text' },
       },
       async authorize(credentials) {
         const email = credentials?.email as string | undefined;
         const password = credentials?.password as string | undefined;
+        const totpCode = credentials?.totpCode as string | undefined;
         if (!email || !password) return null;
 
+        // Check admins table first
+        const [admin] = await db
+          .select()
+          .from(admins)
+          .where(and(eq(admins.email, email), isNull(admins.deletedAt)))
+          .limit(1);
+
+        if (admin && admin.isActive) {
+          const adminValid = await bcrypt.compare(password, admin.passwordHash);
+          if (adminValid) {
+            // Enforce TOTP if enabled
+            if (admin.totpEnabled && admin.totpSecret) {
+              if (!totpCode || !/^\d{6}$/.test(totpCode)) return null;
+              const decryptedSecret = decryptSecret(admin.totpSecret);
+              const totpValid = verifyTOTP(decryptedSecret, totpCode);
+              if (!totpValid) return null;
+            }
+
+            await db
+              .update(admins)
+              .set({ lastLoginAt: new Date() })
+              .where(eq(admins.id, admin.id));
+
+            return {
+              id: admin.id,
+              email: admin.email,
+              name: admin.name,
+              userType: 'admin' as const,
+              visibilityLevel: 2,
+              role: admin.role as AdminRole,
+            };
+          }
+        }
+
+        // Fall through to users table
         const [user] = await db
           .select()
           .from(users)
@@ -168,7 +205,30 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
         const email = consumed[0].identifier;
 
-        // Lookup user
+        // Check admins table first
+        const [admin] = await db
+          .select()
+          .from(admins)
+          .where(and(eq(admins.email, email), isNull(admins.deletedAt)))
+          .limit(1);
+
+        if (admin && admin.isActive) {
+          await db
+            .update(admins)
+            .set({ lastLoginAt: new Date() })
+            .where(eq(admins.id, admin.id));
+
+          return {
+            id: admin.id,
+            email: admin.email,
+            name: admin.name,
+            userType: 'admin' as const,
+            visibilityLevel: 2,
+            role: admin.role as AdminRole,
+          };
+        }
+
+        // Fall through to users table
         const [user] = await db
           .select()
           .from(users)

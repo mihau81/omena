@@ -269,6 +269,10 @@ export const en: Dictionary = {
   loginErrorGeneric: 'An unexpected error occurred',
   loginErrorInvalidCredentials: 'Invalid email or password',
   loginErrorMagicLink: 'Failed to send magic link',
+  loginTotpCode: 'Verification code',
+  loginTotpPlaceholder: '000000',
+  loginErrorInvalidTotp: 'Invalid verification code',
+  loginAdminPanel: 'Admin Panel',
 
   // Notifications page
   notificationsTitle: 'Notifications',

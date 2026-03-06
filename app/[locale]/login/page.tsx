@@ -10,6 +10,8 @@ import { useLocale } from '@/app/lib/LocaleContext';
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [totpCode, setTotpCode] = useState('');
+  const [requiresTOTP, setRequiresTOTP] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [magicLinkSent, setMagicLinkSent] = useState(false);
@@ -50,17 +52,47 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
+      // Step 1: If we haven't checked TOTP yet, do a pre-auth check
+      if (!requiresTOTP) {
+        const checkRes = await fetch(apiUrl('/api/auth/check-login'), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password }),
+        });
+        const checkData = await checkRes.json();
+
+        if (checkData.requiresTOTP) {
+          setRequiresTOTP(true);
+          setLoading(false);
+          return;
+        }
+      }
+
+      // Step 2: Sign in with credentials (+ optional TOTP code)
       const result = await signIn('user-credentials', {
         email,
         password,
+        totpCode: totpCode || '',
         redirect: false,
       });
 
       if (result?.error) {
-        setError(t.loginErrorInvalidCredentials);
+        if (requiresTOTP) {
+          setError(t.loginErrorInvalidTotp);
+        } else {
+          setError(t.loginErrorInvalidCredentials);
+        }
       } else {
-        const next = searchParams.get('next');
-        router.push(next || `/${locale}`);
+        // Check if the user is an admin to redirect appropriately
+        const sessionRes = await fetch(apiUrl('/api/auth/session'));
+        const session = await sessionRes.json();
+
+        if (session?.user?.userType === 'admin') {
+          router.push('/admin');
+        } else {
+          const next = searchParams.get('next');
+          router.push(next || `/${locale}`);
+        }
         router.refresh();
       }
     } catch {
@@ -172,10 +204,32 @@ export default function LoginPage() {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   autoComplete="current-password"
-                  className="w-full px-3 py-2.5 rounded-lg border border-beige bg-cream/30 text-dark-brown placeholder-taupe/50 focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold transition-colors"
+                  disabled={requiresTOTP}
+                  className="w-full px-3 py-2.5 rounded-lg border border-beige bg-cream/30 text-dark-brown placeholder-taupe/50 focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold transition-colors disabled:opacity-60"
                   placeholder={t.loginPasswordPlaceholder}
                 />
               </div>
+
+              {requiresTOTP && (
+                <div>
+                  <label htmlFor="totpCode" className="block text-sm font-medium text-dark-brown mb-1.5">
+                    {t.loginTotpCode}
+                  </label>
+                  <input
+                    id="totpCode"
+                    type="text"
+                    inputMode="numeric"
+                    value={totpCode}
+                    onChange={(e) => setTotpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                    required
+                    autoComplete="one-time-code"
+                    maxLength={6}
+                    className="w-full px-3 py-2.5 rounded-lg border border-beige bg-cream/30 text-dark-brown placeholder-taupe/50 focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold transition-colors text-center text-2xl tracking-widest"
+                    placeholder={t.loginTotpPlaceholder}
+                    autoFocus
+                  />
+                </div>
+              )}
 
               <button
                 type="submit"

@@ -28,13 +28,13 @@ async function seed() {
   console.log('🌱 Seeding database...\n');
 
   // 1. Create default admin account
-  const adminPassword = await bcrypt.hash('admin123', 12);
+  const adminPassword = await bcrypt.hash('admin1234', 12);
   const [admin] = await db
     .insert(admins)
     .values({
-      email: 'admin@omenaa.pl',
+      email: 'michal@bialek.pl',
       passwordHash: adminPassword,
-      name: 'Admin',
+      name: 'Michał',
       role: 'super_admin',
       isActive: true,
     })
@@ -42,9 +42,9 @@ async function seed() {
     .returning();
 
   if (admin) {
-    console.log(`✅ Admin created: admin@omenaa.pl / admin123`);
+    console.log(`✅ Admin created: michal@bialek.pl / admin1234`);
   } else {
-    console.log(`ℹ️  Admin already exists: admin@omenaa.pl`);
+    console.log(`ℹ️  Admin already exists: michal@bialek.pl`);
   }
 
   // 2. Insert auctions

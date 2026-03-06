@@ -26,7 +26,8 @@ export default function Header() {
   const currRef = useRef<HTMLDivElement>(null);
   const userRef = useRef<HTMLDivElement>(null);
 
-  const isLoggedIn = session?.user?.userType === 'user';
+  const isLoggedIn = session?.user?.userType === 'user' || session?.user?.userType === 'admin';
+  const isAdmin = session?.user?.userType === 'admin';
   const userName = session?.user?.name || '';
 
   // Build nav links — only show "My Bids" for logged-in users
@@ -41,16 +42,17 @@ export default function Header() {
     { href: `/${locale}/contact`, label: t.navContact },
   ];
 
-  // Fetch unread notifications count
+  // Fetch unread notifications count (users only — admins don't have user notifications)
+  const isUser = session?.user?.userType === 'user';
   useEffect(() => {
-    if (!isLoggedIn) return;
+    if (!isUser) return;
     fetch(apiUrl('/api/me/notifications?limit=1'))
       .then((res) => res.ok ? res.json() : null)
       .then((data) => {
         if (data?.unreadCount != null) setUnreadCount(data.unreadCount);
       })
       .catch(() => {});
-  }, [isLoggedIn]);
+  }, [isUser]);
 
   // Scroll handler
   useEffect(() => {
@@ -187,20 +189,22 @@ export default function Header() {
             {/* Auth section */}
             {isLoggedIn ? (
               <>
-                {/* Notification bell */}
-                <Link
-                  href={`/${locale}/account/notifications`}
-                  className="relative flex items-center justify-center w-9 h-9 rounded-lg text-taupe hover:text-gold transition-colors"
-                >
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" />
-                  </svg>
-                  {unreadCount > 0 && (
-                    <span className="absolute -top-0.5 -right-0.5 inline-flex h-4 min-w-[16px] items-center justify-center rounded-full bg-gold px-1 text-[9px] font-bold text-white">
-                      {unreadCount > 9 ? '9+' : unreadCount}
-                    </span>
-                  )}
-                </Link>
+                {/* Notification bell (users only) */}
+                {isUser && (
+                  <Link
+                    href={`/${locale}/account/notifications`}
+                    className="relative flex items-center justify-center w-9 h-9 rounded-lg text-taupe hover:text-gold transition-colors"
+                  >
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" />
+                    </svg>
+                    {unreadCount > 0 && (
+                      <span className="absolute -top-0.5 -right-0.5 inline-flex h-4 min-w-[16px] items-center justify-center rounded-full bg-gold px-1 text-[9px] font-bold text-white">
+                        {unreadCount > 9 ? '9+' : unreadCount}
+                      </span>
+                    )}
+                  </Link>
+                )}
 
                 {/* User dropdown */}
                 <div ref={userRef} className="relative">
@@ -218,18 +222,28 @@ export default function Header() {
                       <div className="px-3 py-2 border-b border-beige">
                         <p className="text-sm font-medium text-dark-brown truncate">{userName}</p>
                       </div>
-                      <Link href={`/${locale}/account`} onClick={() => setUserDropdown(false)}
-                        className="block px-3 py-2 text-sm text-dark-brown hover:bg-beige/50 transition-colors">
-                        {t.userMenuMyAccount}
-                      </Link>
-                      <Link href={`/${locale}/account/bids`} onClick={() => setUserDropdown(false)}
-                        className="block px-3 py-2 text-sm text-dark-brown hover:bg-beige/50 transition-colors">
-                        {t.userMenuMyBids}
-                      </Link>
-                      <Link href={`/${locale}/account/favorites`} onClick={() => setUserDropdown(false)}
-                        className="block px-3 py-2 text-sm text-dark-brown hover:bg-beige/50 transition-colors">
-                        {t.userMenuFavorites}
-                      </Link>
+                      {isAdmin && (
+                        <Link href="/admin" onClick={() => setUserDropdown(false)}
+                          className="block px-3 py-2 text-sm text-gold font-medium hover:bg-beige/50 transition-colors">
+                          {t.loginAdminPanel}
+                        </Link>
+                      )}
+                      {isUser && (
+                        <>
+                          <Link href={`/${locale}/account`} onClick={() => setUserDropdown(false)}
+                            className="block px-3 py-2 text-sm text-dark-brown hover:bg-beige/50 transition-colors">
+                            {t.userMenuMyAccount}
+                          </Link>
+                          <Link href={`/${locale}/account/bids`} onClick={() => setUserDropdown(false)}
+                            className="block px-3 py-2 text-sm text-dark-brown hover:bg-beige/50 transition-colors">
+                            {t.userMenuMyBids}
+                          </Link>
+                          <Link href={`/${locale}/account/favorites`} onClick={() => setUserDropdown(false)}
+                            className="block px-3 py-2 text-sm text-dark-brown hover:bg-beige/50 transition-colors">
+                            {t.userMenuFavorites}
+                          </Link>
+                        </>
+                      )}
                       <div className="border-t border-beige mt-1 pt-1">
                         <button
                           onClick={() => signOut({ callbackUrl: `/omenaa/${locale}` })}
@@ -292,13 +306,24 @@ export default function Header() {
             {/* Auth links in mobile menu */}
             {isLoggedIn ? (
               <>
-                <Link
-                  href={`/${locale}/account`}
-                  onClick={() => setMenuOpen(false)}
-                  className="font-serif text-2xl tracking-wide text-dark-brown hover:text-gold transition-colors"
-                >
-                  {t.userMenuMyAccount}
-                </Link>
+                {isAdmin && (
+                  <Link
+                    href="/admin"
+                    onClick={() => setMenuOpen(false)}
+                    className="font-serif text-2xl tracking-wide text-gold hover:text-gold/80 transition-colors"
+                  >
+                    {t.loginAdminPanel}
+                  </Link>
+                )}
+                {isUser && (
+                  <Link
+                    href={`/${locale}/account`}
+                    onClick={() => setMenuOpen(false)}
+                    className="font-serif text-2xl tracking-wide text-dark-brown hover:text-gold transition-colors"
+                  >
+                    {t.userMenuMyAccount}
+                  </Link>
+                )}
                 <button
                   onClick={() => { setMenuOpen(false); signOut({ callbackUrl: `/omenaa/${locale}` }); }}
                   className="font-serif text-2xl tracking-wide text-red-600 hover:text-red-700 transition-colors"

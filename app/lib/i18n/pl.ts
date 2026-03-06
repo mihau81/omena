@@ -267,6 +267,10 @@ export const pl = {
   loginErrorGeneric: 'Wystąpił nieoczekiwany błąd',
   loginErrorInvalidCredentials: 'Nieprawidłowy email lub hasło',
   loginErrorMagicLink: 'Nie udało się wysłać linku',
+  loginTotpCode: 'Kod weryfikacyjny',
+  loginTotpPlaceholder: '000000',
+  loginErrorInvalidTotp: 'Nieprawidłowy kod weryfikacyjny',
+  loginAdminPanel: 'Panel administracyjny',
 
   // Notifications page
   notificationsTitle: 'Powiadomienia',

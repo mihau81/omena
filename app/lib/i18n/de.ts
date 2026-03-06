@@ -269,6 +269,10 @@ export const de: Dictionary = {
   loginErrorGeneric: 'Ein unerwarteter Fehler ist aufgetreten',
   loginErrorInvalidCredentials: 'Ungültige E-Mail oder Passwort',
   loginErrorMagicLink: 'Link konnte nicht gesendet werden',
+  loginTotpCode: 'Bestätigungscode',
+  loginTotpPlaceholder: '000000',
+  loginErrorInvalidTotp: 'Ungültiger Bestätigungscode',
+  loginAdminPanel: 'Admin-Panel',
 
   // Notifications page
   notificationsTitle: 'Benachrichtigungen',
