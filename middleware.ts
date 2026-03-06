@@ -113,9 +113,9 @@ export async function middleware(request: NextRequest) {
 
   // Track page views for authenticated users (fire-and-forget)
   if (token?.sub && !pathname.startsWith('/api/') && !pathname.startsWith('/_next/') && !pathname.includes('.')) {
-    const baseUrl = request.nextUrl.origin + (request.nextUrl.basePath || '');
+    const internalBase = `http://localhost:${process.env.PORT || 3000}${request.nextUrl.basePath || ''}`;
     try {
-      fetch(`${baseUrl}/api/internal/page-view`, {
+      fetch(`${internalBase}/api/internal/page-view`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
