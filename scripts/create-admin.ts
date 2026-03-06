@@ -31,10 +31,10 @@ async function main() {
     process.exit(1);
   }
 
-  const email = getArg('email', 'admin@omenaa.pl');
-  const password = getArg('password', 'Omenaa2026!');
+  const email = getArg('email', 'michal@bialek.pl');
+  const password = getArg('password', 'admin1234');
   const role = getArg('role', 'super_admin') as AdminRole;
-  const name = getArg('name', 'Administrator');
+  const name = getArg('name', 'Michał');
 
   if (!VALID_ROLES.includes(role)) {
     console.error(`ERROR: Invalid role "${role}". Valid roles: ${VALID_ROLES.join(', ')}`);

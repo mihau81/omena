@@ -5,6 +5,7 @@ import {
   watchedLots, notifications, invoices, sessions, lotTranslations,
   premiumTiers, consignors, payments,
   userWhitelists, userInvitations, qrRegistrations,
+  userLogins, pageViews,
 } from './schema';
 
 // ─── Auction Relations ───────────────────────────────────────────────────────
@@ -80,6 +81,26 @@ export const usersRelations = relations(users, ({ one, many }) => ({
   watchedLots: many(watchedLots),
   notifications: many(notifications),
   invoices: many(invoices),
+  logins: many(userLogins),
+  pageViews: many(pageViews),
+}));
+
+// ─── User Login Relations ───────────────────────────────────────────────────
+
+export const userLoginsRelations = relations(userLogins, ({ one }) => ({
+  user: one(users, {
+    fields: [userLogins.userId],
+    references: [users.id],
+  }),
+}));
+
+// ─── Page View Relations ────────────────────────────────────────────────────
+
+export const pageViewsRelations = relations(pageViews, ({ one }) => ({
+  user: one(users, {
+    fields: [pageViews.userId],
+    references: [users.id],
+  }),
 }));
 
 // ─── Admin Relations ─────────────────────────────────────────────────────────

@@ -659,6 +659,44 @@ export const settings = pgTable('settings', {
   index('settings_key_idx').on(table.key),
 ]);
 
+// ─── User Logins (login history with IP geolocation) ────────────────────────
+
+export const userLogins = pgTable('user_logins', {
+  id:           serial('id').primaryKey(),
+  userId:       uuid('user_id'),  // null for failed logins where user not found
+  userType:     varchar('user_type', { length: 10 }).notNull(),  // 'user' | 'admin'
+  email:        varchar('email', { length: 320 }).notNull(),
+  ipAddress:    varchar('ip_address', { length: 45 }),
+  userAgent:    text('user_agent'),
+  countryCode:  varchar('country_code', { length: 2 }),  // ISO 3166-1 alpha-2
+  city:         varchar('city', { length: 100 }),
+  success:      boolean('success').notNull(),
+  failReason:   varchar('fail_reason', { length: 50 }),  // 'invalid_password', 'account_inactive', 'not_found', 'totp_required', 'totp_invalid'
+  loginMethod:  varchar('login_method', { length: 20 }).notNull().default('credentials'),  // 'credentials', 'magic_link'
+  createdAt:    timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+}, (table) => [
+  index('user_logins_user_id_idx').on(table.userId),
+  index('user_logins_email_idx').on(table.email),
+  index('user_logins_created_at_idx').on(table.createdAt),
+  index('user_logins_ip_idx').on(table.ipAddress),
+]);
+
+// ─── Page Views (user navigation tracking) ──────────────────────────────────
+
+export const pageViews = pgTable('page_views', {
+  id:           serial('id').primaryKey(),
+  userId:       uuid('user_id'),
+  userType:     varchar('user_type', { length: 10 }).notNull(),  // 'user' | 'admin'
+  path:         text('path').notNull(),
+  ipAddress:    varchar('ip_address', { length: 45 }),
+  userAgent:    text('user_agent'),
+  createdAt:    timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+}, (table) => [
+  index('page_views_user_id_idx').on(table.userId),
+  index('page_views_created_at_idx').on(table.createdAt),
+  index('page_views_path_idx').on(table.path),
+]);
+
 // ─── Payments ────────────────────────────────────────────────────────────────
 
 export const payments = pgTable('payments', {

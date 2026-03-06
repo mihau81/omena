@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { eq } from 'drizzle-orm';
 import { requireAdmin, AuthError } from '@/lib/auth-utils';
 import { getUserDetail, getUserBidsPaginated, getUserRegistrationsPaginated, getUserWatchedLotsPaginated, getUserReferralsPaginated } from '@/db/queries/users';
+import { getLoginsByEmailPaginated, getUserPageViewsPaginated } from '@/db/queries/activity';
 import { db } from '@/db/connection';
 import { users } from '@/db/schema';
 import { updateUserSchema } from '@/lib/validation/user';
@@ -31,6 +32,8 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     let registrationsData = null;
     let watchedData = null;
     let referralsData = null;
+    let loginsData = null;
+    let activityData = null;
 
     if (include === 'bids') {
       bidsData = await getUserBidsPaginated(id, page, limit);
@@ -40,14 +43,23 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       watchedData = await getUserWatchedLotsPaginated(id, page, limit);
     } else if (include === 'referrals') {
       referralsData = await getUserReferralsPaginated(id, page, limit);
+    } else if (include === 'logins') {
+      loginsData = await getLoginsByEmailPaginated(user.email, page, limit);
+    } else if (include === 'activity') {
+      activityData = await getUserPageViewsPaginated(id, page, limit);
     }
 
+    // Strip sensitive fields before returning
+    const { passwordHash: _, ...safeUser } = user;
+
     return NextResponse.json({
-      user,
+      user: safeUser,
       ...(bidsData && { bids: bidsData }),
       ...(registrationsData && { registrations: registrationsData }),
       ...(watchedData && { watched: watchedData }),
       ...(referralsData && { referrals: referralsData }),
+      ...(loginsData && { logins: loginsData }),
+      ...(activityData && { activity: activityData }),
     });
   } catch (error) {
     if (error instanceof AuthError) {

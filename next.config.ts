@@ -4,6 +4,7 @@ import { withSentryConfig } from "@sentry/nextjs";
 const nextConfig: NextConfig = {
   output: "standalone",
   basePath: "/omenaa",
+  serverExternalPackages: ['geoip-lite'],
   images: {
     unoptimized: true,
     remotePatterns: [

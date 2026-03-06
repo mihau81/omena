@@ -111,6 +111,29 @@ export async function middleware(request: NextRequest) {
   response.headers.set('x-user-id', token?.sub ?? '');
   response.headers.set('x-user-type', userType);
 
+  // Track page views for authenticated users (fire-and-forget)
+  if (token?.sub && !pathname.startsWith('/api/') && !pathname.startsWith('/_next/') && !pathname.includes('.')) {
+    const baseUrl = request.nextUrl.origin + (request.nextUrl.basePath || '');
+    try {
+      fetch(`${baseUrl}/api/internal/page-view`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-internal-secret': process.env.NEXTAUTH_SECRET || '',
+        },
+        body: JSON.stringify({
+          userId: token.sub,
+          userType,
+          path: pathname,
+          ipAddress: request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || null,
+          userAgent: request.headers.get('user-agent') || null,
+        }),
+      }).catch(() => {}); // fire-and-forget
+    } catch {
+      // Ignore errors — page view tracking is non-critical
+    }
+  }
+
   return response;
 }
 

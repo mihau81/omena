@@ -147,8 +147,8 @@ async function seed() {
   }
 
   console.log(`\n✅ Seeded ${auctionIdMap.size} auctions, ${lotCount} lots`);
-  console.log('\n🔑 Admin login: admin@omenaa.pl / admin123');
-  console.log('   Admin panel: /admin/login\n');
+  console.log('\n🔑 Admin login: michal@bialek.pl / admin1234');
+  console.log('   Admin panel: /admin\n');
 
   process.exit(0);
 }
