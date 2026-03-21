@@ -4,7 +4,6 @@ import Image from 'next/image';
 import Link from 'next/link';
 import type { Lot } from '../lib/types';
 import { useLocale } from '../lib/LocaleContext';
-import { useCurrency } from '../lib/CurrencyContext';
 import CurrencyDisplay from './CurrencyDisplay';
 
 interface LotCardEnhancedProps {
@@ -19,7 +18,6 @@ export default function LotCardEnhanced({
   auctionStatus,
 }: LotCardEnhancedProps) {
   const { locale, t } = useLocale();
-  const { formatPrice } = useCurrency();
 
   return (
     <Link

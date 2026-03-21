@@ -4,7 +4,6 @@ import Image from 'next/image';
 import Link from 'next/link';
 import type { Lot } from '../lib/types';
 import { useLocale } from '../lib/LocaleContext';
-import { useCurrency } from '../lib/CurrencyContext';
 import CurrencyDisplay from './CurrencyDisplay';
 
 interface LotInfoProps {
@@ -37,7 +36,6 @@ function getConditionGradeLabel(
 
 export default function LotInfo({ lot }: LotInfoProps) {
   const { locale, t } = useLocale();
-  const { formatPrice } = useCurrency();
 
   return (
     <div>

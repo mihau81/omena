@@ -21,7 +21,6 @@ import type { BidEvent } from '@/lib/bid-events';
 import { useRealtimeBids } from './useRealtimeBids';
 import { apiUrl } from './utils';
 import {
-  getNextMinBid,
   SOFT_CLOSE_WINDOW_MS,
   SOFT_CLOSE_EXTENSION_MS,
 } from './bidding';

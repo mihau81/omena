@@ -62,7 +62,7 @@ function localTimerKey(auctionId: string): string {
 // are not reference-equal). Ref-counts prevent premature UNSUBSCRIBE.
 
 const channelRefCount = new Map<string, number>();
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
 const listenerWrappers = new Map<Function, (channel: string, message: string) => void>();
 
 function refCountInc(channel: string): void {

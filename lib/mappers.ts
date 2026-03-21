@@ -9,8 +9,8 @@ import { slugifyArtist } from '@/app/lib/utils';
 // DB auction status → frontend status
 function mapAuctionStatus(
   dbStatus: string,
-  startDate: Date,
-  endDate: Date,
+  _startDate: Date,
+  _endDate: Date,
 ): Auction['status'] {
   // 'live' maps directly
   if (dbStatus === 'live') return 'live';
