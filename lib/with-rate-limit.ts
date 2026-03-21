@@ -54,6 +54,15 @@ export function getClientIp(req: NextRequest): string {
 }
 
 /**
+ * Helper to get client IP address from a Headers object (e.g. from next/headers in Route Handlers)
+ */
+export function getClientIpFromHeaders(headers: Headers): string {
+  const forwardedFor = headers.get('x-forwarded-for');
+  if (forwardedFor) return forwardedFor.split(',')[0].trim();
+  return headers.get('x-real-ip') || 'unknown';
+}
+
+/**
  * Helper to get user ID from request headers (set by middleware)
  */
 export function getUserId(req: NextRequest): string {

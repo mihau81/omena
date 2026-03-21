@@ -26,6 +26,7 @@ export interface Lot {
   auctionSlug: string;
   title: string;
   artist: string;
+  artistSlug?: string;
   description: string;
   medium: string;
   dimensions: string;

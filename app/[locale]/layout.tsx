@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { SUPPORTED_LOCALES, getTranslation } from '@/app/lib/i18n';
 import { LocaleProvider } from '@/app/lib/LocaleContext';
 import Header from '@/app/components/Header';
@@ -5,6 +6,19 @@ import Footer from '@/app/components/Footer';
 
 export function generateStaticParams() {
   return SUPPORTED_LOCALES.map((locale) => ({ locale }));
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = getTranslation(locale);
+  return {
+    title: t.metaTitle,
+    description: t.metaDescription,
+  };
 }
 
 export default async function LocaleLayout({

@@ -50,7 +50,6 @@ export async function POST(
       );
     }
 
-    // 4. Extract request metadata
     const ipAddress = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
       || request.headers.get('x-real-ip')
       || undefined;

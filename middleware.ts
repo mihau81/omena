@@ -1,3 +1,14 @@
+/**
+ * Next.js Edge Middleware — runs on every request before it reaches a route handler.
+ *
+ * Responsibilities:
+ *  1. Decode the NextAuth JWT (without a DB round-trip) to determine auth state.
+ *  2. Enforce access control for /admin/*, /api/admin/*, /account/*, and /api/me/* routes.
+ *  3. Propagate identity headers (x-user-id, x-user-type, x-user-visibility) so
+ *     route handlers can trust them without re-parsing the token.
+ *  4. Fire a non-blocking page-view tracking event for authenticated sessions.
+ *  5. Apply a uniform set of security headers to every response.
+ */
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { getToken } from 'next-auth/jwt';
@@ -77,7 +88,8 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // Redirect /admin/login to unified login page
+  // /admin/login would create a separate, confusingly duplicated login UI.
+  // We redirect to the unified /en/login instead, which handles both user and admin auth.
   if (pathname === '/admin/login') {
     const response = NextResponse.redirect(redirectTo('/en/login'));
     applySecurityHeaders(response);
@@ -106,32 +118,32 @@ export async function middleware(request: NextRequest) {
   const response = NextResponse.next();
   applySecurityHeaders(response);
 
-  // Propagate user info to downstream handlers via headers
+  // Propagate user info to downstream handlers via headers.
+  // This avoids re-decoding the JWT in every API route; handlers trust these values
+  // because middleware is the only code path that can set them.
   response.headers.set('x-user-visibility', String(token?.visibilityLevel ?? 0));
   response.headers.set('x-user-id', token?.sub ?? '');
   response.headers.set('x-user-type', userType);
 
-  // Track page views for authenticated users (fire-and-forget)
+  // Page-view tracking: fire-and-forget POST to an internal endpoint so we don't
+  // block the response. Intentionally skips API routes, Next.js internals, and
+  // static assets (paths containing a dot).
   if (token?.sub && !pathname.startsWith('/api/') && !pathname.startsWith('/_next/') && !pathname.includes('.')) {
     const internalBase = `http://localhost:${process.env.PORT || 3000}${request.nextUrl.basePath || ''}`;
-    try {
-      fetch(`${internalBase}/api/internal/page-view`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-internal-secret': process.env.NEXTAUTH_SECRET || '',
-        },
-        body: JSON.stringify({
-          userId: token.sub,
-          userType,
-          path: pathname,
-          ipAddress: request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || null,
-          userAgent: request.headers.get('user-agent') || null,
-        }),
-      }).catch(() => {}); // fire-and-forget
-    } catch {
-      // Ignore errors — page view tracking is non-critical
-    }
+    fetch(`${internalBase}/api/internal/page-view`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-internal-secret': process.env.NEXTAUTH_SECRET || '',
+      },
+      body: JSON.stringify({
+        userId: token.sub,
+        userType,
+        path: pathname,
+        ipAddress: request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || null,
+        userAgent: request.headers.get('user-agent') || null,
+      }),
+    }).catch(() => {});
   }
 
   return response;

@@ -1,3 +1,21 @@
+/**
+ * Absentee (proxy) bidding service — allows users to pre-register a maximum bid
+ * that the system will automatically exercise during the live auction.
+ *
+ * Algorithm (processAbsenteeBids):
+ *  1. After every live bid, find the highest active absentee bid from a different user
+ *     whose maxAmount >= the next minimum bid increment.
+ *  2. Place a 'system' bid at exactly the next minimum increment (not the full max),
+ *     so the proxy bidder pays as little as possible to stay ahead.
+ *  3. Repeat recursively if the new system bid triggers another proxy bid — this
+ *     resolves competing absentee bids to the higher maximum in one pass.
+ *  4. When a proxy bid is placed at the bidder's maximum, deactivate the absentee
+ *     record (they cannot be outbid further within their own limit).
+ *
+ * Concurrency: uses the same pg_advisory_xact_lock as bid-service so that a live
+ * bid and its resulting proxy bid are serialized, never interleaved.
+ * Absentee bids themselves are upserted (one per lot/user), not appended.
+ */
 import { eq, and, desc } from 'drizzle-orm';
 import { db, pool } from '@/db/connection';
 import {
@@ -184,7 +202,9 @@ export async function processAbsenteeBids(
     // Advisory lock — same key as bid-service to serialize
     await client.query(`SELECT pg_advisory_xact_lock(hashtext($1))`, [lotId]);
 
-    // Re-read current highest bid inside the lock
+    // Re-read inside the lock: the bid that triggered this call may no longer be
+    // the highest (another concurrent bid could have slipped in between the
+    // original INSERT and this advisory lock acquisition).
     const highestResult = await client.query<{
       amount: number;
       user_id: string | null;
@@ -233,8 +253,8 @@ export async function processAbsenteeBids(
       return;
     }
 
-    // Determine the auto-bid amount: minimum needed to take the lead
-    // Cap it at the absentee's max
+    // Bid the minimum increment needed to lead, not the full maximum — the proxy
+    // bidder only pays what's necessary to stay ahead, preserving the auction dynamic.
     const autoBidAmount = Math.min(nextMin, absentee.max_amount);
 
     // Place the system bid

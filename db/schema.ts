@@ -1,3 +1,26 @@
+/**
+ * Drizzle ORM schema — single source of truth for the PostgreSQL data model.
+ *
+ * Key relationships:
+ *  auctions 1──* lots 1──* bids ──* bidRetractions
+ *  lots 1──* media          (images + YouTube)
+ *  lots *──1 consignors     (seller/owner of the artwork)
+ *  lots *──1 artists        (creator of the artwork)
+ *  users 1──* bids          (online bidders)
+ *  users 1──* absenteeBids  (proxy/max bids)
+ *  users 1──* invoices      (one per won lot)
+ *  admins 1──* auditLogs    (change history)
+ *
+ * Soft delete: all primary entities carry `deletedAt`. Queries must filter
+ * `isNull(deletedAt)` to exclude soft-deleted rows. Hard deletes are never used
+ * so financial and audit records remain intact.
+ *
+ * Audit trail: auditLogs records every create/update/delete with before/after
+ * JSONB snapshots, the acting user, and their IP address.
+ *
+ * Visibility levels (0=Public, 1=Private, 2=VIP) propagate from auction to lot:
+ * a null `visibilityOverride` on a lot means it inherits the auction's level.
+ */
 import {
   pgTable, pgEnum,
   uuid, text, varchar, integer, boolean, timestamp, numeric,

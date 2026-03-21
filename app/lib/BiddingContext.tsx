@@ -1,3 +1,17 @@
+/**
+ * BiddingContext — global client-side state for the live bidding experience.
+ *
+ * Provides a single React context that handles:
+ *  - Fetching and caching the bid history for whichever lot detail page is active.
+ *  - Receiving real-time bid and timer updates via SSE (delegated to useRealtimeBids).
+ *  - Optimistic updates: toggle-watch updates the UI immediately, then syncs with the
+ *    API; on failure the optimistic change is reverted.
+ *  - The server is always authoritative for bid amounts — after placing a bid or
+ *    receiving an SSE event, the context re-fetches from /api/lots/{id}/bids rather
+ *    than deriving state locally, to avoid drift from system (proxy) bids.
+ *  - Soft-close (anti-sniping) end-time tracking: the context adjusts the displayed
+ *    auction end time client-side when a bid lands in the closing window.
+ */
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
@@ -165,7 +179,9 @@ export function BiddingProvider({ children, initialAuctionEndTimes }: BiddingPro
             isWinning: b.isWinning,
             isRetracted: b.isRetracted,
             createdAt: b.createdAt,
-            isUser: false, // We can't determine from anonymized GET — the POST response marks own bids
+            // GET /bids returns anonymized records (no userId) — isUser is resolved
+            // from the separate userBidsList which is populated after login.
+            isUser: false,
           }),
         );
         setBids(records);
@@ -201,6 +217,9 @@ export function BiddingProvider({ children, initialAuctionEndTimes }: BiddingPro
   }, []);
 
   // ---- SSE: real-time bid updates ----
+  // On an SSE bid event we re-fetch rather than applying the event payload directly.
+  // This keeps the list consistent with system (proxy) bids that may have been placed
+  // in the same transaction and weren't emitted as separate events.
   const handleBidEvent = useCallback(
     (event: BidEvent) => {
       if (subscribedLotId && event.lotId === subscribedLotId) {

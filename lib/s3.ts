@@ -1,3 +1,20 @@
+/**
+ * S3/MinIO abstraction layer for media storage.
+ *
+ * Dual setup:
+ *  - Development: MinIO running in Docker (forcePathStyle required because MinIO
+ *    does not support virtual-hosted-style bucket URLs on localhost).
+ *  - Production: AWS S3, using the default credential chain (instance role / env vars).
+ *
+ * All lot images are uploaded directly from the server using uploadToS3() (server-side
+ * resize happens first), then served via getPublicUrl() which points to the public
+ * bucket URL. Presigned URLs are provided for admin tooling that needs temporary
+ * client-side upload access without exposing permanent credentials.
+ *
+ * Media variants (thumbnail 400px, medium 800px, large 1600px) are generated at
+ * upload time and stored as separate S3 objects; their keys/URLs are persisted in
+ * the media table so the CDN can serve them without on-the-fly resizing.
+ */
 import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
@@ -77,6 +94,8 @@ export async function getFromS3(key: string): Promise<Buffer | null> {
   }
 }
 
+// Presigned upload URL: lets the admin browser PUT directly to S3/MinIO without
+// routing the file through the Next.js server. Expires in 1 h by default.
 export async function getPresignedUploadUrl(
   key: string,
   contentType: string,

@@ -253,7 +253,7 @@ export default function AdminSidebar({ role, isOpen, onClose, pendingUsersCount 
         {/* Footer */}
         <div className="px-4 py-3 border-t border-white/10">
           <Link
-            href="/"
+            href="/pl"
             className="flex items-center gap-2 text-xs text-white/40 hover:text-white/70 transition-colors"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>

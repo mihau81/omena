@@ -1,3 +1,16 @@
+/**
+ * NextAuth configuration for dual-audience authentication.
+ *
+ * Two principal types share a single login form:
+ *  - Users (auction clients): must be in `approved` account status to log in.
+ *  - Admins: separate table, optional TOTP 2FA, shorter re-validation window.
+ *
+ * All sessions use JWTs (no database session store). The token carries
+ * `userType`, `visibilityLevel`, `role`, and `lastValidated` so that
+ * middleware can make auth decisions without a DB call on every request.
+ * Periodic re-validation (see jwt callback) catches account revocations
+ * without relying on short-lived tokens.
+ */
 import NextAuth from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
 import { eq, and, isNull } from 'drizzle-orm';
@@ -93,7 +106,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       },
     }),
 
-    // Unified login: email + password (checks admins first, then users)
+    // Unified login: a single form for both users and admins. We check the admins
+    // table first because admin accounts are fewer and must take priority if the
+    // same email is registered in both tables (shouldn't happen, but defensive).
     Credentials({
       id: 'user-credentials',
       name: 'Login',
@@ -185,6 +200,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         const token = credentials?.token as string | undefined;
         if (!token) return null;
 
+        // Mark the token as used before checking expiry so it cannot be replayed
+        // even if the expiry check fails or the request is retried concurrently.
         // Atomically consume the token
         const consumed = await db
           .update(verificationTokens)
@@ -265,22 +282,29 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         token.lastValidated = Date.now();
       }
 
-      // Re-validate admin sessions against DB on each token refresh
-      // This ensures deactivated/role-changed admins are rejected promptly
+      // Admins are re-validated every 30 s (vs. 5 min for users) because they
+      // have elevated privileges and may be deactivated or have their role changed
+      // by a super_admin while a session is in flight. The shorter window limits
+      // the blast radius of a compromised or ex-employee admin account.
       if (token.userType === 'admin' && token.sub) {
-        const [admin] = await db
-          .select({ isActive: admins.isActive, role: admins.role, deletedAt: admins.deletedAt })
-          .from(admins)
-          .where(eq(admins.id, token.sub))
-          .limit(1);
+        const now = Date.now();
+        const lastValidated = token.lastValidated ?? 0;
+        if (now - lastValidated > 30_000) {
+          const [admin] = await db
+            .select({ isActive: admins.isActive, role: admins.role, deletedAt: admins.deletedAt })
+            .from(admins)
+            .where(eq(admins.id, token.sub))
+            .limit(1);
 
-        if (!admin || !admin.isActive || admin.deletedAt) {
-          // Invalidate the token — returning empty token forces sign-out
-          return { ...token, userType: 'revoked' as const };
+          // Returning a token with userType='revoked' causes middleware to redirect
+          // the user out on their next request — no explicit session invalidation needed.
+          if (!admin || !admin.isActive || admin.deletedAt) {
+            return { ...token, userType: 'revoked' as const };
+          }
+
+          token.role = admin.role as AdminRole;
+          token.lastValidated = now;
         }
-
-        // Update role if changed
-        token.role = admin.role as AdminRole;
       }
 
       // Re-validate user sessions every 5 minutes

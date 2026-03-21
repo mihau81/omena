@@ -1,7 +1,10 @@
 import type { MetadataRoute } from "next";
 import { SUPPORTED_LOCALES } from "@/app/lib/i18n";
+import { db } from "@/db/connection";
+import { auctions, artists } from "@/db/schema";
+import { isNull } from "drizzle-orm";
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXTAUTH_URL ?? "http://localhost:3002/omenaa";
   const siteUrl = baseUrl.replace(/\/omenaa\/?$/, "");
 
@@ -34,6 +37,48 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "yearly" as const,
       priority: 0.3,
     });
+  }
+
+  // Dynamic auction pages
+  try {
+    const auctionRows = await db
+      .select({ slug: auctions.slug, updatedAt: auctions.updatedAt })
+      .from(auctions)
+      .where(isNull(auctions.deletedAt));
+
+    for (const auction of auctionRows) {
+      for (const locale of SUPPORTED_LOCALES) {
+        entries.push({
+          url: `${siteUrl}/omenaa/${locale}/auctions/${auction.slug}`,
+          lastModified: auction.updatedAt ?? new Date(),
+          changeFrequency: "daily" as const,
+          priority: 0.8,
+        });
+      }
+    }
+  } catch {
+    // DB may not be available at build time — skip dynamic auction entries
+  }
+
+  // Dynamic artist pages
+  try {
+    const artistRows = await db
+      .select({ slug: artists.slug, updatedAt: artists.updatedAt })
+      .from(artists)
+      .where(isNull(artists.deletedAt));
+
+    for (const artist of artistRows) {
+      for (const locale of SUPPORTED_LOCALES) {
+        entries.push({
+          url: `${siteUrl}/omenaa/${locale}/artists/${artist.slug}`,
+          lastModified: artist.updatedAt ?? new Date(),
+          changeFrequency: "weekly" as const,
+          priority: 0.7,
+        });
+      }
+    }
+  } catch {
+    // DB may not be available at build time — skip dynamic artist entries
   }
 
   return entries;

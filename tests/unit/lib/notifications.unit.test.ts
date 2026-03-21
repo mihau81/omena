@@ -72,6 +72,9 @@ vi.mock('drizzle-orm', () => ({
 
 import {
   createNotification,
+  getUnreadNotifications,
+  getUserNotifications,
+  markAsRead,
   type NotificationType,
   type NotificationMetadata,
 } from '@/lib/notifications';
@@ -279,6 +282,237 @@ describe('notifications', () => {
       await vi.waitFor(() => {
         expect(mockQueueEmail).toHaveBeenCalled();
       });
+    });
+
+    it('attempts email delivery for auction_starting with complete metadata', async () => {
+      await createNotification(
+        'user-1',
+        'auction_starting',
+        'Auction Starting Soon',
+        'The auction starts in 1 hour',
+        {
+          auctionTitle: 'Spring Auction 2026',
+          startDate: '2026-04-01T10:00:00Z',
+          auctionUrl: '/auctions/spring-2026',
+        },
+      );
+
+      await vi.waitFor(() => {
+        expect(mockQueueEmail).toHaveBeenCalled();
+      });
+    });
+
+    it('does NOT send email for auction_starting when metadata is incomplete', async () => {
+      await createNotification(
+        'user-1',
+        'auction_starting',
+        'Auction Starting',
+        'The auction starts soon',
+        { auctionTitle: 'Spring Auction 2026' }, // missing startDate and auctionUrl
+      );
+
+      await new Promise((r) => setTimeout(r, 50));
+      expect(mockQueueEmail).not.toHaveBeenCalled();
+    });
+
+    it('silently swallows email send errors (non-blocking)', async () => {
+      mockQueueEmail.mockRejectedValueOnce(new Error('SMTP connection failed'));
+
+      // Should not throw despite email failure
+      const id = await createNotification(
+        'user-1',
+        'outbid',
+        'Outbid',
+        'Higher bid placed',
+        { lotTitle: 'Lot 1', newBidAmount: 20000, lotUrl: '/lots/1' },
+      );
+
+      expect(id).toBe('notif-1');
+
+      // Give time for async email attempt
+      await new Promise((r) => setTimeout(r, 50));
+    });
+
+    it('silently swallows push send errors (non-blocking)', async () => {
+      mockEnqueuePush.mockRejectedValueOnce(new Error('Push service down'));
+
+      // Should not throw despite push failure
+      const id = await createNotification(
+        'user-1',
+        'outbid',
+        'Outbid',
+        'Higher bid placed',
+        { lotUrl: '/lots/1' },
+      );
+
+      expect(id).toBe('notif-1');
+
+      await new Promise((r) => setTimeout(r, 50));
+    });
+
+    it('does NOT send email when user is not found', async () => {
+      // db.select returns empty array (user not found)
+      (db.select as ReturnType<typeof vi.fn>).mockReturnValue({
+        from: vi.fn().mockReturnValue({
+          where: vi.fn().mockReturnValue({
+            limit: vi.fn().mockResolvedValue([]),
+          }),
+        }),
+      });
+
+      await createNotification(
+        'unknown-user',
+        'lot_won',
+        'You won',
+        'Congrats!',
+        { lotTitle: 'Lot X', hammerPrice: 1000, buyersPremium: 200, totalAmount: 1200 },
+      );
+
+      await new Promise((r) => setTimeout(r, 50));
+      expect(mockQueueEmail).not.toHaveBeenCalled();
+    });
+
+    it('uses lotUrl as push url when both lotUrl and auctionUrl present', async () => {
+      await createNotification(
+        'user-1',
+        'outbid',
+        'Outbid',
+        'Higher bid',
+        { lotUrl: '/lots/42', auctionUrl: '/auctions/spring' },
+      );
+
+      await vi.waitFor(() => {
+        expect(mockEnqueuePush).toHaveBeenCalled();
+      });
+
+      expect(mockEnqueuePush).toHaveBeenCalledWith(
+        expect.objectContaining({
+          payload: expect.objectContaining({ url: '/lots/42' }),
+        }),
+      );
+    });
+
+    it('falls back to auctionUrl when lotUrl is absent', async () => {
+      await createNotification(
+        'user-1',
+        'auction_starting',
+        'Starting',
+        'Auction starts now',
+        { auctionUrl: '/auctions/spring' },
+      );
+
+      await vi.waitFor(() => {
+        expect(mockEnqueuePush).toHaveBeenCalled();
+      });
+
+      expect(mockEnqueuePush).toHaveBeenCalledWith(
+        expect.objectContaining({
+          payload: expect.objectContaining({ url: '/auctions/spring' }),
+        }),
+      );
+    });
+
+    it('falls back to /account/notifications when no url in metadata', async () => {
+      await createNotification(
+        'user-1',
+        'outbid',
+        'Outbid',
+        'Higher bid placed',
+      );
+
+      await vi.waitFor(() => {
+        expect(mockEnqueuePush).toHaveBeenCalled();
+      });
+
+      expect(mockEnqueuePush).toHaveBeenCalledWith(
+        expect.objectContaining({
+          payload: expect.objectContaining({ url: '/account/notifications' }),
+        }),
+      );
+    });
+  });
+
+  describe('getUnreadNotifications', () => {
+    it('queries notifications for the given userId filtered by isRead=false', async () => {
+      const mockOrderBy = vi.fn().mockResolvedValue([
+        { id: 'notif-1', type: 'outbid', title: 'Outbid', body: 'Body', metadata: {}, isRead: false, createdAt: new Date() },
+      ]);
+      const mockWhere = vi.fn().mockReturnValue({ orderBy: mockOrderBy });
+      const mockFrom = vi.fn().mockReturnValue({ where: mockWhere });
+      (db.select as ReturnType<typeof vi.fn>).mockReturnValue({ from: mockFrom });
+
+      const result = await getUnreadNotifications('user-1');
+
+      expect(db.select).toHaveBeenCalled();
+      expect(mockFrom).toHaveBeenCalled();
+      expect(mockWhere).toHaveBeenCalled();
+      expect(mockOrderBy).toHaveBeenCalled();
+      expect(Array.isArray(result)).toBe(true);
+    });
+
+    it('returns empty array when user has no unread notifications', async () => {
+      const mockOrderBy = vi.fn().mockResolvedValue([]);
+      const mockWhere = vi.fn().mockReturnValue({ orderBy: mockOrderBy });
+      const mockFrom = vi.fn().mockReturnValue({ where: mockWhere });
+      (db.select as ReturnType<typeof vi.fn>).mockReturnValue({ from: mockFrom });
+
+      const result = await getUnreadNotifications('user-no-notifs');
+
+      expect(result).toEqual([]);
+    });
+  });
+
+  describe('getUserNotifications', () => {
+    it('returns paginated notifications for a user with default limit 50', async () => {
+      const mockLimit = vi.fn().mockResolvedValue([]);
+      const mockOrderBy = vi.fn().mockReturnValue({ limit: mockLimit });
+      const mockWhere = vi.fn().mockReturnValue({ orderBy: mockOrderBy });
+      const mockFrom = vi.fn().mockReturnValue({ where: mockWhere });
+      (db.select as ReturnType<typeof vi.fn>).mockReturnValue({ from: mockFrom });
+
+      await getUserNotifications('user-1');
+
+      expect(mockLimit).toHaveBeenCalledWith(50);
+    });
+
+    it('respects custom limit parameter', async () => {
+      const mockLimit = vi.fn().mockResolvedValue([]);
+      const mockOrderBy = vi.fn().mockReturnValue({ limit: mockLimit });
+      const mockWhere = vi.fn().mockReturnValue({ orderBy: mockOrderBy });
+      const mockFrom = vi.fn().mockReturnValue({ where: mockWhere });
+      (db.select as ReturnType<typeof vi.fn>).mockReturnValue({ from: mockFrom });
+
+      await getUserNotifications('user-1', 10);
+
+      expect(mockLimit).toHaveBeenCalledWith(10);
+    });
+  });
+
+  describe('markAsRead', () => {
+    it('returns true when notification was found and updated', async () => {
+      (db.update as ReturnType<typeof vi.fn>).mockReturnValue({
+        set: vi.fn().mockReturnValue({
+          where: vi.fn().mockReturnValue({
+            returning: vi.fn().mockResolvedValue([{ id: 'notif-1' }]),
+          }),
+        }),
+      });
+
+      const result = await markAsRead('notif-1', 'user-1');
+      expect(result).toBe(true);
+    });
+
+    it('returns false when notification does not exist or belongs to different user', async () => {
+      (db.update as ReturnType<typeof vi.fn>).mockReturnValue({
+        set: vi.fn().mockReturnValue({
+          where: vi.fn().mockReturnValue({
+            returning: vi.fn().mockResolvedValue([]),
+          }),
+        }),
+      });
+
+      const result = await markAsRead('notif-missing', 'user-1');
+      expect(result).toBe(false);
     });
   });
 

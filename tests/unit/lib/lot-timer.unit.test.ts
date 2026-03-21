@@ -81,6 +81,7 @@ import {
   stopLotTimer,
   checkLotExpired,
   checkExpiredLots,
+  _resetExpiredCheckGuard,
 } from '@/lib/lot-timer';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -571,6 +572,10 @@ describe('lot-timer', () => {
   // ── checkExpiredLots ──────────────────────────────────────────────────────
 
   describe('checkExpiredLots', () => {
+    beforeEach(() => {
+      _resetExpiredCheckGuard();
+    });
+
     it('queries for all active lots with closingAt in the past', async () => {
       // Setup: select returns empty list (no expired lots)
       mockSelectWhere.mockResolvedValue([]);

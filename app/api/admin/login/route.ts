@@ -6,6 +6,7 @@ import { eq, and, isNull } from 'drizzle-orm';
 import bcrypt from 'bcryptjs';
 import { verifyTOTP, decryptSecret } from '@/lib/totp';
 import { authLimiter } from '@/lib/rate-limiters';
+import { getClientIp } from '@/lib/with-rate-limit';
 
 const adminLoginSchema = z.object({
   email: z.string().email().max(320),
@@ -15,8 +16,7 @@ const adminLoginSchema = z.object({
 
 export async function POST(req: NextRequest) {
   try {
-    // Rate limit by IP
-    const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+    const ip = getClientIp(req);
     const rl = authLimiter.check(ip);
     if (!rl.success) {
       return NextResponse.json(

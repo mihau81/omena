@@ -1,3 +1,18 @@
+/**
+ * Lot timer management — controls the countdown clock for timed online bidding.
+ *
+ * Each lot has a `closingAt` timestamp in the DB. The timer is not held in
+ * memory; any process can read the remaining time from the database. SSE
+ * clients receive timer events (start / extend / expired) via bid-events.ts.
+ *
+ * Anti-sniping: bid-service calls extendLotTimer() when a bid arrives within
+ * the last 30 s, extending the window by 30 s. This is common practice in
+ * online art auctions to replicate the organic "going once, going twice" rhythm.
+ *
+ * checkExpiredLots() has a process-level debounce guard (15 s) so that multiple
+ * concurrent SSE connections on the same Node process don't each trigger a
+ * full table scan on every heartbeat tick.
+ */
 import { eq, and, isNull, lt } from 'drizzle-orm';
 import { db } from '@/db/connection';
 import { lots, bids, bidRetractions, auctions } from '@/db/schema';
@@ -114,6 +129,8 @@ async function closeLot(lotId: string, auctionId: string): Promise<boolean> {
     )
     .limit(1);
 
+  // 'passed' = lot did not sell (no bids or all retracted); 'sold' = hammer falls.
+  // closingAt is cleared so the lot no longer appears as an active countdown.
   const result = winningBid ? 'sold' : 'passed';
 
   await db
@@ -152,17 +169,10 @@ async function notifyWinnerAndQueueInvoice(
   userId: string,
   hammerPrice: number,
 ): Promise<void> {
-  const [lotRow] = await db
-    .select({ title: lots.title })
-    .from(lots)
-    .where(eq(lots.id, lotId))
-    .limit(1);
-
-  const [auctionRow] = await db
-    .select({ buyersPremiumRate: auctions.buyersPremiumRate })
-    .from(auctions)
-    .where(eq(auctions.id, auctionId))
-    .limit(1);
+  const [[lotRow], [auctionRow]] = await Promise.all([
+    db.select({ title: lots.title }).from(lots).where(eq(lots.id, lotId)).limit(1),
+    db.select({ buyersPremiumRate: auctions.buyersPremiumRate }).from(auctions).where(eq(auctions.id, auctionId)).limit(1),
+  ]);
 
   const rate = auctionRow?.buyersPremiumRate
     ? parseFloat(String(auctionRow.buyersPremiumRate))
@@ -190,7 +200,18 @@ async function notifyWinnerAndQueueInvoice(
 
 // ─── Check All Expired Lots ─────────────────────────────────────────────────
 
+// In-process debounce: each SSE connection calls checkExpiredLots() on every
+// heartbeat. Without this guard, 50 concurrent connections would issue 50
+// identical DB scans per tick. The 15 s window is intentionally shorter than
+// the minimum lot timer duration so no lot closes undetected.
+let lastExpiredCheck = 0;
+/** @internal — reset guard for tests */
+export function _resetExpiredCheckGuard() { lastExpiredCheck = 0; }
+
 export async function checkExpiredLots(): Promise<void> {
+  const ts = Date.now();
+  if (ts - lastExpiredCheck < 15_000) return;
+  lastExpiredCheck = ts;
   const now = new Date();
 
   const expiredLots = await db

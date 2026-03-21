@@ -5,6 +5,7 @@ import { admins } from '@/db/schema';
 import { eq, and, isNull } from 'drizzle-orm';
 import bcrypt from 'bcryptjs';
 import { authLimiter } from '@/lib/rate-limiters';
+import { getClientIp } from '@/lib/with-rate-limit';
 
 const checkLoginSchema = z.object({
   email: z.string().email().max(320),
@@ -13,8 +14,7 @@ const checkLoginSchema = z.object({
 
 export async function POST(req: NextRequest) {
   try {
-    // Rate limit by IP
-    const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+    const ip = getClientIp(req);
     const rl = authLimiter.check(ip);
     if (!rl.success) {
       return NextResponse.json(
@@ -31,9 +31,8 @@ export async function POST(req: NextRequest) {
 
     const { email, password } = parsed.data;
 
-    // Check admins table for TOTP requirement
     const [admin] = await db
-      .select()
+      .select({ passwordHash: admins.passwordHash, isActive: admins.isActive, totpEnabled: admins.totpEnabled, totpSecret: admins.totpSecret })
       .from(admins)
       .where(and(eq(admins.email, email), isNull(admins.deletedAt)))
       .limit(1);

@@ -1,3 +1,17 @@
+/**
+ * Real-time event bus for bid and timer events, used to push updates to SSE clients.
+ *
+ * Architecture: when Redis is available, events are published to per-auction
+ * Redis pub/sub channels so that all Node processes (horizontal scaling) receive
+ * the event and forward it to their local SSE connections. When Redis is
+ * unavailable the system falls back to an in-process EventEmitter, which works
+ * correctly in single-process deployments (development, staging).
+ *
+ * Subscription ref-counting: a single Redis SUBSCRIBE is shared across all SSE
+ * connections watching the same auction. When the last connection unsubscribes,
+ * we UNSUBSCRIBE from Redis to free the channel. This prevents accumulating idle
+ * Redis subscriptions as users navigate between auction pages.
+ */
 import { EventEmitter } from 'events';
 import { getPublisher, getSubscriber } from './redis';
 
@@ -21,6 +35,8 @@ export type TimerEvent =
 // ─── In-memory fallback pub/sub ───────────────────────────────────────────────
 
 const bidEmitter = new EventEmitter();
+// 500 listeners: one per concurrent SSE connection on this process.
+// Raising the limit avoids spurious "MaxListenersExceededWarning" in high-traffic deploys.
 bidEmitter.setMaxListeners(500);
 
 function redisChannel(auctionId: string): string {
@@ -40,8 +56,10 @@ function localTimerKey(auctionId: string): string {
 }
 
 // ─── Redis subscription ref-counting ─────────────────────────────────────────
-// Tracks wrapper functions so we can properly remove listeners, and ref-counts
-// channels so we don't unsubscribe while other listeners still exist.
+// ioredis emits all messages through a single 'message' event — we wrap each
+// callback to filter by channel, and store the wrapper so it can be removed
+// correctly. Without this map, removeListener() would fail (anonymous functions
+// are not reference-equal). Ref-counts prevent premature UNSUBSCRIBE.
 
 const channelRefCount = new Map<string, number>();
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

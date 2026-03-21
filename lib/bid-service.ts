@@ -1,3 +1,16 @@
+/**
+ * Core bid placement service for live online auctions.
+ *
+ * Design decisions:
+ *  - PostgreSQL advisory locks (pg_advisory_xact_lock keyed on lotId) prevent
+ *    duplicate winning bids under concurrent requests for the same lot.
+ *  - Bids are never deleted — retractions are recorded in a separate table so
+ *    the full bid history is preserved for dispute resolution and audit.
+ *  - Anti-sniping: if a bid arrives within 30 s of closing, the timer is
+ *    extended by 30 s to give other bidders a fair chance to respond.
+ *  - After each live bid the proxy (absentee) engine runs asynchronously to
+ *    auto-counter on behalf of bidders with pre-submitted maximum bids.
+ */
 import { eq, and, desc, sql, isNull } from 'drizzle-orm';
 import { db, pool } from '@/db/connection';
 import {
@@ -60,8 +73,9 @@ export async function placeBid(
   try {
     await client.query('BEGIN');
 
-    // Advisory lock on lot to prevent race conditions
-    // Use a hash of the lotId UUID as the lock key
+    // Advisory lock scoped to the transaction — automatically released on COMMIT/ROLLBACK.
+    // hashtext() maps the UUID string to a 32-bit int; collision probability is negligible
+    // given typical concurrent lot counts.
     await client.query(
       `SELECT pg_advisory_xact_lock(hashtext($1))`,
       [lotId],
@@ -108,7 +122,10 @@ export async function placeBid(
       throw new BidError('Lot is not active for bidding', 'LOT_NOT_ACTIVE', 400);
     }
 
-    // 3. Get current highest non-retracted bid
+    // 3. Get current highest non-retracted bid.
+    // The LEFT JOIN + isNull(bidRetractions.id) pattern is the canonical way to
+    // exclude retracted bids without a subquery — retracted bids remain in bids
+    // but have a corresponding row in bid_retractions.
     const [currentHighest] = await db
       .select({
         amount: bids.amount,
@@ -184,6 +201,8 @@ export async function placeBid(
 
     await client.query('COMMIT');
 
+    // Steps 9-12 run outside the transaction: they are non-critical side-effects.
+    // A failure here must not roll back an already-committed bid.
     // 9. Audit log (outside transaction — non-critical)
     await logCreate(
       'bids',

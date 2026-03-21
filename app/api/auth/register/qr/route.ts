@@ -6,6 +6,7 @@ import { db } from '@/db/connection';
 import { users, qrRegistrations } from '@/db/schema';
 import { registerQrSchema } from '@/lib/validation/user';
 import { registrationLimiter } from '@/lib/rate-limiters';
+import { getClientIpFromHeaders } from '@/lib/with-rate-limit';
 import { sendEmail } from '@/lib/email';
 import { emailVerification } from '@/lib/email-templates';
 import { createVerificationToken, getBaseUrl } from '@/lib/token-service';
@@ -13,7 +14,7 @@ import { createVerificationToken, getBaseUrl } from '@/lib/token-service';
 export async function POST(request: Request) {
   try {
     const headersList = await headers();
-    const ip = headersList.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+    const ip = getClientIpFromHeaders(headersList);
     const rateLimitResult = registrationLimiter.check(ip);
     if (!rateLimitResult.success) {
       return NextResponse.json(

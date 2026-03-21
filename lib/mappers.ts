@@ -4,6 +4,7 @@
  */
 
 import type { Auction, Lot } from '@/app/lib/types';
+import { slugifyArtist } from '@/app/lib/utils';
 
 // DB auction status → frontend status
 function mapAuctionStatus(
@@ -89,6 +90,7 @@ export function mapDBLotToFrontend(
     auctionSlug: opts.auctionSlug,
     title: row.title,
     artist: row.artist,
+    artistSlug: row.artist ? slugifyArtist(row.artist) : undefined,
     description: row.description,
     medium: row.medium,
     dimensions: row.dimensions,

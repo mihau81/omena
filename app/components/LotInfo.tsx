@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import Link from 'next/link';
 import type { Lot } from '../lib/types';
 import { useLocale } from '../lib/LocaleContext';
 import { useCurrency } from '../lib/CurrencyContext';
@@ -35,7 +36,7 @@ function getConditionGradeLabel(
 }
 
 export default function LotInfo({ lot }: LotInfoProps) {
-  const { t } = useLocale();
+  const { locale, t } = useLocale();
   const { formatPrice } = useCurrency();
 
   return (
@@ -48,7 +49,16 @@ export default function LotInfo({ lot }: LotInfoProps) {
         {lot.title}
       </h1>
 
-      <p className="mt-2 text-lg text-gold">{lot.artist}</p>
+      {lot.artistSlug ? (
+        <Link
+          href={`/${locale}/artists/${lot.artistSlug}`}
+          className="mt-2 block text-lg text-gold hover:underline"
+        >
+          {lot.artist}
+        </Link>
+      ) : (
+        <p className="mt-2 text-lg text-gold">{lot.artist}</p>
+      )}
 
       <p className="mt-1 text-sm text-taupe">
         {lot.year} &middot; {lot.medium} &middot; {lot.dimensions}

@@ -61,7 +61,17 @@ export default function LotCardEnhanced({
         <h3 className="line-clamp-1 font-serif text-base font-bold text-dark-brown">
           {lot.title}
         </h3>
-        <p className="mt-1 text-sm text-gold">{lot.artist}</p>
+        {lot.artistSlug ? (
+          <a
+            href={`/${locale}/artists/${lot.artistSlug}`}
+            onClick={(e) => e.stopPropagation()}
+            className="mt-1 block text-sm text-gold hover:underline"
+          >
+            {lot.artist}
+          </a>
+        ) : (
+          <p className="mt-1 text-sm text-gold">{lot.artist}</p>
+        )}
         <p className="mt-0.5 text-xs text-taupe">{lot.year}</p>
         <p className="mt-2 text-sm text-taupe">
           {t.estimate}: <CurrencyDisplay amountPLN={lot.estimateMin} /> &ndash;{' '}

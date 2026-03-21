@@ -14,7 +14,6 @@ export async function POST(request: NextRequest) {
   const userAgent = request.headers.get('user-agent') || null;
 
   try {
-    // Rate limit by IP
     const rl = authLimiter.check(ip);
     if (!rl.success) {
       return NextResponse.json(
@@ -35,22 +34,22 @@ export async function POST(request: NextRequest) {
 
     const { email, password } = parsed.data;
 
+    // Single lookup for both success and failure logging
+    const [adminRows, userRows] = await Promise.all([
+      db.select({ id: admins.id, isActive: admins.isActive }).from(admins)
+        .where(and(eq(admins.email, email), isNull(admins.deletedAt))).limit(1),
+      db.select({ id: users.id, accountStatus: users.accountStatus }).from(users)
+        .where(and(eq(users.email, email), isNull(users.deletedAt))).limit(1),
+    ]);
+    const admin = adminRows[0];
+    const user = userRows[0];
+
     try {
       await signIn('user-credentials', {
         email,
         password,
         redirect: false,
       });
-
-      // Login succeeded — determine who logged in (parallel lookup)
-      const [adminRows, userRows] = await Promise.all([
-        db.select({ id: admins.id }).from(admins)
-          .where(and(eq(admins.email, email), isNull(admins.deletedAt))).limit(1),
-        db.select({ id: users.id }).from(users)
-          .where(and(eq(users.email, email), isNull(users.deletedAt))).limit(1),
-      ]);
-      const admin = adminRows[0];
-      const user = userRows[0];
 
       await logLogin({
         userId: admin?.id || user?.id || null,
@@ -64,16 +63,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ message: 'Login successful' });
     } catch (error) {
       if (error instanceof AuthError) {
-        // Determine fail reason (parallel lookup)
-        const [failAdminRows, failUserRows] = await Promise.all([
-          db.select({ id: admins.id, isActive: admins.isActive }).from(admins)
-            .where(and(eq(admins.email, email), isNull(admins.deletedAt))).limit(1),
-          db.select({ id: users.id, accountStatus: users.accountStatus }).from(users)
-            .where(and(eq(users.email, email), isNull(users.deletedAt))).limit(1),
-        ]);
-        const admin = failAdminRows[0];
-        const user = failUserRows[0];
-
         let failReason = 'invalid_password';
         if (!admin && !user) {
           failReason = 'not_found';

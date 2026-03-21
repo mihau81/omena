@@ -4,14 +4,10 @@ import { useState } from 'react';
 import { useBidding } from '../lib/BiddingContext';
 import { useLocale } from '../lib/LocaleContext';
 import { useCurrency } from '../lib/CurrencyContext';
+import { formatTimestamp } from '../lib/utils';
 
 interface BidHistoryProps {
   lotId: string;
-}
-
-function formatTime(iso: string): string {
-  const d = new Date(iso);
-  return d.toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 }
 
 export default function BidHistory({ lotId }: BidHistoryProps) {
@@ -82,7 +78,7 @@ export default function BidHistory({ lotId }: BidHistoryProps) {
                       {formatPrice(bid.amount)}
                     </span>
                     <span className="ml-2 text-xs text-taupe">
-                      {formatTime(bid.createdAt)}
+                      {formatTimestamp(bid.createdAt)}
                     </span>
                   </div>
                 </div>

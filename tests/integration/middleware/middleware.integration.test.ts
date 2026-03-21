@@ -21,7 +21,7 @@ describe('Middleware', () => {
   });
 
   describe('Admin page protection (/admin/*)', () => {
-    it('redirects unauthenticated request to /admin/login', async () => {
+    it('redirects unauthenticated request to unified login', async () => {
       mockGetToken.mockResolvedValue(null);
       const { middleware } = await import('@/middleware');
 
@@ -29,11 +29,11 @@ describe('Middleware', () => {
       const response = await middleware(request);
 
       expect(response).toBeInstanceOf(NextResponse);
-      expect(response.status).toBe(307); // redirect
-      expect(response.headers.get('location')).toContain('/admin/login');
+      expect(response.status).toBe(307);
+      expect(response.headers.get('location')).toContain('/en/login');
     });
 
-    it('redirects non-admin user to /admin/login', async () => {
+    it('redirects non-admin user to unified login', async () => {
       mockGetToken.mockResolvedValue({
         sub: 'user-123',
         userType: 'user',
@@ -45,7 +45,7 @@ describe('Middleware', () => {
       const response = await middleware(request);
 
       expect(response.status).toBe(307);
-      expect(response.headers.get('location')).toContain('/admin/login');
+      expect(response.headers.get('location')).toContain('/en/login');
     });
 
     it('allows admin access to /admin routes', async () => {
@@ -63,18 +63,18 @@ describe('Middleware', () => {
       expect(response.status).not.toBe(307);
     });
 
-    it('allows unauthenticated access to /admin/login', async () => {
+    it('redirects /admin/login to unified login', async () => {
       mockGetToken.mockResolvedValue(null);
       const { middleware } = await import('@/middleware');
 
       const request = await buildRequest('/admin/login');
       const response = await middleware(request);
 
-      // Should not redirect — unauthenticated user can access /admin/login
-      expect(response.status).not.toBe(307);
+      expect(response.status).toBe(307);
+      expect(response.headers.get('location')).toContain('/en/login');
     });
 
-    it('redirects already-logged-in admin away from /admin/login', async () => {
+    it('redirects /admin/login to unified login even for admin users', async () => {
       mockGetToken.mockResolvedValue({
         sub: 'admin-123',
         userType: 'admin',
@@ -85,9 +85,8 @@ describe('Middleware', () => {
       const request = await buildRequest('/admin/login');
       const response = await middleware(request);
 
-      // Logged-in admin visiting /admin/login should be redirected to /admin
       expect(response.status).toBe(307);
-      expect(response.headers.get('location')).toMatch(/\/admin$/);
+      expect(response.headers.get('location')).toContain('/en/login');
     });
   });
 
@@ -132,15 +131,14 @@ describe('Middleware', () => {
       expect(response.status).not.toBe(401);
     });
 
-    it('allows unauthenticated access to /api/admin/login', async () => {
+    it('returns 401 for unauthenticated access to /api/admin/login', async () => {
       mockGetToken.mockResolvedValue(null);
       const { middleware } = await import('@/middleware');
 
       const request = await buildRequest('/api/admin/login');
       const response = await middleware(request);
 
-      // Login endpoint is exempt from protection
-      expect(response.status).not.toBe(401);
+      expect(response.status).toBe(401);
     });
   });
 

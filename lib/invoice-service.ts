@@ -1,3 +1,19 @@
+/**
+ * Invoice service — generates and manages invoices for sold lots.
+ *
+ * Invoice lifecycle: pending → sent → paid (or overdue → paid, or cancelled).
+ * Paid and cancelled are terminal states; the transition table enforces this.
+ *
+ * Prowizja kupującego (buyer's premium) is calculated from the hammer price
+ * using either a tiered schedule (configured per auction) or a flat rate
+ * (default 20%). The tiered schedule is preferred when defined.
+ *
+ * Invoice numbers follow the format OMENAA/{year}/{seq} where seq is a
+ * zero-padded count of invoices issued in that calendar year. This is a
+ * sequential (non-atomic) counter — a race condition could produce duplicate
+ * numbers under very high concurrency, but auction invoices are low-volume
+ * enough that this is acceptable.
+ */
 import { eq, and, sql, desc } from 'drizzle-orm';
 import { db } from '@/db/connection';
 import { invoices, lots, auctions, users } from '@/db/schema';
@@ -302,6 +318,8 @@ export async function listInvoices(filters?: {
 
 // ─── Update invoice status ──────────────────────────────────────────────────
 
+// Explicit state machine for invoice status: prevents e.g. marking a paid invoice
+// as cancelled, or going back from sent to pending. Once paid, the record is immutable.
 const VALID_STATUS_TRANSITIONS: Record<string, string[]> = {
   pending: ['sent', 'cancelled'],
   sent: ['paid', 'overdue', 'cancelled'],

@@ -98,7 +98,20 @@ export function formatPriceShort(n: number): string {
   return n + ' PLN';
 }
 
-export function formatTimestamp(ts: number): string {
-  const d = new Date(ts);
+export function formatTimestamp(ts: string | number | Date): string {
+  const d = ts instanceof Date ? ts : new Date(ts);
   return d.toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+}
+
+/**
+ * Converts an artist name to a URL-friendly slug, matching the logic used
+ * when creating artist records in the admin panel.
+ */
+export function slugifyArtist(name: string): string {
+  return name
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
 }
